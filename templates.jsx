@@ -327,10 +327,20 @@ function EventRow({ Icon, label, value }) {
   );
 }
 
+function communityQuoteFontSize(quote) {
+  const len = (quote || "").trim().length;
+  if (len > 72) return 40;
+  if (len > 58) return 46;
+  if (len > 44) return 52;
+  if (len > 32) return 58;
+  return 64;
+}
+
 /* ============================================
    TEMPLATE I — Bastidores / comunidade (foto fullbleed minimal)
 ============================================ */
 function TplCommunity({ photo, quote, who }) {
+  const quoteSize = communityQuoteFontSize(quote);
   return (
     <div className="t-post t-post--photo">
       <div className="t-photo-bg">
@@ -345,37 +355,13 @@ function TplCommunity({ photo, quote, who }) {
       />
       <div className="t-photo-inner">
         <PostHead category="Bastidores" dark />
-        <div style={{ flex: 1 }} />
-        <div
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontStyle: "italic",
-            fontSize: 64,
-            lineHeight: 1.2,
-            color: "var(--papel)",
-            textWrap: "balance",
-            maxWidth: "20ch",
-            marginBottom: 24,
-          }}
-        >
-          “{quote}”
+        <div className="t-photo-bottom">
+          <blockquote className="t-community-quote" style={{ fontSize: quoteSize }}>
+            “{quote}”
+          </blockquote>
+          {who && <div className="t-community-who">{who}</div>}
+          <PostFoot pages="" />
         </div>
-        {who && (
-          <div
-            style={{
-              fontFamily: "var(--font-wide)",
-              fontSize: 22,
-              fontWeight: 600,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "var(--estola-claro)",
-            }}
-          >
-            — {who}
-          </div>
-        )}
-        <div style={{ height: 56 }} />
-        <PostFoot pages="" />
       </div>
     </div>
   );

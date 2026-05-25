@@ -650,6 +650,45 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: flex;
   flex-direction: column;
   color: var(--papel);
+  min-height: 0;
+}
+
+.t-photo-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+  width: 100%;
+  padding-top: 24px;
+}
+
+.t-community-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.28;
+  color: var(--papel);
+  text-wrap: balance;
+  max-width: 22ch;
+}
+
+.t-community-who {
+  font-family: var(--font-wide);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--estola-claro);
+  line-height: 1.35;
+  flex-shrink: 0;
+}
+
+.t-photo-bottom .t-foot {
+  margin-top: 8px;
 }
 
 /* Story specifics */
