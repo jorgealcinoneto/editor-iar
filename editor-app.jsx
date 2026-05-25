@@ -455,7 +455,7 @@ function App() {
   });
   const [downloading, setDownloading] = useState(false);
   const [toast, setToast] = useState("");
-  const exportRef = useRef(null);
+  const previewRef = useRef(null);
 
   const tpl = TEMPLATES.find((t) => t.id === tplId);
   const content = contents[tplId];
@@ -487,19 +487,25 @@ function App() {
   };
 
   const onDownload = useCallback(async () => {
-    if (!exportRef.current) return;
+    const node = previewRef.current?.querySelector(".post-inner");
+    if (!node) return;
     setDownloading(true);
     try {
       if (document.fonts?.ready) {
         await document.fonts.ready;
       }
-      const node = exportRef.current.querySelector(".post-inner");
       const dataUrl = await window.htmlToImage.toPng(node, {
         width: tpl.w,
         height: tpl.h,
         pixelRatio: 1,
         backgroundColor: tpl.w === 1080 && tpl.h === 1080 ? "#F5EFE6" : null,
         cacheBust: true,
+        style: {
+          transform: "none",
+          transformOrigin: "top left",
+          width: `${tpl.w}px`,
+          height: `${tpl.h}px`,
+        },
       });
       const link = document.createElement("a");
       const fname = `iar-${tpl.id}-${Date.now()}.png`;
@@ -588,7 +594,7 @@ function App() {
             </div>
           </div>
 
-          <div className="editor-preview-wrap">
+          <div className="editor-preview-wrap" ref={previewRef}>
             <Preview tpl={tpl} content={content} scale={visibleScale} />
           </div>
 
@@ -601,11 +607,6 @@ function App() {
             </div>
           </div>
         </main>
-      </div>
-
-      {/* Hidden exporter — at native 1080×1080 (or whatever size) */}
-      <div className="editor-export-node" ref={exportRef} aria-hidden="true">
-        <Preview tpl={tpl} content={content} scale={1} />
       </div>
 
       {/* Toast */}

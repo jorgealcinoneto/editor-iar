@@ -282,25 +282,9 @@ body.editor-body {
   color: var(--grafite-3);
 }
 
-/* Visible preview wrapper — same as .post but allowed to live freely */
+/* Visible preview wrapper — único nó renderizado; exportação captura daqui */
 .editor-preview-wrap {
   filter: drop-shadow(0 16px 48px rgba(14, 42, 71, 0.18));
-}
-
-/* Hidden export node — sized at 1080 native, off-screen */
-.editor-export-node {
-  position: fixed;
-  left: -100000px;
-  top: 0;
-  pointer-events: none;
-  /* The Post component sets width/height via inline style; we just hold it */
-}
-.editor-export-node .post {
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-.editor-export-node .post-inner {
-  transform: none !important;
 }
 
 /* Helper bar at bottom of stage */
