@@ -380,9 +380,9 @@ function TplLectionary({
   return (
     <div className="t-story t-lectionary">
       {/* Header centralizado com logo */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24, width: "100%" }}>
         <IconLogoMarca width={120} height={138} variant="dark" />
-        <div style={{ marginTop: 18, textAlign: "center" }}>
+        <div style={{ marginTop: 18, textAlign: "center", width: "100%" }}>
           <div
             style={{
               fontFamily: "var(--font-wide)",
@@ -393,6 +393,8 @@ function TplLectionary({
               color: "var(--marinho)",
               opacity: 0.6,
               marginBottom: 6,
+              whiteSpace: "nowrap",
+              lineHeight: 1.2,
             }}
           >
             Igreja Anglicana
@@ -405,6 +407,8 @@ function TplLectionary({
               letterSpacing: "0.28em",
               textTransform: "uppercase",
               color: "var(--marinho)",
+              whiteSpace: "nowrap",
+              lineHeight: 1.2,
             }}
           >
             Rio
@@ -449,12 +453,13 @@ function TplLectionary({
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            gap: 16,
-            paddingBlock: 36,
+            alignItems: "stretch",
+            paddingTop: 36,
+            paddingBottom: 36,
             borderTop: "1px solid var(--linha)",
             borderBottom: "1px solid var(--linha)",
             marginBottom: 48,
+            width: "100%",
           }}
         >
           {passages.filter(Boolean).map((p, i) => (
@@ -462,10 +467,13 @@ function TplLectionary({
               key={i}
               style={{
                 fontFamily: "var(--font-serif)",
-                fontSize: 46,
+                fontSize: 42,
                 fontWeight: 500,
                 color: "var(--marinho)",
-                lineHeight: 1.15,
+                lineHeight: 1.35,
+                textAlign: "center",
+                whiteSpace: "nowrap",
+                width: "100%",
               }}
             >
               {p}
