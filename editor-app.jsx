@@ -490,7 +490,9 @@ function App() {
     if (!exportRef.current) return;
     setDownloading(true);
     try {
-      // Use html-to-image to capture the export node which is at native resolution
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
       const node = exportRef.current.querySelector(".post-inner");
       const dataUrl = await window.htmlToImage.toPng(node, {
         width: tpl.w,

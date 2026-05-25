@@ -77,6 +77,11 @@ assets/                   ← logos + fotos da comunidade
 
 Estas funcionam sem nenhum setup extra — basta o usuário ter internet.
 
+## Teste visual (regressão de layout)
+
+Abra `test.html` no navegador (ou `https://jorgealcinoneto.github.io/editor-iar/test.html` após publicar).  
+Mostra os **14 templates** em 3 comprimentos de texto (curto / médio / longo).
+
 ## Suporte
 
 Se algo quebrar ou precisar de novos templates, fala comigo.

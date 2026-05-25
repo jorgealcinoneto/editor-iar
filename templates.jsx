@@ -68,6 +68,41 @@ function PostFoot({ pages, handle = "@igrejaanglicanario", dark = false }) {
   );
 }
 
+function quoteFontSize(quote, max = 64, min = 40) {
+  const len = (quote || "").trim().length;
+  if (len > 72) return min;
+  if (len > 58) return min + 6;
+  if (len > 44) return min + 12;
+  if (len > 32) return min + 18;
+  return max;
+}
+
+function LectionaryBrand() {
+  return (
+    <div className="t-lectionary-brand">
+      <IconLogoMarca width={120} height={138} variant="dark" />
+      <div className="t-lectionary-brand__text">
+        <div className="t-lectionary-brand__line">Igreja Anglicana</div>
+        <div className="t-lectionary-brand__rio">Rio</div>
+      </div>
+    </div>
+  );
+}
+
+function PassagesList({ passages }) {
+  const items = (passages || []).filter(Boolean);
+  if (!items.length) return null;
+  return (
+    <div className="t-passages">
+      {items.map((p, i) => (
+        <div key={i} className="t-passages__item">
+          {p}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* Onda decorativa do rodapé */
 function WaveFooter({ color = "currentColor", opacity = 0.12 }) {
   return (
@@ -124,14 +159,14 @@ function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub }) {
       <div className="t-photo-overlay" />
       <div className="t-photo-inner">
         <PostHead category="Comunidade" dark />
-        <div style={{ flex: 1 }} />
-        <div className="t-eyebrow" style={{ color: "var(--estola-claro)" }}>{eyebrow}</div>
-        <div className="t-title" style={{ color: "var(--papel)" }}>
-          {title} {titleEm && <em style={{ color: "var(--papel)" }}>{titleEm}</em>}
+        <div className="t-photo-bottom">
+          <div className="t-eyebrow" style={{ color: "var(--estola-claro)" }}>{eyebrow}</div>
+          <div className="t-title" style={{ color: "var(--papel)" }}>
+            {title} {titleEm && <em style={{ color: "var(--papel)" }}>{titleEm}</em>}
+          </div>
+          {sub && <div className="t-sub" style={{ color: "var(--papel-3)" }}>{sub}</div>}
+          <PostFoot pages="1 / 1" />
         </div>
-        {sub && <div className="t-sub" style={{ color: "var(--papel-3)" }}>{sub}</div>}
-        <div style={{ height: 64 }} />
-        <PostFoot pages="1 / 1" />
       </div>
     </div>
   );
@@ -327,20 +362,11 @@ function EventRow({ Icon, label, value }) {
   );
 }
 
-function communityQuoteFontSize(quote) {
-  const len = (quote || "").trim().length;
-  if (len > 72) return 40;
-  if (len > 58) return 46;
-  if (len > 44) return 52;
-  if (len > 32) return 58;
-  return 64;
-}
-
 /* ============================================
    TEMPLATE I — Bastidores / comunidade (foto fullbleed minimal)
 ============================================ */
 function TplCommunity({ photo, quote, who }) {
-  const quoteSize = communityQuoteFontSize(quote);
+  const quoteSize = quoteFontSize(quote);
   return (
     <div className="t-post t-post--photo">
       <div className="t-photo-bg">
@@ -379,42 +405,7 @@ function TplLectionary({
 }) {
   return (
     <div className="t-story t-lectionary">
-      {/* Header centralizado com logo */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 24, width: "100%" }}>
-        <IconLogoMarca width={120} height={138} variant="dark" />
-        <div style={{ marginTop: 18, textAlign: "center", width: "100%" }}>
-          <div
-            style={{
-              fontFamily: "var(--font-wide)",
-              fontSize: 16,
-              fontWeight: 400,
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: "var(--marinho)",
-              opacity: 0.6,
-              marginBottom: 6,
-              whiteSpace: "nowrap",
-              lineHeight: 1.2,
-            }}
-          >
-            Igreja Anglicana
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--font-wide)",
-              fontSize: 24,
-              fontWeight: 700,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: "var(--marinho)",
-              whiteSpace: "nowrap",
-              lineHeight: 1.2,
-            }}
-          >
-            Rio
-          </div>
-        </div>
-      </div>
+      <LectionaryBrand />
 
       {/* Título */}
       <div style={{ textAlign: "center", marginTop: 56, marginBottom: 40 }}>
@@ -447,40 +438,7 @@ function TplLectionary({
         )}
       </div>
 
-      {/* Passagens — bloco central */}
-      {passages.filter(Boolean).length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch",
-            paddingTop: 36,
-            paddingBottom: 36,
-            borderTop: "1px solid var(--linha)",
-            borderBottom: "1px solid var(--linha)",
-            marginBottom: 48,
-            width: "100%",
-          }}
-        >
-          {passages.filter(Boolean).map((p, i) => (
-            <div
-              key={i}
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 42,
-                fontWeight: 500,
-                color: "var(--marinho)",
-                lineHeight: 1.35,
-                textAlign: "center",
-                whiteSpace: "nowrap",
-                width: "100%",
-              }}
-            >
-              {p}
-            </div>
-          ))}
-        </div>
-      )}
+      <PassagesList passages={passages} />
 
       {/* Corpo (texto bíblico ou comentário) */}
       <div
@@ -583,89 +541,28 @@ function StoryEvent({ kicker, title, date, time, place, photo }) {
             "linear-gradient(180deg, rgba(14,42,71,0.4) 0%, rgba(14,42,71,0.5) 40%, rgba(14,42,71,0.95) 100%)",
         }}
       />
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          width: "100%",
-          height: "100%",
-          padding: "120px 96px",
-          display: "flex",
-          flexDirection: "column",
-          color: "var(--papel)",
-        }}
-      >
-        <div style={{ width: 100, height: 115 }}>
+      <div className="t-photo-inner t-story-event-inner">
+        <div className="t-story-mark" style={{ width: 100, height: 115 }}>
           <IconLogoMarca width={100} height={115} variant="light" />
         </div>
-        <div style={{ flex: 1 }} />
-        <div
-          style={{
-            fontFamily: "var(--font-wide)",
-            fontSize: 28,
-            fontWeight: 600,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            color: "var(--estola-claro)",
-            marginBottom: 32,
-          }}
-        >
-          {kicker}
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontSize: 130,
-            lineHeight: 1.05,
-            fontWeight: 500,
-            color: "var(--papel)",
-            letterSpacing: "-0.02em",
-            marginBottom: 56,
-            textWrap: "balance",
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: 36,
-            fontWeight: 500,
-            color: "var(--papel)",
-            lineHeight: 1.4,
-          }}
-        >
-          <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 16 }}>
-            <span style={{ width: 36, height: 36, color: "var(--estola-claro)" }}>
-              <IconEvento width="100%" height="100%" />
-            </span>
-            {date} · {time}
+        <div className="t-photo-bottom">
+          <div className="t-story-event-kicker">{kicker}</div>
+          <div className="t-story-event-title">{title}</div>
+          <div className="t-story-event-meta">
+            <div className="t-story-event-row">
+              <span className="t-story-event-row__icon">
+                <IconEvento width="100%" height="100%" />
+              </span>
+              <span className="t-story-event-row__text">{date} · {time}</span>
+            </div>
+            <div className="t-story-event-row">
+              <span className="t-story-event-row__icon">
+                <IconLocal width="100%" height="100%" />
+              </span>
+              <span className="t-story-event-row__text">{place}</span>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <span style={{ width: 36, height: 36, color: "var(--estola-claro)" }}>
-              <IconLocal width="100%" height="100%" />
-            </span>
-            {place}
-          </div>
-        </div>
-        <div style={{ height: 96 }} />
-        <div
-          style={{
-            display: "inline-flex",
-            alignSelf: "flex-start",
-            alignItems: "center",
-            gap: 16,
-            padding: "20px 32px",
-            background: "var(--estola)",
-            color: "var(--vela)",
-            fontFamily: "var(--font-wide)",
-            fontSize: 26,
-            fontWeight: 600,
-            letterSpacing: "0.06em",
-            borderRadius: 999,
-          }}
-        >
-          Toca aqui pra confirmar →
+          <div className="t-story-event-cta">Toca aqui pra confirmar →</div>
         </div>
       </div>
     </div>
@@ -673,62 +570,24 @@ function StoryEvent({ kicker, title, date, time, place, photo }) {
 }
 
 function StoryQuote({ quote, who, photo }) {
+  const quoteSize = quoteFontSize(quote, 64, 44);
   return (
-    <div className="t-story">
-      <div style={{ width: 100, height: 115, color: "var(--marinho)" }}>
+    <div className="t-story t-story-quote">
+      <div className="t-story-mark" style={{ width: 100, height: 115, color: "var(--marinho)" }}>
         <IconLogoMarca width="100%" height="100%" />
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 48 }}>
+      <div className="t-story-quote-body">
         {photo && (
-          <div
-            style={{
-              width: 280,
-              height: 280,
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: "8px solid var(--vela)",
-              boxShadow: "0 8px 32px rgba(14,42,71,0.2)",
-            }}
-          >
-            <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div className="t-story-quote-photo">
+            <img src={photo} alt="" />
           </div>
         )}
-        <div
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontStyle: "italic",
-            fontSize: 64,
-            lineHeight: 1.25,
-            color: "var(--marinho)",
-            textWrap: "balance",
-          }}
-        >
+        <blockquote className="t-community-quote t-story-quote-text" style={{ fontSize: quoteSize }}>
           “{quote}”
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-wide)",
-            fontSize: 24,
-            fontWeight: 600,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "var(--estola)",
-          }}
-        >
-          {who}
-        </div>
+        </blockquote>
+        {who && <div className="t-community-who">{who}</div>}
       </div>
-      <div
-        style={{
-          fontFamily: "var(--font-wide)",
-          fontSize: 22,
-          fontWeight: 500,
-          letterSpacing: "0.1em",
-          color: "var(--grafite-3)",
-        }}
-      >
-        @igrejaanglicanario
-      </div>
+      <div className="t-story-quote-handle">@igrejaanglicanario</div>
     </div>
   );
 }
