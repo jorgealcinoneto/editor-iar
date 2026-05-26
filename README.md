@@ -1,87 +1,32 @@
-# Editor IAR — Publicação no GitHub Pages
+# Editor unificado (IAR · OFMJ)
 
-Pacote contendo **somente** o Editor de Posts da Igreja Anglicana Rio, pronto pra publicar online de graça via GitHub Pages.
+Um editor form-based para criar posts Instagram: escolhe marca, template, preenche, baixa PNG.
 
-## Como publicar (passo-a-passo)
-
-### 1. Criar o repositório
-
-1. Acesse [github.com](https://github.com) e faça login (ou crie conta).
-2. Clique em **"+" no topo direito → "New repository"**.
-3. Nome: `editor-iar` (repositório: `jorgealcinoneto/editor-iar`).
-4. Marque **"Public"** (necessário pra GitHub Pages gratuito).
-5. **Não** marque "Add a README". Clique em **"Create repository"**.
-
-### 2. Subir os arquivos
-
-**Opção A · Via interface (mais simples, sem terminal):**
-
-1. Na página do repositório recém-criado, clique em **"uploading an existing file"**.
-2. Arraste **TODO o conteúdo desta pasta** (não a pasta em si — abra ela e selecione todos os arquivos + a subpasta `assets`).
-3. Clique em **"Commit changes"** lá embaixo.
-
-**Opção B · Via terminal:**
+## Local
 
 ```bash
-cd publish
-git init
-git add .
-git commit -m "Editor IAR"
-git branch -M main
-git remote add origin https://github.com/jorgealcinoneto/editor-iar.git
-git push -u origin main
+./start-editor.sh   # http://localhost:8080/index.html
+./stop-editor.sh
 ```
 
-### 3. Ativar GitHub Pages
+Selector na top-bar alterna **IAR** e **OFMJ**. Estado guardado em `localStorage` por marca (`ed:iar:state`, `ed:ofmj:state`).
 
-1. No repositório, vá em **Settings** (engrenagem no topo).
-2. Na barra lateral, clique em **Pages**.
-3. Em **Source**, selecione **"Deploy from a branch"**.
-4. Em **Branch**, selecione **`main`** e pasta **`/ (root)`**. Clique em **Save**.
-5. Aguarde 1-2 minutos. URL pública: `https://jorgealcinoneto.github.io/editor-iar/`.
+## Publicar (GitHub Pages)
 
-**Atualização rápida (vault MATS):** na pasta `PASTOR/editor-iar/`, rode `./publicar-editor.sh`.
+```bash
+./build.sh iar
+./publicar.sh iar    # → editor-iar.github.io
 
-### 4. Compartilhar com a equipe
-
-Manda essa URL no grupo da equipe de comunicação. Eles podem:
-
-- **Salvar como atalho** no celular (Safari → Compartilhar → Adicionar à tela de início; Chrome → "Instalar app")
-- **Salvar nos favoritos** do navegador no computador
-
-### 5. Atualizando o editor no futuro
-
-Quando precisar adicionar/ajustar templates:
-
-1. Atualizar os arquivos localmente.
-2. Subir novos arquivos pelo botão **"Add file → Upload files"** no repositório (sobrescreve os antigos).
-3. A página pública atualiza automaticamente em ~1 minuto.
-
-## Conteúdo desta pasta
-
-```
-index.html                ← página principal (renomeado de "Editor IAR.html")
-styles.css                ← tokens do sistema visual (cores, fontes, tipografia)
-editor-styles.css         ← estilos específicos do editor
-icons.jsx                 ← biblioteca de ícones IAR
-templates.jsx             ← definição visual dos 14 templates
-editor-app.jsx            ← lógica do editor (formulário, preview, download)
-assets/                   ← logos + fotos da comunidade
+./build.sh ofmj
+./publicar.sh ofmj   # → editor-ofmj.github.io
 ```
 
-## Dependências externas (carregam automaticamente da internet)
+Builds travam a marca via `window.MARCA_FORCADA` e omitem scripts da outra marca.
 
-- Google Fonts: Cormorant Garamond + DM Sans
-- React 18.3.1 + Babel (unpkg.com)
-- html-to-image 1.11.13 (unpkg.com)
+## Estrutura
 
-Estas funcionam sem nenhum setup extra — basta o usuário ter internet.
+- `core/` — UI, form, export
+- `marcas/iar/` — templates, ícones, assets, registry
+- `marcas/ofmj/` — templates, assets, uploads, registry + tweaks
 
-## Teste visual (regressão de layout)
-
-Abra `test.html` no navegador (ou `https://jorgealcinoneto.github.io/editor-iar/test.html` após publicar).  
-Mostra os **14 templates** em 3 comprimentos de texto (curto / médio / longo).
-
-## Suporte
-
-Se algo quebrar ou precisar de novos templates, fala comigo.
+Pastas legadas: [PASTOR/editor-iar](../PASTOR/editor-iar/) e [PRODUTOR-CONTEUDO/editor-posts](../PRODUTOR-CONTEUDO/editor-posts/) redireccionam para aqui.

@@ -1,0 +1,147 @@
+function Field({ field, value, onChange, marca }) {
+  const galleries = marca.galleries;
+  const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
+  const icons = galleries?.icons || [];
+
+  if (field.type === 'text' || field.type === 'rich') {
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <input type="text" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+        {field.hint && (
+          <div
+            className="ed-field__hint"
+            {...(field.hint.includes('<') ? { dangerouslySetInnerHTML: { __html: field.hint } } : {})}
+          >
+            {!field.hint.includes('<') ? field.hint : null}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (field.type === 'textarea' || field.type === 'textarea-rich') {
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <textarea rows={4} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+        {field.hint && (
+          <div
+            className="ed-field__hint"
+            {...(field.hint.includes('<') ? { dangerouslySetInnerHTML: { __html: field.hint } } : {})}
+          >
+            {!field.hint.includes('<') ? field.hint : null}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (field.type === 'number') {
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <input
+          type="number"
+          value={value ?? ''}
+          onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+        />
+        {field.hint && <div className="ed-field__hint">{field.hint}</div>}
+      </div>
+    );
+  }
+
+  if (field.type === 'icon') {
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <div className="ed-icon-picker">
+          {icons.map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              className={value === opt.key ? 'is-active' : ''}
+              onClick={() => onChange(opt.key)}
+              title={opt.label}
+            >
+              <opt.Icon />
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (field.type === 'photo' || field.type === 'image') {
+    const onFile = (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => onChange(ev.target.result);
+      reader.readAsDataURL(file);
+    };
+    const has = !!value;
+    const isExternal = typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'));
+    const showPreview = has && (isExternal || value.includes('/'));
+    const allowUrl = field.type === 'image';
+
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <label className="ed-file">
+          <div className="ed-file__preview">{showPreview && <img src={value} alt="" />}</div>
+          <div className="ed-file__text">
+            <strong>Subir do computador</strong>
+            JPG, PNG ou WebP
+          </div>
+          <input type="file" accept="image/*" onChange={onFile} />
+        </label>
+        {photos.length > 0 && (
+          <>
+            <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria:</div>
+            <div className="ed-preset">
+              {photos.map((src) => (
+                <button
+                  key={src}
+                  type="button"
+                  className={value === src ? 'is-active' : ''}
+                  onClick={() => onChange(src)}
+                  title={src.split('/').pop()}
+                >
+                  <img src={src} alt="" />
+                </button>
+              ))}
+              {allowUrl && (
+                <button
+                  type="button"
+                  className={!has ? 'is-active ed-preset__none' : 'ed-preset__none'}
+                  onClick={() => onChange('')}
+                  title="Sem imagem"
+                  aria-label="Sem imagem"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </>
+        )}
+        {allowUrl && (
+          <>
+            <div className="ed-field__hint" style={{ marginTop: 10 }}>Ou colar URL:</div>
+            <input
+              type="text"
+              placeholder="https://…"
+              value={typeof value === 'string' && value.startsWith('http') ? value : ''}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          </>
+        )}
+        {field.hint && <div className="ed-field__hint">{field.hint}</div>}
+      </div>
+    );
+  }
+
+  return null;
+}
+
+Object.assign(window, { EditorField: Field });

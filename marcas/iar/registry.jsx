@@ -1,10 +1,4 @@
-/* ============================================
-   IAR — Editor app
-   Form → live preview → download PNG
-============================================ */
-
-const { useState, useRef, useEffect, useCallback } = React;
-
+/* IAR — registry de templates (editor unificado) */
 const {
   IconArco, IconJanelaRio, IconCruzCelta, IconCalice, IconPomba,
   IconOndas, IconCasa, IconLivro, IconVela, IconCoracao,
@@ -20,9 +14,9 @@ const {
   StoryVerse, StoryEvent, StoryQuote, PrintFolder,
 } = window;
 
-/* ============================================
-   Disponíveis: ícones e fotos
-============================================ */
+const IAR_BASE = 'marcas/iar/';
+const iarAsset = (p) => `${IAR_BASE}${p}`;
+
 const ICON_OPTIONS = [
   { key: "calice", Icon: IconCalice, label: "Cálice" },
   { key: "cruz", Icon: IconCruzCelta, label: "Cruz celta" },
@@ -40,19 +34,19 @@ const ICON_OPTIONS = [
 const findIcon = (key) => ICON_OPTIONS.find((i) => i.key === key)?.Icon || IconCalice;
 
 const PRESET_PHOTOS = [
-  "assets/photo-comunidade-1.jpg",
-  "assets/photo-comunidade-2.jpg",
-  "assets/photo-altar-padre.jpg",
-  "assets/photo-altar-close.jpg",
-  "assets/photo-mesa-altar.jpg",
-  "assets/photo-mesa-agape.jpg",
-  "assets/photo-padre-1.jpg",
-  "assets/photo-padre-2.jpg",
-  "assets/photo-banda.jpg",
-  "assets/photo-crianca-craft.jpg",
-  "assets/photo-criancas-craft.jpg",
-  "assets/photo-irmas-abraco.jpg",
-  "assets/photo-comunhao.jpg",
+  iarAsset("assets/photo-comunidade-1.jpg"),
+  iarAsset("assets/photo-comunidade-2.jpg"),
+  iarAsset("assets/photo-altar-padre.jpg"),
+  iarAsset("assets/photo-altar-close.jpg"),
+  iarAsset("assets/photo-mesa-altar.jpg"),
+  iarAsset("assets/photo-mesa-agape.jpg"),
+  iarAsset("assets/photo-padre-1.jpg"),
+  iarAsset("assets/photo-padre-2.jpg"),
+  iarAsset("assets/photo-banda.jpg"),
+  iarAsset("assets/photo-crianca-craft.jpg"),
+  iarAsset("assets/photo-criancas-craft.jpg"),
+  iarAsset("assets/photo-irmas-abraco.jpg"),
+  iarAsset("assets/photo-comunhao.jpg"),
 ];
 
 /* ============================================
@@ -84,7 +78,7 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
-      photo: "assets/photo-irmas-abraco.jpg",
+      photo: iarAsset("assets/photo-irmas-abraco.jpg"),
       eyebrow: "Domingo passado",
       title: "A gente é",
       titleEm: "essa cena.",
@@ -202,7 +196,7 @@ const TEMPLATES = [
     group: "Feed · Comunidade",
     w: 1080, h: 1080,
     defaults: {
-      photo: "assets/photo-crianca-craft.jpg",
+      photo: iarAsset("assets/photo-crianca-craft.jpg"),
       quote: "Espírito Santo feito de algodão, na mesa da catequese.",
       who: "Domingo, 24 de maio",
     },
@@ -219,7 +213,7 @@ const TEMPLATES = [
     group: "Feed · Evento",
     w: 1080, h: 1080,
     defaults: {
-      photo: "assets/photo-mesa-altar.jpg",
+      photo: iarAsset("assets/photo-mesa-altar.jpg"),
       kicker: "Eucaristia da família",
       title: "Domingo na sala.",
       date: "01 de Junho",
@@ -259,7 +253,7 @@ const TEMPLATES = [
     group: "Story 9:16",
     w: 1080, h: 1920,
     defaults: {
-      photo: "assets/photo-mesa-altar.jpg",
+      photo: iarAsset("assets/photo-mesa-altar.jpg"),
       kicker: "Esse domingo",
       title: "Vem participar.",
       date: "01 Jun",
@@ -284,7 +278,7 @@ const TEMPLATES = [
     defaults: {
       quote: "A oração da Coleta é antiga, mas é exatamente o que eu precisava hoje.",
       who: "Maria, 28",
-      photo: "assets/photo-irmas-abraco.jpg",
+      photo: iarAsset("assets/photo-irmas-abraco.jpg"),
     },
     fields: [
       { name: "photo", label: "Foto da pessoa (redonda)", type: "photo" },
@@ -332,295 +326,5 @@ const TEMPLATES = [
   },
 ];
 
-/* ============================================
-   Form field components
-============================================ */
-function Field({ field, value, onChange }) {
-  if (field.type === "text") {
-    return (
-      <div className="field">
-        <label className="field__label">{field.label}</label>
-        <input type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} />
-        {field.hint && <div className="field__hint">{field.hint}</div>}
-      </div>
-    );
-  }
-  if (field.type === "textarea") {
-    return (
-      <div className="field">
-        <label className="field__label">{field.label}</label>
-        <textarea rows={3} value={value || ""} onChange={(e) => onChange(e.target.value)} />
-        {field.hint && <div className="field__hint">{field.hint}</div>}
-      </div>
-    );
-  }
-  if (field.type === "icon") {
-    return (
-      <div className="field">
-        <label className="field__label">{field.label}</label>
-        <div className="icon-picker">
-          {ICON_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              type="button"
-              className={value === opt.key ? "active" : ""}
-              onClick={() => onChange(opt.key)}
-              title={opt.label}
-            >
-              <opt.Icon />
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  if (field.type === "photo") {
-    const onFile = (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => onChange(ev.target.result);
-      reader.readAsDataURL(file);
-    };
-    const showPreview = value && (value.startsWith("data:") || value.startsWith("assets/"));
-    return (
-      <div className="field">
-        <label className="field__label">{field.label}</label>
-        <label className="file-field">
-          <div className="file-field__preview">
-            {showPreview && <img src={value} alt="" />}
-          </div>
-          <div className="file-field__text">
-            <strong>Subir do celular/computador</strong>
-            JPG ou PNG · mínimo 1080×1080 pra ficar nítido
-          </div>
-          <input type="file" accept="image/*" onChange={onFile} />
-        </label>
-        <div className="field__hint" style={{ marginTop: 8 }}>Ou escolha uma da galeria:</div>
-        <div className="preset-photos">
-          {PRESET_PHOTOS.map((src) => (
-            <button
-              key={src}
-              type="button"
-              className={value === src ? "active" : ""}
-              onClick={() => onChange(src)}
-              title="Usar essa"
-            >
-              <img src={src} alt="" />
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
-
-/* ============================================
-   Preview area
-============================================ */
-function Preview({ tpl, content, scale }) {
-  // Visible preview (scaled to fit)
-  // The wrapping Post component takes scale, content goes inside its render function
-  if (tpl.w === 1080 && tpl.h === 1920) {
-    return (
-      <Post w={1080} h={1920} scale={scale}>
-        {tpl.render(content)}
-      </Post>
-    );
-  }
-  if (tpl.w === 1240 && tpl.h === 1754) {
-    return (
-      <Post w={1240} h={1754} scale={scale}>
-        {tpl.render(content)}
-      </Post>
-    );
-  }
-  return (
-    <Post w={1080} h={1080} scale={scale}>
-      {tpl.render(content)}
-    </Post>
-  );
-}
-
-/* ============================================
-   App
-============================================ */
-function App() {
-  const [tplId, setTplId] = useState(TEMPLATES[0].id);
-  const [contents, setContents] = useState(() => {
-    const initial = {};
-    TEMPLATES.forEach((t) => { initial[t.id] = { ...t.defaults }; });
-    return initial;
-  });
-  const [downloading, setDownloading] = useState(false);
-  const [toast, setToast] = useState("");
-  const previewRef = useRef(null);
-
-  const tpl = TEMPLATES.find((t) => t.id === tplId);
-  const content = contents[tplId];
-
-  // Compute visible scale to fit comfortably
-  const stageMaxW = 600;
-  const visibleScale = (() => {
-    if (tpl.w === 1080 && tpl.h === 1920) {
-      // story: limit by height instead
-      const targetH = 720;
-      return targetH / tpl.h;
-    }
-    if (tpl.w === 1240 && tpl.h === 1754) {
-      return 540 / tpl.w;
-    }
-    return stageMaxW / tpl.w;
-  })();
-
-  const update = (field, val) => {
-    setContents((prev) => ({
-      ...prev,
-      [tplId]: { ...prev[tplId], [field]: val },
-    }));
-  };
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(""), 2400);
-  };
-
-  const onDownload = useCallback(async () => {
-    const node = previewRef.current?.querySelector(".post-inner");
-    if (!node) return;
-    setDownloading(true);
-    try {
-      if (document.fonts?.ready) {
-        await document.fonts.ready;
-      }
-      const dataUrl = await window.htmlToImage.toPng(node, {
-        width: tpl.w,
-        height: tpl.h,
-        pixelRatio: 1,
-        backgroundColor: tpl.w === 1080 && tpl.h === 1080 ? "#F5EFE6" : null,
-        cacheBust: true,
-        style: {
-          transform: "none",
-          transformOrigin: "top left",
-          width: `${tpl.w}px`,
-          height: `${tpl.h}px`,
-        },
-      });
-      const link = document.createElement("a");
-      const fname = `iar-${tpl.id}-${Date.now()}.png`;
-      link.download = fname;
-      link.href = dataUrl;
-      link.click();
-      showToast("PNG baixado · agora é só postar");
-    } catch (err) {
-      console.error(err);
-      showToast("Algo deu errado · tente novamente");
-    } finally {
-      setDownloading(false);
-    }
-  }, [tpl]);
-
-  return (
-    <>
-      {/* Top bar */}
-      <div className="editor-bar">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <IconLogoMarca width={32} height={37} variant="light" />
-          <div className="editor-bar__brand">
-            <span>Igreja Anglicana</span>
-            Rio
-          </div>
-          <div className="editor-bar__title">· editor de posts</div>
-        </div>
-        <div className="editor-bar__actions">
-          <button
-            type="button"
-            className="editor-btn editor-btn--primary"
-            onClick={onDownload}
-            disabled={downloading}
-          >
-            {downloading ? "Gerando…" : "Baixar PNG"}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M8 3 V11 M4 8 L8 12 L12 8 M3 14 H13" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div className="editor-main">
-        {/* Sidebar */}
-        <aside className="editor-sidebar">
-          <div className="editor-section">
-            <div className="editor-section__label">1 · Escolha o template</div>
-            <div className="tpl-picker">
-              {TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`tpl-option ${tplId === t.id ? "tpl-option--active" : ""}`}
-                  onClick={() => setTplId(t.id)}
-                >
-                  <span className="tpl-option__tag">{t.group}</span>
-                  {t.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="editor-section">
-            <div className="editor-section__label">2 · Preencha o conteúdo</div>
-            <div className="form">
-              {tpl.fields.map((f) => (
-                <Field
-                  key={f.name}
-                  field={f}
-                  value={content[f.name]}
-                  onChange={(val) => update(f.name, val)}
-                />
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Stage */}
-        <main className="editor-stage">
-          <div className="editor-stage__head">
-            <div>
-              <h2 className="editor-stage__title">{tpl.name}</h2>
-              <div className="editor-stage__sub">
-                {tpl.w} × {tpl.h} px · pré-visualização ao vivo
-              </div>
-            </div>
-          </div>
-
-          <div className="editor-preview-wrap" ref={previewRef}>
-            <Preview tpl={tpl} content={content} scale={visibleScale} />
-          </div>
-
-          <div className="editor-help">
-            <div className="editor-help__icon">i</div>
-            <div className="editor-help__text">
-              <strong>Como funciona:</strong> escolhe o template, preenche os campos, e clica em
-              "Baixar PNG" lá em cima. O arquivo vai pro seu computador/celular pronto pra postar
-              no Instagram. <strong>Nada estraga a marca</strong> — fontes, cores e logo já estão travados.
-            </div>
-          </div>
-        </main>
-      </div>
-
-      {/* Toast */}
-      <div className={`editor-toast ${toast ? "editor-toast--show" : ""}`}>
-        <div className="editor-toast__check">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M3 7 L6 10 L11 4" />
-          </svg>
-        </div>
-        {toast}
-      </div>
-    </>
-  );
-}
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+window.IAR_GALLERIES = { photos: PRESET_PHOTOS, icons: ICON_OPTIONS };
+window.IAR_TEMPLATES = TEMPLATES;
