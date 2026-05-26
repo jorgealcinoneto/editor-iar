@@ -456,26 +456,71 @@ body {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-.ed-bar__left { display: flex; align-items: center; gap: 14px; }
-.ed-marca-select {
-  font: inherit;
-  font-family: var(--ed-font-ui);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(0,0,0,0.2);
-  color: inherit;
-  cursor: pointer;
-  max-width: 280px;
-}
+.ed-bar { gap: 14px; }
+.ed-bar__left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+
 .ed-bar--iar { background: #0E2A47; color: #F5EFE6; }
-.ed-bar--iar .ed-btn--primary { background: #1A52D6; }
+.ed-bar--iar .ed-btn--primary { background: #1A52D6; color: #fff; }
 .ed-bar--iar .ed-btn--primary:hover:not(:disabled) { background: #4978E3; }
-.ed-bar--iar .ed-marca-select { border-color: rgba(245,239,230,0.3); }
 .ed-bar--ofmj { background: var(--ed-bar-bg); color: var(--ed-bar-text); }
+
+.ed-bar__brand { display: flex; flex-direction: column; line-height: 1.1; }
+.ed-bar__brand--iar {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+}
+.ed-bar__brand--iar .ed-bar__kicker { font-weight: 400; opacity: 0.7; font-size: 9.5px; letter-spacing: 0.22em; }
+.ed-bar__brand--iar .ed-bar__name { font-weight: 700; font-size: 13px; }
+.ed-bar__brand--ofmj { display: flex; flex-direction: row; align-items: baseline; gap: 10px; font-family: var(--ed-font-serif); }
+.ed-bar__brand--ofmj .ed-bar__name { font-size: 18px; font-style: italic; }
+.ed-bar__title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  color: #4978E3;
+  margin-left: 4px;
+}
 .ed-bar__mark { font-size: 22px; color: var(--ed-accent); font-family: var(--ed-font-serif); font-weight: 600; }
+.ed-bar__sub {
+  font-family: var(--ed-font-mono);
+  font-size: 12px;
+  color: rgba(245,241,232,0.55);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+
+.ed-marca-tabs {
+  display: inline-flex;
+  background: rgba(0,0,0,0.22);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.ed-marca-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--ed-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s, color 0.12s;
+}
+.ed-marca-tab:hover { opacity: 0.9; }
+.ed-marca-tab.is-active {
+  background: rgba(255,255,255,0.92);
+  color: #1a1612;
+  opacity: 1;
+}
+.ed-bar--iar .ed-marca-tab.is-active { color: #0E2A47; }
 .ed-icon-picker {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

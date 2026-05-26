@@ -222,7 +222,7 @@ function IconLogoMarca({ width = 64, height = 76, variant = "dark" }) {
     : "none";
   return (
     <img
-      src="assets/logo-iar-symbol.png"
+      src={(window.MARCAS?.iar?.assetBase || 'marcas/iar/') + 'assets/logo-iar-symbol.png'}
       alt="Igreja Anglicana Rio"
       style={{
         width,

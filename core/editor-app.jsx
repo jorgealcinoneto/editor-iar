@@ -38,33 +38,6 @@ function applyMarcaStyles(marcaId) {
 }
 
 function PreviewIar({ tpl, content, scale }) {
-  const inner = tpl.render(content);
-  if (tpl.w === 1080 && tpl.h === 1920) {
-    return (
-      <div className="post" style={{ width: tpl.w * scale, height: tpl.h * scale }}>
-        <div
-          className="post-inner"
-          data-export="root"
-          style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
-        >
-          {inner}
-        </div>
-      </div>
-    );
-  }
-  if (tpl.w === 1240 && tpl.h === 1754) {
-    return (
-      <div className="post" style={{ width: tpl.w * scale, height: tpl.h * scale }}>
-        <div
-          className="post-inner"
-          data-export="root"
-          style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
-        >
-          {inner}
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="post" style={{ width: tpl.w * scale, height: tpl.h * scale }}>
       <div
@@ -72,7 +45,7 @@ function PreviewIar({ tpl, content, scale }) {
         data-export="root"
         style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
       >
-        {inner}
+        {tpl.render(content)}
       </div>
     </div>
   );
@@ -373,28 +346,45 @@ function App() {
     <>
       <header className={`ed-bar ed-bar--${marca.barTheme}`}>
         <div className="ed-bar__left">
-          {showSelector && (
-            <select
-              className="ed-marca-select"
-              value={marcaId}
-              onChange={(e) => switchMarca(e.target.value)}
-              aria-label="Marca"
-            >
-              {MARCA_IDS.map((id) => {
-                const m = getMarca(id);
-                return m ? <option key={id} value={id}>{m.shortName} — {m.name}</option> : null;
-              })}
-            </select>
+          {marcaId === 'iar' ? (
+            <>
+              {IconLogoMarca && <IconLogoMarca width={36} height={42} variant="light" />}
+              <div className="ed-bar__brand ed-bar__brand--iar">
+                <span className="ed-bar__kicker">Igreja Anglicana</span>
+                <span className="ed-bar__name">Rio</span>
+              </div>
+              <div className="ed-bar__title">· editor de posts</div>
+            </>
+          ) : (
+            <>
+              <span className="ed-bar__mark">§</span>
+              <div className="ed-bar__brand ed-bar__brand--ofmj">
+                <span className="ed-bar__name">ofantasticomundodejorge</span>
+                <span className="ed-bar__sub">· editor</span>
+              </div>
+            </>
           )}
-          {marcaId === 'iar' && IconLogoMarca && (
-            <IconLogoMarca width={32} height={37} variant="light" />
-          )}
-          {marcaId === 'ofmj' && <span className="ed-bar__mark">§</span>}
-          <div className="ed-bar__brand">
-            <span className="ed-bar__name">{marca.shortName}</span>
-            <span className="ed-bar__sub">· editor</span>
-          </div>
         </div>
+        {showSelector && (
+          <div className="ed-marca-tabs" role="tablist" aria-label="Marca">
+            {MARCA_IDS.map((id) => {
+              const m = getMarca(id);
+              if (!m) return null;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={marcaId === id}
+                  className={`ed-marca-tab ${marcaId === id ? 'is-active' : ''}`}
+                  onClick={() => switchMarca(id)}
+                >
+                  {m.shortName}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="ed-bar__actions">
           {marca.allowTweaks && (
             <button type="button" className="ed-btn ed-btn--ghost" onClick={resetTemplate}>
