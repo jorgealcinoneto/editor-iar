@@ -620,16 +620,30 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* Lecionário Diário (Story) — tighter padding + verse markup */
 .t-lectionary {
-  padding: 96px 80px 88px !important;
+  padding: 80px 72px 72px !important;
   display: flex !important;
   flex-direction: column !important;
 }
+/* Corpo: flex-item adaptativo. min-height:0 destrava o limite default do
+   flex-item; overflow:hidden é a rede de segurança caso o auto-shrink do JS
+   atinja o mínimo e o texto ainda não caiba (raro, mas possível em casos
+   extremos de perícope longa). */
+.t-lectionary__body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  font-family: var(--font-serif);
+  font-size: 36px;
+  line-height: 1.42;
+  color: var(--grafite);
+  text-align: left;
+}
 .t-lectionary sup {
   font-family: var(--font-sans);
-  font-size: 22px;
+  font-size: 0.55em;
   font-weight: 700;
   vertical-align: super;
-  line-height: 0;
+  line-height: 1;
   color: var(--estola);
   margin-right: 6px;
 }

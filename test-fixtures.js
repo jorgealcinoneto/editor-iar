@@ -237,6 +237,15 @@ window.IAR_TEST_CASES = [
         body:
           '<sup>36</sup>Enquanto falavam sobre isso, o próprio Jesus apresentou-se entre eles e lhes disse: <strong>"Paz seja com vocês!"</strong> <sup>37</sup>Eles ficaram assustados e com medo, pensando que estavam vendo um espírito. <sup>38</sup>Ele lhes disse: <strong>"Por que vocês estão perturbados?"</strong> <sup>43</sup>Tomou um pedaço de peixe assado e comeu diante deles.',
       },
+      // Caso real do dia 26/05/2026: perícope inteira (12 versículos) que
+      // estourou o template original — guard para o auto-shrink do body.
+      pericope: {
+        title: "Lecionário Diário",
+        date: "26 de Maio · Terça-feira",
+        passages: ["Ezequiel 39:7-8|21-29", "Romanos 8:18-25", "Mateus 5:1-12"],
+        body:
+          '<sup>1</sup>Vendo as multidões, Jesus subiu ao monte e se assentou. Seus discípulos aproximaram-se dele, <sup>2</sup>e ele começou a ensiná-los, dizendo: <sup>3</sup>"Bem-aventurados os pobres em espírito, pois deles é o Reino dos céus. <sup>4</sup>Bem-aventurados os que choram, pois serão consolados. <sup>5</sup>Bem-aventurados os humildes, pois eles receberão a terra por herança. <sup>6</sup>Bem-aventurados os que têm fome e sede de justiça, pois serão satisfeitos. <sup>7</sup>Bem-aventurados os misericordiosos, pois obterão misericórdia. <sup>8</sup>Bem-aventurados os puros de coração, pois verão a Deus. <sup>9</sup>Bem-aventurados os pacificadores, pois serão chamados filhos de Deus. <sup>10</sup>Bem-aventurados os perseguidos por causa da justiça, pois deles é o Reino dos céus. <sup>11</sup>"Bem-aventurados serão vocês quando, por minha causa os insultarem, perseguirem e levantarem todo tipo de calúnia contra vocês. <sup>12</sup>Alegrem-se e regozijem-se, porque grande é a recompensa de vocês nos céus, pois da mesma forma perseguiram os profetas que viveram antes de vocês".',
+      },
     },
   },
   {

@@ -56,39 +56,44 @@ function renderTemplate(tc, variant) {
 
 function TestGrid() {
   const cases = window.IAR_TEST_CASES || [];
-  const variants = ["short", "medium", "long"];
 
   return (
     <div className="test-page">
       <header className="test-page__head">
         <h1>Editor IAR — matriz visual</h1>
         <p>
-          14 templates × 3 comprimentos de texto. Use para detectar sobreposição antes de publicar.
+          Templates × variantes de comprimento. Use para detectar sobreposição antes de publicar.
           <a href="index.html">← Voltar ao editor</a>
         </p>
       </header>
-      {cases.map((tc) => (
-        <section key={tc.id} className="test-section">
-          <h2 className="test-section__title">
-            {tc.name}
-            <span className="test-section__meta">
-              {tc.w}×{tc.h} · {tc.id}
-            </span>
-          </h2>
-          <div className="test-row">
-            {variants.map((v) => (
-              <article key={v} className="test-cell">
-                <h3 className="test-cell__label">{v}</h3>
-                <div className="test-cell__frame">
-                  <Post w={tc.w} h={tc.h} scale={previewScale(tc.w, tc.h)}>
-                    {renderTemplate(tc, v)}
-                  </Post>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+      {cases.map((tc) => {
+        // Ordem natural das chaves declaradas na fixture — permite que cada
+        // template tenha as variantes que fizerem sentido (curto/médio/longo
+        // e casos especiais como "pericope" no lecionário).
+        const variants = Object.keys(tc.variants || {});
+        return (
+          <section key={tc.id} className="test-section">
+            <h2 className="test-section__title">
+              {tc.name}
+              <span className="test-section__meta">
+                {tc.w}×{tc.h} · {tc.id}
+              </span>
+            </h2>
+            <div className="test-row">
+              {variants.map((v) => (
+                <article key={v} className="test-cell">
+                  <h3 className="test-cell__label">{v}</h3>
+                  <div className="test-cell__frame">
+                    <Post w={tc.w} h={tc.h} scale={previewScale(tc.w, tc.h)}>
+                      {renderTemplate(tc, v)}
+                    </Post>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

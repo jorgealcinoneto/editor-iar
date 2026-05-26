@@ -395,6 +395,11 @@ function TplCommunity({ photo, quote, who }) {
 
 /* ============================================
    TEMPLATE J — Lecionário Diário (STORY 9:16)
+   Body usa auto-shrink: o texto bíblico do dia pode variar entre 1 versículo
+   (Lucas 24:36) e uma perícope inteira (Mateus 5:1-12). O hook abaixo reduz
+   o font-size do corpo até caber no espaço disponível, sem o pastor ter de
+   pensar em formatação. min-height:0 + overflow:hidden no body são pré-
+   requisitos para que scrollHeight > clientHeight detecte overflow real.
 ============================================ */
 function TplLectionary({
   title = "Lecionário Diário",
@@ -403,16 +408,30 @@ function TplLectionary({
   body,
   handle = "@igrejaanglicanario",
 }) {
+  const bodyRef = React.useRef(null);
+  React.useLayoutEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    const MAX = 36, MIN = 22;
+    let s = MAX;
+    el.style.fontSize = s + "px";
+    let guard = (MAX - MIN) + 2;
+    while (el.scrollHeight > el.clientHeight + 1 && s > MIN && guard-- > 0) {
+      s -= 1;
+      el.style.fontSize = s + "px";
+    }
+  }, [body, title, date, passages]);
+
   return (
     <div className="t-story t-lectionary">
       <LectionaryBrand />
 
       {/* Título */}
-      <div style={{ textAlign: "center", marginTop: 56, marginBottom: 40 }}>
+      <div style={{ textAlign: "center", marginTop: 48, marginBottom: 32, flexShrink: 0 }}>
         <div
           style={{
             fontFamily: "var(--font-serif)",
-            fontSize: 96,
+            fontSize: 88,
             fontWeight: 600,
             color: "var(--marinho)",
             lineHeight: 1.05,
@@ -424,7 +443,7 @@ function TplLectionary({
         {date && (
           <div
             style={{
-              marginTop: 18,
+              marginTop: 14,
               fontFamily: "var(--font-wide)",
               fontSize: 24,
               fontWeight: 600,
@@ -440,30 +459,25 @@ function TplLectionary({
 
       <PassagesList passages={passages} />
 
-      {/* Corpo (texto bíblico ou comentário) */}
+      {/* Corpo (texto bíblico ou comentário) — auto-shrink */}
       <div
-        style={{
-          flex: 1,
-          fontFamily: "var(--font-serif)",
-          fontSize: 36,
-          lineHeight: 1.5,
-          color: "var(--grafite)",
-          textAlign: "left",
-        }}
+        ref={bodyRef}
+        className="t-lectionary__body"
         dangerouslySetInnerHTML={{ __html: body || "" }}
       />
 
       {/* Rodapé */}
       <div
         style={{
-          marginTop: 32,
-          paddingTop: 24,
+          marginTop: 24,
+          paddingTop: 20,
           fontFamily: "var(--font-wide)",
           fontSize: 26,
           fontWeight: 600,
           letterSpacing: "0.1em",
           color: "var(--marinho)",
           textAlign: "center",
+          flexShrink: 0,
         }}
       >
         {handle}
