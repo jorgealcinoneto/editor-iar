@@ -1016,3 +1016,15 @@ ul { margin: 0; padding: 0; list-style: none; }
   .voice-grid { grid-template-columns: 1fr; }
   .guide-nav__links { display: none; }
 }
+
+/* ============================================
+   Tweaks dinâmicos (editor unificado)
+   Aplicados via classes no wrapper .post (pelo PreviewIar)
+============================================ */
+.paleta-ocre   .t-post:not(.t-post--dark):not(.t-post--photo) { background: #EFE6D6; }
+.paleta-marfim .t-post:not(.t-post--dark):not(.t-post--photo) { background: #FBF5E9; }
+.paleta-vela   .t-post:not(.t-post--dark):not(.t-post--photo) { background: #FFFFFF; }
+
+.acento-marinho { --estola: #0E2A47; --estola-claro: #36567E; }
+.acento-ambar   { --estola: #C99B6B; --estola-claro: #C99B6B; }
+.acento-sangue  { --estola: #9B2B2B; --estola-claro: #C04545; }

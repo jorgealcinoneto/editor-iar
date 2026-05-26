@@ -13,6 +13,7 @@ Hub form-based: escolher **marca** (IAR ou OFMJ) → template → campos → pre
 | `core/editor-styles.css` | UI neutra (`ed-*`) |
 | `marcas/iar/` | Templates igreja, `icons.jsx`, `styles.css`, `registry.jsx`, `manifest.js` |
 | `marcas/ofmj/` | Templates @ofantasticomundodejorge, `registry.jsx`, tweaks, `manifest.js` |
+| `marcas/ofmj/canvas.html` | Canvas Figma-like (panorâmica · drag/rename/export PNG 3× por slide) |
 | `build.sh` / `publicar.sh` | Build estático travado por marca → GitHub Pages |
 
 ## Marcas

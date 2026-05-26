@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR" class="marca-iar">
+<head>
+<meta charset="utf-8">
+<title>Canvas — Igreja Anglicana Rio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Canvas Figma-like: visão panorâmica dos templates IAR. Export PNG por slide via menu ⋯.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  html, body { margin:0; padding:0; background:#f0eee9; height:100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+  #root { height:100vh; }
+  .fmj-skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  .fmj-skip:focus{left:16px;top:16px;width:auto;height:auto;padding:10px 14px;z-index:9999;
+    background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:14px}
+  .fmj-export-hint{position:fixed;left:16px;bottom:16px;z-index:100;max-width:280px;padding:10px 14px;
+    font-size:12px;line-height:1.45;color:rgba(40,30,20,.85);background:rgba(255,255,255,.92);
+    border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);pointer-events:none}
+  .fmj-back{position:fixed;left:16px;top:16px;z-index:101;padding:8px 14px;
+    font-size:12px;font-weight:500;color:#1a1612;background:rgba(255,255,255,.95);
+    border-radius:999px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.08);
+    border:1px solid rgba(26,22,18,.1)}
+  .fmj-back:hover{background:#fff}
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<a class="fmj-skip" href="#root">Ir para o canvas</a>
+<a class="fmj-back" href="../../index.html">← Editor</a>
+<p class="fmj-export-hint" aria-hidden="true"><strong>Exportar:</strong> ⋯ no canto de cada slide → Download PNG</p>
+<div id="root"></div>
+
+<script type="text/babel" src="../../core/canvas/design-canvas.jsx"></script>
+<script type="text/babel" src="../../core/canvas/tweaks-panel.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="templates.jsx"></script>
+<script type="text/babel" src="registry.jsx"></script>
+
+<script type="text/babel">
+function App() {
+  const templates = window.IAR_TEMPLATES || [];
+  const groups = [];
+  const seen = new Map();
+  templates.forEach((t) => {
+    if (!seen.has(t.group)) { const list = []; seen.set(t.group, list); groups.push({ group: t.group, list }); }
+    seen.get(t.group).push(t);
+  });
+
+  return (
+    <DesignCanvas>
+      {groups.map(({ group, list }) => (
+        <DCSection key={group} id={group} title={group} subtitle={`${list.length} template${list.length === 1 ? '' : 's'}`}>
+          {list.map((t) => (
+            <DCArtboard key={t.id} id={t.id} label={t.name} width={t.w} height={t.h}>
+              {t.render(t.defaults)}
+            </DCArtboard>
+          ))}
+        </DCSection>
+      ))}
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

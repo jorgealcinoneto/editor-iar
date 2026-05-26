@@ -37,9 +37,13 @@ function applyMarcaStyles(marcaId) {
   if (fmjCss) fmjCss.disabled = marcaId !== 'ofmj';
 }
 
-function PreviewIar({ tpl, content, scale }) {
+function PreviewIar({ tpl, content, tweak, scale }) {
+  const tweakClasses = [
+    tweak?.palette ? `paleta-${tweak.palette}` : '',
+    tweak?.accent ? `acento-${tweak.accent}` : '',
+  ].filter(Boolean).join(' ');
   return (
-    <div className="post" style={{ width: tpl.w * scale, height: tpl.h * scale }}>
+    <div className={`post ${tweakClasses}`} style={{ width: tpl.w * scale, height: tpl.h * scale }}>
       <div
         className="post-inner"
         data-export="root"
@@ -71,8 +75,10 @@ function PreviewOfmj({ tpl, content, tweak, scale }) {
 }
 
 function TweaksPanel({ tweak, onChange, marca }) {
-  const palettes = ['pergaminho', 'vigilia', 'quaresma', 'tintaNua'];
-  const accents = ['borgonha', 'ouro', 'vermelhoSeco', 'indigo'];
+  const controls = marca.tweakControls || ['palette', 'accent', 'layout', 'grid', 'watermark'];
+  const has = (c) => controls.includes(c);
+  const palettes = Object.keys(marca.palettes || {});
+  const accents = Object.keys(marca.accents || {});
   const layouts = [
     { v: 'left', label: 'Esq.' },
     { v: 'centered', label: 'Centro' },
@@ -85,68 +91,111 @@ function TweaksPanel({ tweak, onChange, marca }) {
   return (
     <div className="ed-tweaks">
       <div className="ed-tweaks__title">Acabamento</div>
-      <div className="ed-tweaks__group">
-        <div className="ed-tweaks__label">Paleta</div>
-        <div className="ed-swatches">
-          {palettes.map((k) => {
-            const sw = swatchFor(k);
-            return (
+      {has('palette') && palettes.length > 0 && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Paleta</div>
+          <div className="ed-swatches">
+            {palettes.map((k) => {
+              const sw = swatchFor(k);
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  className={tweak.palette === k ? 'is-active' : ''}
+                  onClick={() => onChange('palette', k)}
+                  title={marca.palettes[k].label}
+                >
+                  <span style={{ background: sw[0] }} />
+                  <span style={{ background: sw[1] }} />
+                  <span style={{ background: sw[2] }} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {has('accent') && accents.length > 0 && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Acento</div>
+          <div className="ed-swatches ed-swatches--single">
+            {accents.map((k) => (
               <button
                 key={k}
                 type="button"
-                className={tweak.palette === k ? 'is-active' : ''}
-                onClick={() => onChange('palette', k)}
-                title={marca.palettes[k].label}
+                className={tweak.accent === k ? 'is-active' : ''}
+                onClick={() => onChange('accent', k)}
+                title={marca.accents[k].label}
+                style={{ background: marca.accents[k].color }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      {has('layout') && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Layout</div>
+          <div className="ed-radio">
+            {layouts.map((opt) => (
+              <button
+                key={opt.v}
+                type="button"
+                className={tweak.layout === opt.v ? 'is-active' : ''}
+                onClick={() => onChange('layout', opt.v)}
               >
-                <span style={{ background: sw[0] }} />
-                <span style={{ background: sw[1] }} />
-                <span style={{ background: sw[2] }} />
+                {opt.label}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="ed-tweaks__group">
-        <div className="ed-tweaks__label">Acento</div>
-        <div className="ed-swatches ed-swatches--single">
-          {accents.map((k) => (
-            <button
-              key={k}
-              type="button"
-              className={tweak.accent === k ? 'is-active' : ''}
-              onClick={() => onChange('accent', k)}
-              title={marca.accents[k].label}
-              style={{ background: marca.accents[k].color }}
-            />
-          ))}
+      )}
+      {(has('grid') || has('watermark')) && (
+        <div className="ed-tweaks__group">
+          {has('grid') && (
+            <label className="ed-toggle">
+              <input type="checkbox" checked={!!tweak.showGrid} onChange={(e) => onChange('showGrid', e.target.checked)} />
+              <span>Grid</span>
+            </label>
+          )}
+          {has('watermark') && (
+            <label className="ed-toggle">
+              <input type="checkbox" checked={!!tweak.watermark} onChange={(e) => onChange('watermark', e.target.checked)} />
+              <span>Marca d&apos;água</span>
+            </label>
+          )}
         </div>
-      </div>
-      <div className="ed-tweaks__group">
-        <div className="ed-tweaks__label">Layout</div>
-        <div className="ed-radio">
-          {layouts.map((opt) => (
-            <button
-              key={opt.v}
-              type="button"
-              className={tweak.layout === opt.v ? 'is-active' : ''}
-              onClick={() => onChange('layout', opt.v)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="ed-tweaks__group">
-        <label className="ed-toggle">
-          <input type="checkbox" checked={!!tweak.showGrid} onChange={(e) => onChange('showGrid', e.target.checked)} />
-          <span>Grid</span>
-        </label>
-        <label className="ed-toggle">
-          <input type="checkbox" checked={!!tweak.watermark} onChange={(e) => onChange('watermark', e.target.checked)} />
-          <span>Marca d&apos;água</span>
-        </label>
-      </div>
+      )}
     </div>
+  );
+}
+
+function GalleryBrowser({ marca, tpl, content, onPick }) {
+  const galleries = marca.galleries;
+  const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
+  if (!photos.length) return null;
+  const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
+  const currentValue = photoField ? content[photoField.name] : null;
+  return (
+    <section className="ed-section">
+      <div className="ed-section__label">
+        3 · Galeria
+        <span className="ed-section__hint">
+          {photoField ? `Clica para aplicar em "${photoField.label}"` : 'Sem campo de foto · clica para copiar URL'}
+        </span>
+      </div>
+      <div className="ed-preset">
+        {photos.map((src) => (
+          <button
+            key={src}
+            type="button"
+            className={currentValue === src ? 'is-active' : ''}
+            onClick={() => onPick(src)}
+            title={src.split('/').pop()}
+          >
+            <img src={src} alt="" loading="lazy" />
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -386,6 +435,15 @@ function App() {
           </div>
         )}
         <div className="ed-bar__actions">
+          <a
+            href={`marcas/${marcaId}/canvas.html`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ed-btn ed-btn--ghost"
+            title={`Visão panorâmica de todos os templates ${marca.shortName}`}
+          >
+            Canvas ↗
+          </a>
           {marca.allowTweaks && (
             <button type="button" className="ed-btn ed-btn--ghost" onClick={resetTemplate}>
               Repor defaults
@@ -442,6 +500,24 @@ function App() {
               ))}
             </div>
           </section>
+
+          <GalleryBrowser
+            marca={marca}
+            tpl={tpl}
+            content={content}
+            onPick={(src) => {
+              const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
+              if (photoField) {
+                update(photoField.name, src);
+                showToast(`Aplicado em "${photoField.label}"`);
+              } else {
+                navigator.clipboard?.writeText(src).then(
+                  () => showToast('URL copiado'),
+                  () => showToast('Sem campo de foto neste template'),
+                );
+              }
+            }}
+          />
         </aside>
 
         <section className="ed-stage" ref={stageRef}>
@@ -459,7 +535,7 @@ function App() {
 
           <div className={`ed-stage__board ${marca.cssClass}`}>
             {marcaId === 'iar' ? (
-              <PreviewIar tpl={tpl} content={content} scale={visibleScale} />
+              <PreviewIar tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
             ) : (
               <PreviewOfmj tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
             )}

@@ -28,5 +28,6 @@ Builds travam a marca via `window.MARCA_FORCADA` e omitem scripts da outra marca
 - `core/` — UI, form, export
 - `marcas/iar/` — templates, ícones, assets, registry
 - `marcas/ofmj/` — templates, assets, uploads, registry + tweaks
+- `marcas/ofmj/canvas.html` — canvas Figma-like (visão panorâmica dos templates OFMJ; botão "Canvas ↗" na top-bar quando marca activa = OFMJ)
 
 Pastas legadas: [PASTOR/editor-iar](../PASTOR/editor-iar/) e [PRODUTOR-CONTEUDO/editor-posts](../PRODUTOR-CONTEUDO/editor-posts/) redireccionam para aqui.

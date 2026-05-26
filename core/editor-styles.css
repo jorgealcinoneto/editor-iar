@@ -96,7 +96,8 @@ body {
 .ed-btn:disabled { opacity: 0.55; cursor: progress; }
 .ed-btn--primary { background: var(--ed-accent); color: #fff; }
 .ed-btn--primary:hover:not(:disabled) { background: #5e242b; }
-.ed-btn--ghost { background: transparent; color: var(--ed-bar-text); border-color: rgba(245,241,232,0.25); }
+.ed-btn--ghost { background: transparent; color: var(--ed-bar-text); border-color: rgba(245,241,232,0.25); text-decoration: none; }
+a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
 .ed-btn--ghost:hover { background: rgba(245,241,232,0.08); }
 
 /* ============================================
@@ -132,6 +133,17 @@ body {
   text-transform: uppercase;
   color: var(--ed-ink-soft);
   margin-bottom: 14px;
+}
+.ed-section__hint {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--ed-font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ed-ink-soft);
+  opacity: 0.7;
 }
 
 /* —— Template picker —— */
