@@ -481,4 +481,4 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// Montagem em core/boot.jsx (aguarda scripts Babel assíncronos).
