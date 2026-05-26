@@ -1,3 +1,69 @@
+function RT({ children }) {
+  if (children == null || children === '') return null;
+  const s = String(children);
+  if (/<[a-z][^>]*>/i.test(s)) {
+    return React.createElement('span', { dangerouslySetInnerHTML: { __html: s } });
+  }
+  return children;
+}
+
+function RichTextField({ value, onChange, rows = 4 }) {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (el && el.innerHTML !== (value || '')) el.innerHTML = value || '';
+  }, [value]);
+
+  const exec = (cmd) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false);
+    if (ref.current) onChange(ref.current.innerHTML);
+  };
+
+  const btn = (cmd, label, title, style) => (
+    React.createElement('button', {
+      type: 'button',
+      title,
+      onMouseDown: (e) => { e.preventDefault(); exec(cmd); },
+      style,
+    }, label)
+  );
+
+  return (
+    <div className="ed-rich">
+      <div className="ed-rich__toolbar" role="toolbar" aria-label="Formatação">
+        {btn('bold', 'B', 'Negrito (Cmd+B)', { fontWeight: 700 })}
+        {btn('italic', 'I', 'Itálico (Cmd+I)', { fontStyle: 'italic' })}
+        {btn('underline', 'U', 'Sublinhado (Cmd+U)', { textDecoration: 'underline' })}
+        <span className="ed-rich__sep" />
+        {btn('insertUnorderedList', '•', 'Lista', null)}
+        {btn('insertOrderedList', '1.', 'Lista numerada', null)}
+        <span className="ed-rich__sep" />
+        {btn('justifyLeft', '⇤', 'Esquerda', null)}
+        {btn('justifyCenter', '↔', 'Centro', null)}
+        {btn('justifyRight', '⇥', 'Direita', null)}
+        {btn('justifyFull', '☰', 'Justificar', null)}
+        <span className="ed-rich__sep" />
+        {btn('removeFormat', '×', 'Limpar formatação', null)}
+      </div>
+      <div
+        ref={ref}
+        className="ed-rich__editor"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => onChange(e.currentTarget.innerHTML)}
+        onPaste={(e) => {
+          e.preventDefault();
+          const text = e.clipboardData.getData('text/plain');
+          document.execCommand('insertText', false, text);
+        }}
+        style={{ minHeight: `${rows * 1.5}em` }}
+      />
+    </div>
+  );
+}
+
 function Field({ field, value, onChange, marca }) {
   const galleries = marca.galleries;
   const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
@@ -24,7 +90,7 @@ function Field({ field, value, onChange, marca }) {
     return (
       <div className="ed-field">
         <label className="ed-field__label">{field.label}</label>
-        <textarea rows={4} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+        <RichTextField value={value ?? ''} onChange={onChange} rows={4} />
         {field.hint && (
           <div
             className="ed-field__hint"
@@ -144,4 +210,4 @@ function Field({ field, value, onChange, marca }) {
   return null;
 }
 
-Object.assign(window, { EditorField: Field });
+Object.assign(window, { EditorField: Field, RT });

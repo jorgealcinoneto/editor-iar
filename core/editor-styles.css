@@ -233,6 +233,62 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
   box-shadow: 0 0 0 3px var(--ed-focus);
 }
 
+/* —— Rich text (contentEditable + toolbar) —— */
+.ed-rich {
+  border: 1px solid var(--ed-line);
+  border-radius: var(--ed-radius-sm);
+  background: var(--ed-paper);
+  transition: border-color 0.12s, box-shadow 0.12s;
+  overflow: hidden;
+}
+.ed-rich:focus-within {
+  border-color: var(--ed-accent);
+  box-shadow: 0 0 0 3px var(--ed-focus);
+}
+.ed-rich__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid var(--ed-line);
+  flex-wrap: wrap;
+}
+.ed-rich__toolbar button {
+  font: inherit;
+  font-family: var(--ed-font-ui);
+  font-size: 13px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  border-radius: 4px;
+  color: var(--ed-ink);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ed-rich__toolbar button:hover { background: rgba(0, 0, 0, 0.06); }
+.ed-rich__toolbar button:active { background: rgba(0, 0, 0, 0.1); }
+.ed-rich__sep {
+  width: 1px;
+  height: 16px;
+  background: var(--ed-line);
+  margin: 0 4px;
+}
+.ed-rich__editor {
+  font-family: var(--ed-font-serif);
+  font-size: 14.5px;
+  line-height: 1.5;
+  padding: 9px 12px;
+  outline: none;
+  color: var(--ed-ink);
+  min-height: 80px;
+}
+.ed-rich__editor p { margin: 0 0 0.5em; }
+.ed-rich__editor p:last-child { margin-bottom: 0; }
+.ed-rich__editor ul, .ed-rich__editor ol { margin: 0 0 0.5em; padding-left: 1.4em; }
+
 /* —— File / image —— */
 .ed-file {
   display: flex;

@@ -10,6 +10,8 @@ const {
   IconMaos, IconComunidade, IconAurora, IconEvento, IconTestemunho, IconLocal, IconArco
 } = window.IARIcons;
 
+const RT = window.RT || (({ children }) => children);
+
 /* ============================================
    Wrappers de escala
 ============================================ */
@@ -69,7 +71,7 @@ function PostFoot({ pages, handle = "@igrejaanglicanario", dark = false }) {
 }
 
 function quoteFontSize(quote, max = 64, min = 40) {
-  const len = (quote || "").trim().length;
+  const len = (quote || "").replace(/<[^>]+>/g, "").trim().length;
   if (len > 72) return min;
   if (len > 58) return min + 6;
   if (len > 44) return min + 12;
@@ -138,7 +140,7 @@ function TplCoverType({ eyebrow = "Anglicanismo 101", title, titleEm, sub }) {
         <div className="t-title">
           {title} {titleEm && <em>{titleEm}</em>}
         </div>
-        {sub && <div className="t-sub">{sub}</div>}
+        {sub && <div className="t-sub"><RT>{sub}</RT></div>}
         <div className="t-rule-accent" />
       </div>
       <PostFoot pages="1 / 6" />
@@ -164,7 +166,7 @@ function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub }) {
           <div className="t-title" style={{ color: "var(--papel)" }}>
             {title} {titleEm && <em style={{ color: "var(--papel)" }}>{titleEm}</em>}
           </div>
-          {sub && <div className="t-sub" style={{ color: "var(--papel-3)" }}>{sub}</div>}
+          {sub && <div className="t-sub" style={{ color: "var(--papel-3)" }}><RT>{sub}</RT></div>}
           <PostFoot pages="1 / 1" />
         </div>
       </div>
@@ -187,7 +189,7 @@ function TplCoverIcon({ Icon, eyebrow, title, titleEm, sub, accent = "var(--esto
         <div className="t-title">
           {title} {titleEm && <em>{titleEm}</em>}
         </div>
-        {sub && <div className="t-sub">{sub}</div>}
+        {sub && <div className="t-sub"><RT>{sub}</RT></div>}
       </div>
       <PostFoot pages="1 / 5" />
     </div>
@@ -244,7 +246,7 @@ function TplCloseCTA({ title, sub, ctaText, page = "6 / 6", dark = true }) {
         </div>
         {sub && (
           <div className="t-body" style={{ marginTop: 32, marginBottom: 56, fontSize: 32, maxWidth: "26ch" }}>
-            {sub}
+            <RT>{sub}</RT>
           </div>
         )}
         <div className="t-cta">
@@ -282,7 +284,7 @@ function TplVerse({ verse, reference, eyebrow = "Palavra de hoje" }) {
           >
             “
           </div>
-          <div className="t-verse">{verse}</div>
+          <div className="t-verse"><RT>{verse}</RT></div>
           <div className="t-verse__ref">{reference}</div>
         </div>
       </div>
@@ -327,7 +329,7 @@ function TplEvent({ kicker, title, date, time, place, sub, photo }) {
           </div>
           {sub && (
             <div className="t-body" style={{ marginTop: 56, color: "var(--papel-3)", maxWidth: "24ch" }}>
-              {sub}
+              <RT>{sub}</RT>
             </div>
           )}
         </div>
@@ -383,7 +385,7 @@ function TplCommunity({ photo, quote, who }) {
         <PostHead category="Bastidores" dark />
         <div className="t-photo-bottom">
           <blockquote className="t-community-quote" style={{ fontSize: quoteSize }}>
-            “{quote}”
+            “<RT>{quote}</RT>”
           </blockquote>
           {who && <div className="t-community-who">{who}</div>}
           <PostFoot pages="" />
@@ -509,7 +511,7 @@ function StoryVerse({ verse, reference }) {
             textWrap: "balance",
           }}
         >
-          {verse}
+          <RT>{verse}</RT>
         </div>
         <div
           style={{
@@ -597,7 +599,7 @@ function StoryQuote({ quote, who, photo }) {
           </div>
         )}
         <blockquote className="t-community-quote t-story-quote-text" style={{ fontSize: quoteSize }}>
-          “{quote}”
+          “<RT>{quote}</RT>”
         </blockquote>
         {who && <div className="t-community-who">{who}</div>}
       </div>
