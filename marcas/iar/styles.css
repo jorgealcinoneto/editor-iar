@@ -511,7 +511,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* Tipografia interna do post */
 .t-eyebrow {
   font-family: var(--font-wide);
-  font-size: 22px;
+  font-size: calc(22px * var(--fscale, 1));
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -522,19 +522,19 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .t-title {
   font-family: var(--font-serif);
-  font-size: 124px;
+  font-size: calc(124px * var(--fscale, 1));
   font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
 .t-title em { font-style: italic; font-weight: 500; }
-.t-title--xl { font-size: 156px; }
-.t-title--sm { font-size: 92px; }
+.t-title--xl { font-size: calc(156px * var(--fscale, 1)); }
+.t-title--sm { font-size: calc(92px * var(--fscale, 1)); }
 
 .t-sub {
   font-family: var(--font-sans);
-  font-size: 32px;
+  font-size: calc(32px * var(--fscale, 1));
   line-height: 1.4;
   font-weight: 400;
   color: var(--grafite-2);
@@ -554,7 +554,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .t-verse {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 56px;
+  font-size: calc(56px * var(--fscale, 1));
   line-height: 1.25;
   color: var(--marinho);
   text-wrap: balance;
@@ -562,7 +562,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .t-verse__ref {
   font-family: var(--font-wide);
   font-style: normal;
-  font-size: 22px;
+  font-size: calc(22px * var(--fscale, 1));
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -574,7 +574,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .t-bigNum {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 280px;
+  font-size: calc(280px * var(--fscale, 1));
   font-weight: 500;
   line-height: 0.85;
   color: var(--estola);
@@ -582,17 +582,17 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .t-h2 {
   font-family: var(--font-serif);
-  font-size: 88px;
+  font-size: calc(88px * var(--fscale, 1));
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.01em;
   margin-bottom: 32px;
   text-wrap: balance;
 }
-.t-h2--sm { font-size: 64px; }
+.t-h2--sm { font-size: calc(64px * var(--fscale, 1)); }
 .t-body {
   font-family: var(--font-sans);
-  font-size: 30px;
+  font-size: calc(30px * var(--fscale, 1));
   line-height: 1.45;
   color: var(--grafite-2);
   font-weight: 400;
@@ -884,8 +884,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .t-story--photo { padding: 0; }
 
-.t-story .t-title { font-size: 132px; }
-.t-story .t-body { font-size: 36px; max-width: 24ch; }
+.t-story .t-title { font-size: calc(132px * var(--fscale, 1)); }
+.t-story .t-body { font-size: calc(36px * var(--fscale, 1)); max-width: 24ch; }
 
 /* Print folder */
 .t-print {
@@ -1070,7 +1070,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .t-mito-claim {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 66px;
+  font-size: calc(66px * var(--fscale, 1));
   line-height: 1.22;
   font-weight: 500;
   color: var(--marinho);
@@ -1088,7 +1088,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .t-mito-punch {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 54px;
+  font-size: calc(54px * var(--fscale, 1));
   line-height: 1.2;
   font-weight: 500;
   color: var(--estola);

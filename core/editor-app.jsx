@@ -47,7 +47,7 @@ function PreviewIar({ tpl, content, tweak, scale }) {
       <div
         className="post-inner"
         data-export="root"
-        style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+        style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left', '--fscale': tweak?.fontScale || 1 }}
       >
         {tpl.render(content)}
       </div>
@@ -83,6 +83,12 @@ function TweaksPanel({ tweak, onChange, marca }) {
     { v: 'left', label: 'Esq.' },
     { v: 'centered', label: 'Centro' },
     { v: 'grid', label: 'Grade' },
+  ];
+  const fontScales = [
+    { v: 0.9, label: 'A−' },
+    { v: 1, label: 'A' },
+    { v: 1.1, label: 'A+' },
+    { v: 1.25, label: 'A++' },
   ];
   const swatchFor = (k) => {
     const p = marca.palettes[k];
@@ -127,6 +133,23 @@ function TweaksPanel({ tweak, onChange, marca }) {
                 title={marca.accents[k].label}
                 style={{ background: marca.accents[k].color }}
               />
+            ))}
+          </div>
+        </div>
+      )}
+      {has('fontScale') && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Fonte</div>
+          <div className="ed-radio">
+            {fontScales.map((opt) => (
+              <button
+                key={opt.v}
+                type="button"
+                className={(tweak.fontScale || 1) === opt.v ? 'is-active' : ''}
+                onClick={() => onChange('fontScale', opt.v)}
+              >
+                {opt.label}
+              </button>
             ))}
           </div>
         </div>

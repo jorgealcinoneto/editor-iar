@@ -7,7 +7,7 @@ window.MARCAS.iar = {
   cssClass: 'marca-iar',
   assetBase: 'marcas/iar/',
   allowTweaks: true,
-  tweakControls: ['palette', 'accent'],
+  tweakControls: ['palette', 'accent', 'fontScale'],
   palettes: {
     papel:  { label: 'Papel',  paper: '#F5EFE6', ink: '#1C2A3A' },
     ocre:   { label: 'Ocre',   paper: '#EFE6D6', ink: '#1C2A3A' },
@@ -23,6 +23,7 @@ window.MARCAS.iar = {
   tweakDefaults: {
     palette: 'papel',
     accent: 'estola',
+    fontScale: 1,
   },
   exportPixelRatio: 1,
   exportFilePrefix: 'iar',
