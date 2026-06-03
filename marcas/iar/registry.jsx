@@ -419,12 +419,13 @@ const TEMPLATES = [
         hint: 'Use <sup>36</sup> pra número de versículo · <strong>texto</strong> pra negrito',
       },
     ],
-    render: (c) => (
+    render: (c, tweak) => (
       <TplLectionary
         title={c.title}
         date={c.date}
         passages={[c.passage1, c.passage2, c.passage3, c.passage4]}
         body={c.body}
+        fontScale={tweak?.fontScale || 1}
       />
     ),
   },

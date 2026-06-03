@@ -409,20 +409,21 @@ function TplLectionary({
   passages = [],
   body,
   handle = "@igrejaanglicanario",
+  fontScale = 1,
 }) {
   const bodyRef = React.useRef(null);
   React.useLayoutEffect(() => {
     const el = bodyRef.current;
     if (!el) return;
-    const MAX = 36, MIN = 22;
+    const MAX = 36 * fontScale, MIN = 22 * fontScale;
     let s = MAX;
     el.style.fontSize = s + "px";
-    let guard = (MAX - MIN) + 2;
+    let guard = Math.ceil(MAX - MIN) + 2;
     while (el.scrollHeight > el.clientHeight + 1 && s > MIN && guard-- > 0) {
       s -= 1;
       el.style.fontSize = s + "px";
     }
-  }, [body, title, date, passages]);
+  }, [body, title, date, passages, fontScale]);
 
   return (
     <div className="t-story t-lectionary">

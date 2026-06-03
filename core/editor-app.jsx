@@ -49,7 +49,7 @@ function PreviewIar({ tpl, content, tweak, scale }) {
         data-export="root"
         style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left', '--fscale': tweak?.fontScale || 1 }}
       >
-        {tpl.render(content)}
+        {tpl.render(content, tweak)}
       </div>
     </div>
   );
