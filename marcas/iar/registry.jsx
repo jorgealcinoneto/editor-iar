@@ -12,6 +12,7 @@ const {
   TplBodyNum, TplBodyIcon, TplCloseCTA,
   TplVerse, TplEvent, TplCommunity, TplLectionary,
   StoryVerse, StoryEvent, StoryQuote, PrintFolder,
+  TplMitoCover, TplMitoVerdict, TplMitoArg, TplMitoCta,
 } = window;
 
 const IAR_BASE = 'marcas/iar/';
@@ -49,6 +50,13 @@ const PRESET_PHOTOS = [
   iarAsset("assets/photo-comunhao.jpg"),
 ];
 
+const FIELD_CATEGORY = {
+  name: "category",
+  label: "Rótulo do topo",
+  type: "text",
+  hint: "Deixe vazio para omitir",
+};
+
 /* ============================================
    Definições dos templates
 ============================================ */
@@ -59,12 +67,14 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Carrossel",
       eyebrow: "Anglicanismo 101 · 01",
       title: "O que é o",
       titleEm: "Anglicanismo?",
       sub: "Em 5 slides, sem enrolação.",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "eyebrow", label: "Categoria (eyebrow)", type: "text", hint: "Ex: 'Anglicanismo 101 · 01'" },
       { name: "title", label: "Título — início", type: "text" },
       { name: "titleEm", label: "Título — palavra em itálico", type: "text", hint: "Destaque em azul-estola" },
@@ -78,6 +88,7 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Comunidade",
       photo: iarAsset("assets/photo-irmas-abraco.jpg"),
       eyebrow: "Domingo passado",
       title: "A gente é",
@@ -85,6 +96,7 @@ const TEMPLATES = [
       sub: "Eucaristia da família.",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "photo", label: "Foto de fundo", type: "photo" },
       { name: "eyebrow", label: "Categoria", type: "text" },
       { name: "title", label: "Título — início", type: "text" },
@@ -99,6 +111,7 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Liturgia",
       icon: "calice",
       eyebrow: "Liturgia · Eucaristia",
       title: "Por que a gente",
@@ -106,6 +119,7 @@ const TEMPLATES = [
       sub: "Quase 2000 anos fazendo o mesmo gesto.",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "icon", label: "Ícone", type: "icon" },
       { name: "eyebrow", label: "Categoria", type: "text" },
       { name: "title", label: "Título — início", type: "text" },
@@ -120,12 +134,14 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Anglicanismo 101",
       num: "i.",
       title: "O caminho do meio.",
       body: "A gente fica <strong>entre</strong> o catolicismo romano e o protestantismo. Os dois, ao mesmo tempo.",
       page: "2 / 6",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "num", label: "Número/Letra grande", type: "text", hint: "Ex: 'i.', '01', '80M', '500'" },
       { name: "title", label: "Título do slide", type: "text" },
       { name: "body", label: "Texto corpo", type: "textarea", hint: "Use <strong>palavra</strong> pra destacar" },
@@ -139,6 +155,7 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Anglicanismo 101",
       icon: "livro",
       eyebrow: "Tradição + Razão + Escritura",
       title: "Os três pilares.",
@@ -146,6 +163,7 @@ const TEMPLATES = [
       page: "3 / 6",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "icon", label: "Ícone", type: "icon" },
       { name: "eyebrow", label: "Eyebrow (opcional)", type: "text" },
       { name: "title", label: "Título", type: "text" },
@@ -160,12 +178,14 @@ const TEMPLATES = [
     group: "Feed · Carrossel",
     w: 1080, h: 1080,
     defaults: {
+      category: "Vem com a gente",
       title: "Vem domingo.",
       sub: "Eucaristia às 10h. Café depois. Sem cobrança, sem inscrição.",
       ctaText: "Como chegar",
       page: "6 / 6",
     },
     fields: [
+      FIELD_CATEGORY,
       { name: "title", label: "Frase principal (CTA)", type: "text" },
       { name: "sub", label: "Sub (contexto)", type: "textarea" },
       { name: "ctaText", label: "Texto do botão", type: "text" },
@@ -206,6 +226,90 @@ const TEMPLATES = [
       { name: "who", label: "Atribuição", type: "text", hint: "Ex: 'Maria, 28' ou data" },
     ],
     render: (c) => <TplCommunity {...c} />,
+  },
+  {
+    id: "mito-cover",
+    name: "Mitos · Capa",
+    group: "Feed · Mitos e Verdades",
+    w: 1080, h: 1080,
+    defaults: {
+      category: "Mitos e Verdades",
+      num: "1",
+      question: "Henrique VIII <em>criou</em> a Igreja Anglicana?",
+      sub: "Spoiler: a história não começa com um rei.",
+    },
+    fields: [
+      FIELD_CATEGORY,
+      { name: "num", label: "Número do episódio", type: "text", hint: "Vira '#1' no selo da série" },
+      { name: "question", label: "Pergunta/mito (título)", type: "textarea", hint: "Use <em>palavra</em> em itálico-estola" },
+      { name: "sub", label: "Subtítulo", type: "textarea" },
+    ],
+    render: (c) => <TplMitoCover {...c} />,
+  },
+  {
+    id: "mito-verdict",
+    name: "Mitos · Veredito (MITO/VERDADE)",
+    group: "Feed · Mitos e Verdades",
+    w: 1080, h: 1080,
+    defaults: {
+      verdict: "mito",
+      claim: "“Henrique VIII criou a Igreja Anglicana para poder se divorciar.”",
+      body: "É a versão mais popular da história. O problema? Ela deixa de fora <strong>mais de mil anos</strong> de cristianismo.",
+      page: "2 / 7",
+    },
+    fields: [
+      {
+        name: "verdict",
+        label: "Veredito",
+        type: "select",
+        options: [
+          { value: "mito", label: "❌ Mito (sangue)" },
+          { value: "verdade", label: "✅ Verdade (estola)" },
+        ],
+      },
+      { name: "claim", label: "Afirmação destacada", type: "textarea", hint: "A frase em itálico — a citação do mito ou da verdade" },
+      { name: "body", label: "Texto de apoio", type: "textarea", hint: "Use <strong>palavra</strong> pra destacar" },
+      { name: "page", label: "Página", type: "text" },
+    ],
+    render: (c) => <TplMitoVerdict {...c} />,
+  },
+  {
+    id: "mito-arg",
+    name: "Mitos · Argumento",
+    group: "Feed · Mitos e Verdades",
+    w: 1080, h: 1080,
+    defaults: {
+      symbol: "📜",
+      body: "Quando Henrique VIII nasceu, em 1491, a Inglaterra já tinha igrejas, bispos, mosteiros, catedrais e uma tradição cristã consolidada.",
+      punch: "Como criar aquilo que já existia antes de nascer?",
+      page: "3 / 7",
+    },
+    fields: [
+      { name: "symbol", label: "Símbolo/emoji", type: "text", hint: "Ex: 📜 ⛪ 🏛️ — deixe vazio para omitir" },
+      { name: "body", label: "Texto corpo", type: "textarea", hint: "Use <strong>palavra</strong> pra destacar" },
+      { name: "punch", label: "Frase de remate (itálico)", type: "textarea", hint: "Opcional — a frase de impacto ao fim" },
+      { name: "page", label: "Página", type: "text" },
+    ],
+    render: (c) => <TplMitoArg {...c} />,
+  },
+  {
+    id: "mito-cta",
+    name: "Mitos · Pergunta (CTA)",
+    group: "Feed · Mitos e Verdades",
+    w: 1080, h: 1080,
+    defaults: {
+      symbol: "💬",
+      title: "E você?",
+      body: "Já tinha ouvido que Henrique VIII criou a Igreja Anglicana? Que outro mito devemos analisar no próximo episódio? <strong>Deixe nos comentários.</strong>",
+      page: "7 / 7",
+    },
+    fields: [
+      { name: "symbol", label: "Símbolo/emoji", type: "text", hint: "Ex: 💬 — deixe vazio para omitir" },
+      { name: "title", label: "Pergunta principal", type: "text" },
+      { name: "body", label: "Texto corpo", type: "textarea", hint: "Use <strong>palavra</strong> pra destacar" },
+      { name: "page", label: "Página", type: "text" },
+    ],
+    render: (c) => <TplMitoCta {...c} />,
   },
   {
     id: "event",

@@ -289,6 +289,22 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
 .ed-rich__editor p:last-child { margin-bottom: 0; }
 .ed-rich__editor ul, .ed-rich__editor ol { margin: 0 0 0.5em; padding-left: 1.4em; }
 
+/* —— Select grid (font picker, palette picker, etc.) —— */
+.ed-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.ed-select-grid button {
+  font: inherit;
+  font-size: 16px;
+  padding: 12px 10px;
+  background: var(--ed-paper);
+  border: 1.5px solid var(--ed-line);
+  border-radius: var(--ed-radius-sm);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.12s, background 0.12s;
+}
+.ed-select-grid button:hover { border-color: var(--ed-line-strong); }
+.ed-select-grid button.is-active { border-color: var(--ed-accent); background: var(--ed-focus); }
+
 /* —— File / image —— */
 .ed-file {
   display: flex;

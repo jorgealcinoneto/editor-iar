@@ -131,10 +131,10 @@ function WaveFooter({ color = "currentColor", opacity = 0.12 }) {
 /* ============================================
    TEMPLATE A — Capa Tipográfica
 ============================================ */
-function TplCoverType({ eyebrow = "Anglicanismo 101", title, titleEm, sub }) {
+function TplCoverType({ eyebrow = "Anglicanismo 101", title, titleEm, sub, category = "Carrossel" }) {
   return (
     <div className="t-post">
-      <PostHead category="Carrossel" />
+      <PostHead category={category} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="t-eyebrow">{eyebrow}</div>
         <div className="t-title">
@@ -152,7 +152,7 @@ function TplCoverType({ eyebrow = "Anglicanismo 101", title, titleEm, sub }) {
 /* ============================================
    TEMPLATE B — Capa com foto fullbleed
 ============================================ */
-function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub }) {
+function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub, category = "Comunidade" }) {
   return (
     <div className="t-post t-post--photo">
       <div className="t-photo-bg">
@@ -160,7 +160,7 @@ function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub }) {
       </div>
       <div className="t-photo-overlay" />
       <div className="t-photo-inner">
-        <PostHead category="Comunidade" dark />
+        <PostHead category={category} dark />
         <div className="t-photo-bottom">
           <div className="t-eyebrow" style={{ color: "var(--estola-claro)" }}>{eyebrow}</div>
           <div className="t-title" style={{ color: "var(--papel)" }}>
@@ -177,10 +177,10 @@ function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub }) {
 /* ============================================
    TEMPLATE C — Capa com ícone (clean)
 ============================================ */
-function TplCoverIcon({ Icon, eyebrow, title, titleEm, sub, accent = "var(--estola)" }) {
+function TplCoverIcon({ Icon, eyebrow, title, titleEm, sub, accent = "var(--estola)", category = "Liturgia" }) {
   return (
     <div className="t-post">
-      <PostHead category="Liturgia" />
+      <PostHead category={category} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div style={{ width: 200, height: 200, color: accent, marginBottom: 40 }}>
           <Icon width="100%" height="100%" />
@@ -199,10 +199,10 @@ function TplCoverIcon({ Icon, eyebrow, title, titleEm, sub, accent = "var(--esto
 /* ============================================
    TEMPLATE D — Slide miolo (número grande)
 ============================================ */
-function TplBodyNum({ num, title, body, page }) {
+function TplBodyNum({ num, title, body, page, category = "Anglicanismo 101" }) {
   return (
     <div className="t-post">
-      <PostHead category="Anglicanismo 101" compact />
+      <PostHead category={category} compact />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="t-bigNum">{num}</div>
         <div className="t-h2">{title}</div>
@@ -216,10 +216,10 @@ function TplBodyNum({ num, title, body, page }) {
 /* ============================================
    TEMPLATE E — Slide miolo (ícone + texto)
 ============================================ */
-function TplBodyIcon({ Icon, eyebrow, title, body, page, accent = "var(--estola)" }) {
+function TplBodyIcon({ Icon, eyebrow, title, body, page, accent = "var(--estola)", category = "Anglicanismo 101" }) {
   return (
     <div className="t-post">
-      <PostHead category="Anglicanismo 101" compact />
+      <PostHead category={category} compact />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div style={{ width: 140, height: 140, color: accent, marginBottom: 40 }}>
           <Icon width="100%" height="100%" />
@@ -236,10 +236,10 @@ function TplBodyIcon({ Icon, eyebrow, title, body, page, accent = "var(--estola)
 /* ============================================
    TEMPLATE F — Encerramento + CTA
 ============================================ */
-function TplCloseCTA({ title, sub, ctaText, page = "6 / 6", dark = true }) {
+function TplCloseCTA({ title, sub, ctaText, page = "6 / 6", dark = true, category = "Vem com a gente" }) {
   return (
     <div className={`t-post ${dark ? "t-post--dark" : ""}`}>
-      <PostHead category="Vem com a gente" dark={dark} />
+      <PostHead category={category} dark={dark} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="t-h2" style={{ color: dark ? "var(--papel)" : "var(--marinho)", fontSize: 96 }}>
           {title}
@@ -713,6 +713,81 @@ function PrintFolder({ title, subtitle, date, photo }) {
   );
 }
 
+/* ============================================
+   SÉRIE — Mitos e Verdades sobre o Anglicanismo
+============================================ */
+function MitoSeriesTag({ num }) {
+  return (
+    <div className="t-mito-tag">
+      <span>Mitos e Verdades</span>
+      {num && <span className="t-mito-tag__num">#{num}</span>}
+    </div>
+  );
+}
+
+function TplMitoCover({ num = "1", question, sub, category = "Mitos e Verdades" }) {
+  return (
+    <div className="t-post">
+      <PostHead category={category} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <MitoSeriesTag num={num} />
+        <div className="t-title t-title--sm"><RT>{question}</RT></div>
+        <div className="t-rule-accent" />
+        {sub && <div className="t-sub" style={{ maxWidth: "24ch" }}><RT>{sub}</RT></div>}
+      </div>
+      <PostFoot pages="1" />
+      <WaveFooter color="var(--estola)" opacity={0.08} />
+    </div>
+  );
+}
+
+function TplMitoVerdict({ verdict = "mito", claim, body, page, category = "" }) {
+  const isMito = verdict !== "verdade";
+  return (
+    <div className="t-post">
+      <PostHead category={category} compact />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div className={`t-mito-badge ${isMito ? "t-mito-badge--mito" : "t-mito-badge--verdade"}`}>
+          <span className="t-mito-badge__icon">{isMito ? "✕" : "✓"}</span>
+          {isMito ? "Mito" : "Verdade"}
+        </div>
+        {claim && <div className="t-mito-claim"><RT>{claim}</RT></div>}
+        {body && <div className="t-body" style={{ maxWidth: "26ch" }}><RT>{body}</RT></div>}
+      </div>
+      <PostFoot pages={page} />
+    </div>
+  );
+}
+
+function TplMitoArg({ symbol = "📜", body, punch, page, category = "" }) {
+  return (
+    <div className="t-post">
+      <PostHead category={category} compact />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {symbol && <div className="t-mito-symbol">{symbol}</div>}
+        {body && <div className="t-body" style={{ maxWidth: "26ch" }}><RT>{body}</RT></div>}
+        {punch && <div className="t-mito-punch"><RT>{punch}</RT></div>}
+      </div>
+      <PostFoot pages={page} />
+    </div>
+  );
+}
+
+function TplMitoCta({ symbol = "💬", title, body, page, category = "" }) {
+  return (
+    <div className="t-post t-post--dark">
+      <PostHead category={category} dark compact />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {symbol && <div className="t-mito-symbol">{symbol}</div>}
+        {title && <div className="t-h2" style={{ color: "var(--papel)" }}><RT>{title}</RT></div>}
+        {body && <div className="t-body" style={{ maxWidth: "26ch" }}><RT>{body}</RT></div>}
+      </div>
+      <PostFoot pages={page} dark />
+      <WaveFooter color="var(--estola-claro)" opacity={0.16} />
+    </div>
+  );
+}
+
 /* exporta para o app */
 Object.assign(window, {
   Post,
@@ -732,4 +807,8 @@ Object.assign(window, {
   StoryQuote,
   PrintFolder,
   TplLectionary,
+  TplMitoCover,
+  TplMitoVerdict,
+  TplMitoArg,
+  TplMitoCta,
 });

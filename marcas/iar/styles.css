@@ -1018,6 +1018,87 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ============================================
+   Série — Mitos e Verdades sobre o Anglicanismo
+============================================ */
+.t-mito-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  align-self: flex-start;
+  padding: 14px 30px;
+  border-radius: 999px;
+  background: var(--estola);
+  color: var(--vela);
+  font-family: var(--font-wide);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+.t-mito-tag__num { opacity: 0.72; }
+
+.t-mito-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  align-self: flex-start;
+  padding: 18px 40px;
+  border-radius: 999px;
+  font-family: var(--font-wide);
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+.t-mito-badge__icon {
+  font-size: 40px;
+  line-height: 1;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.t-mito-badge--mito { background: #F2D9CC; color: var(--sangue); }
+.t-mito-badge--mito .t-mito-badge__icon { background: var(--sangue); color: var(--vela); }
+.t-mito-badge--verdade { background: var(--estola-suave); color: var(--estola); }
+.t-mito-badge--verdade .t-mito-badge__icon { background: var(--estola); color: var(--vela); }
+
+.t-mito-claim {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 66px;
+  line-height: 1.22;
+  font-weight: 500;
+  color: var(--marinho);
+  text-wrap: balance;
+  margin-bottom: 40px;
+  max-width: 20ch;
+}
+
+.t-mito-symbol {
+  font-size: 132px;
+  line-height: 1;
+  margin-bottom: 44px;
+}
+
+.t-mito-punch {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 54px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--estola);
+  margin-top: 44px;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+.t-post--dark .t-mito-punch { color: var(--estola-claro); }
+
+/* ============================================
    Tweaks dinâmicos (editor unificado)
    Aplicados via classes no wrapper .post (pelo PreviewIar)
 ============================================ */

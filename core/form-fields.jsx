@@ -117,6 +117,35 @@ function Field({ field, value, onChange, marca }) {
     );
   }
 
+  if (field.type === 'select') {
+    const options = field.options || [];
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <div className="ed-select-grid">
+          {options.map((opt) => {
+            const v = typeof opt === 'string' ? opt : opt.value;
+            const label = typeof opt === 'string' ? opt : opt.label;
+            const previewStyle = opt && opt.previewStyle ? opt.previewStyle : null;
+            return (
+              <button
+                key={v}
+                type="button"
+                className={value === v ? 'is-active' : ''}
+                onClick={() => onChange(v)}
+                style={previewStyle || undefined}
+                title={label}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+        {field.hint && <div className="ed-field__hint">{field.hint}</div>}
+      </div>
+    );
+  }
+
   if (field.type === 'icon') {
     return (
       <div className="ed-field">
