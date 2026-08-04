@@ -57,10 +57,11 @@
       let inviteError = null;
       if (inviteToken) {
         try {
-          await supabase.rpc('accept_invite', { invite_token: inviteToken });
-        } catch (err) {
-          console.error('accept_invite falhou', err);
-          inviteError = inviteErrorInfo(err);
+          const { error: rpcError } = await supabase.rpc('accept_invite', { invite_token: inviteToken });
+          if (rpcError) {
+            console.error('accept_invite falhou', rpcError);
+            inviteError = inviteErrorInfo(rpcError);
+          }
         } finally {
           cleanInviteFromUrl();
         }
@@ -78,6 +79,7 @@
       }
       const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
         if (!session) {
+          processedRef.current = null;
           setState({ phase: 'login' });
           return;
         }
