@@ -167,6 +167,53 @@ function Field({ field, value, onChange, marca }) {
     );
   }
 
+  if (field.type === 'slider') {
+    const min = field.min ?? 0;
+    const max = field.max ?? 1;
+    const step = field.step ?? 0.05;
+    const current = value ?? field.default ?? max;
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">
+          {field.label}{' '}
+          <span style={{ opacity: 0.6, fontWeight: 400 }}>{Math.round(current * 100)}%</span>
+        </label>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={current}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          style={{ width: '100%' }}
+        />
+        {field.hint && <div className="ed-field__hint">{field.hint}</div>}
+      </div>
+    );
+  }
+
+  if (field.type === 'swatch') {
+    const options = field.options || [];
+    return (
+      <div className="ed-field">
+        <label className="ed-field__label">{field.label}</label>
+        <div className="ed-swatch-row">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={value === opt.value ? 'is-active' : ''}
+              onClick={() => onChange(opt.value)}
+              title={opt.label}
+              style={{ background: opt.value }}
+            />
+          ))}
+        </div>
+        {field.hint && <div className="ed-field__hint">{field.hint}</div>}
+      </div>
+    );
+  }
+
   if (field.type === 'photo' || field.type === 'image') {
     const onFile = (e) => {
       const file = e.target.files?.[0];

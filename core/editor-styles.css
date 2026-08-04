@@ -355,6 +355,24 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
   display: flex; align-items: center; justify-content: center;
 }
 
+.ed-swatch-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ed-swatch-row button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--ed-line);
+  padding: 0;
+  cursor: pointer;
+}
+.ed-swatch-row button.is-active {
+  border: 2px solid var(--ed-accent);
+  box-shadow: 0 0 0 2px var(--ed-accent-soft, rgba(26, 82, 214, 0.15));
+}
+
 /* ============================================
    Stage (preview)
 ============================================ */

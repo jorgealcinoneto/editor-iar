@@ -10,8 +10,9 @@ const {
   Post, Story, Print,
   TplCoverType, TplCoverPhoto, TplCoverIcon,
   TplBodyNum, TplBodyIcon, TplCloseCTA,
-  TplVerse, TplEvent, TplCommunity, TplLectionary,
-  StoryVerse, StoryEvent, StoryQuote, PrintFolder,
+  TplVerse, TplEvent, TplEventV2, TplCommunity, TplCampaign, TplLectionary,
+  StoryVerse, StoryEvent, StoryQuote, StorySpotify, CapaSpotify, BannerYouTube,
+  PrintFolder,
   TplMitoCover, TplMitoVerdict, TplMitoArg, TplMitoCta,
 } = window;
 
@@ -48,6 +49,18 @@ const PRESET_PHOTOS = [
   iarAsset("assets/photo-criancas-craft.jpg"),
   iarAsset("assets/photo-irmas-abraco.jpg"),
   iarAsset("assets/photo-comunhao.jpg"),
+  iarAsset("assets/photo-familia-construcao.jpg"),
+  iarAsset("assets/photo-familia-espaco-novo.png"),
+  iarAsset("assets/photo-padre-orando.jpg"),
+];
+
+const LOGO_SYMBOL = iarAsset('assets/logo-iar-symbol.png');
+
+const CAMPAIGN_PHOTOS = [
+  iarAsset('assets/photo-familia-construcao.jpg'),
+  iarAsset('assets/photo-familia-espaco-novo.png'),
+  iarAsset('assets/photo-comunidade-1.jpg'),
+  iarAsset('assets/photo-comunhao.jpg'),
 ];
 
 const FIELD_CATEGORY = {
@@ -228,6 +241,32 @@ const TEMPLATES = [
     render: (c) => <TplCommunity {...c} />,
   },
   {
+    id: "campaign",
+    name: "Campanha / Comemorativo",
+    group: "Feed · Comunidade",
+    w: 1080, h: 1080,
+    defaults: {
+      photo: null,
+      photos: CAMPAIGN_PHOTOS,
+      intro: "🎉 Depois de 3 meses, a Anglicana Rio está de casa nova!",
+      kicker: "Faça parte dessa construção",
+      title: "Nos ajude a construir o",
+      titleEm: "novo espaço",
+      body: "Toda contribuição é voluntária e usada só neste projeto. Escolha um item ou uma cota — confira como no link da bio.",
+      cta: "Quero contribuir →",
+    },
+    fields: [
+      { name: "photo", label: "Foto de fundo (única)", type: "photo", hint: "Deixe vazio para usar grid de 4 fotos" },
+      { name: "intro", label: "Frase de abertura", type: "text" },
+      { name: "kicker", label: "Kicker", type: "text" },
+      { name: "title", label: "Título — início", type: "text" },
+      { name: "titleEm", label: "Título — palavra em itálico", type: "text" },
+      { name: "body", label: "Corpo", type: "textarea" },
+      { name: "cta", label: "Texto do botão CTA", type: "text" },
+    ],
+    render: (c) => <TplCampaign {...c} />,
+  },
+  {
     id: "mito-cover",
     name: "Mitos · Capa",
     group: "Feed · Mitos e Verdades",
@@ -337,6 +376,53 @@ const TEMPLATES = [
     render: (c) => <TplEvent {...c} />,
   },
   {
+    id: "event-v2",
+    name: "Convite de evento v2",
+    group: "Feed · Evento",
+    w: 1080, h: 1350,
+    defaults: {
+      photo: iarAsset("assets/photo-comunidade-1.jpg"),
+      kicker: "Toda semana",
+      title: "Domingo",
+      date: "Culto da Família",
+      time: "09:30h",
+      place: "Rua Soldado Elias dos Santos, 55, 2º andar — Irajá · Rio de Janeiro",
+      cta: "Venha com a família",
+      overlayOpacity: 0.7,
+      kickerColor: "#D9B65C",
+    },
+    fields: [
+      { name: "photo", label: "Foto de fundo", type: "photo" },
+      { name: "kicker", label: "Categoria do evento", type: "text" },
+      {
+        name: "kickerColor",
+        label: "Cor do kicker",
+        type: "swatch",
+        options: [
+          { value: "#D9B65C", label: "Dourado" },
+          { value: "var(--ambar)", label: "Âmbar" },
+          { value: "var(--papel)", label: "Branco" },
+        ],
+      },
+      { name: "title", label: "Dia da semana", type: "text" },
+      { name: "date", label: "Destaque (herói)", type: "text" },
+      { name: "time", label: "Hora", type: "text" },
+      { name: "place", label: "Local", type: "text" },
+      { name: "cta", label: "Chamada (pílula)", type: "text" },
+      {
+        name: "overlayOpacity",
+        label: "Opacidade do fundo escuro",
+        type: "slider",
+        min: 0.3,
+        max: 1,
+        step: 0.05,
+        default: 0.7,
+        hint: "Menos = foto mais visível",
+      },
+    ],
+    render: (c) => <TplEventV2 {...c} />,
+  },
+  {
     id: "story-verse",
     name: "Story · Versículo",
     group: "Story 9:16",
@@ -428,6 +514,80 @@ const TEMPLATES = [
         fontScale={tweak?.fontScale || 1}
       />
     ),
+  },
+  {
+    id: "story-spotify",
+    name: "Story · Spotify",
+    group: "Story · Spotify",
+    w: 1080, h: 1920,
+    defaults: {
+      photo: iarAsset("assets/photo-padre-orando.jpg"),
+      logoSrc: LOGO_SYMBOL,
+      eyebrow: "Palavra & Liturgia",
+      title: "Do homo sapiens",
+      titleEm: "ao",
+      titleAccent: "Cristus",
+      speaker: "Pr. Jorge Alcino Neto",
+      refs: "18º Domingo no Tempo Comum ·\nGn 32.22-31 / Salmos 17.1-7,15\nRm 9.1-5 / Mt 14.13-21",
+      ctaText: "Ouça no Spotify",
+      handle: "@igrejaanglicanario",
+    },
+    fields: [
+      { name: "photo", label: "Foto de fundo", type: "photo" },
+      { name: "eyebrow", label: "Eyebrow", type: "text" },
+      { name: "title", label: "Título — início", type: "text" },
+      { name: "titleEm", label: "Título — itálico", type: "text" },
+      { name: "titleAccent", label: "Palavra final (âmbar)", type: "text" },
+      { name: "speaker", label: "Pregador", type: "text" },
+      { name: "refs", label: "Referências litúrgicas", type: "textarea", hint: "Quebras de linha permitidas" },
+      { name: "ctaText", label: "Texto do botão", type: "text" },
+      { name: "handle", label: "Handle", type: "text" },
+    ],
+    render: (c) => <StorySpotify {...c} logoSrc={c.logoSrc || LOGO_SYMBOL} />,
+  },
+  {
+    id: "capa-spotify",
+    name: "Capa Spotify",
+    group: "Spotify",
+    w: 1400, h: 1400,
+    defaults: {
+      logoSrc: LOGO_SYMBOL,
+      eyebrow: "Podcast",
+      title: "Palavra",
+      titleEm: "&",
+      titleLine2: "Liturgia",
+      sub: "Sermões e reflexões da Igreja Anglicana Rio",
+      tag: "Sacramental · Litúrgica · Carioca",
+    },
+    fields: [
+      { name: "eyebrow", label: "Eyebrow", type: "text" },
+      { name: "title", label: "Título — linha 1", type: "text" },
+      { name: "titleEm", label: "Título — itálico", type: "text" },
+      { name: "titleLine2", label: "Título — linha 2", type: "text" },
+      { name: "sub", label: "Subtítulo", type: "text" },
+      { name: "tag", label: "Tag do rodapé", type: "text" },
+    ],
+    render: (c) => <CapaSpotify {...c} logoSrc={c.logoSrc || LOGO_SYMBOL} />,
+  },
+  {
+    id: "banner-youtube",
+    name: "Banner YouTube",
+    group: "YouTube",
+    w: 2560, h: 1440,
+    defaults: {
+      logoSrc: LOGO_SYMBOL,
+      eyebrow: "Igreja Anglicana Rio",
+      title: "Palavra",
+      titleEm: "& Liturgia",
+      sub: "Sacramental · Litúrgica · Carioca",
+    },
+    fields: [
+      { name: "eyebrow", label: "Eyebrow", type: "text" },
+      { name: "title", label: "Título", type: "text" },
+      { name: "titleEm", label: "Título — itálico", type: "text" },
+      { name: "sub", label: "Subtítulo", type: "text" },
+    ],
+    render: (c) => <BannerYouTube {...c} logoSrc={c.logoSrc || LOGO_SYMBOL} />,
   },
 ];
 

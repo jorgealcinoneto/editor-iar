@@ -46,13 +46,13 @@ function Print({ children, scale = 0.3387 }) {
 /* ============================================
    Componentes compartilhados — Topo / Rodapé
 ============================================ */
-function PostHead({ category, dark = false, compact = false }) {
+function PostHead({ category, dark = false, compact = false, logoWidth = 56, logoHeight = 64, textScale = 1, legible = false }) {
   return (
-    <div className="t-head" style={compact ? { marginBottom: 32 } : {}}>
+    <div className={'t-head' + (legible ? ' t-head--legible' : '')} style={compact ? { marginBottom: 32 } : {}}>
       <div className="t-mark">
-        <IconLogoMarca width={56} height={64} variant={dark ? "light" : "dark"} />
-        <div className="t-mark__text">
-          <span>Igreja Anglicana</span>
+        <IconLogoMarca width={logoWidth} height={logoHeight} variant={dark ? 'light' : 'dark'} />
+        <div className="t-mark__text" style={textScale !== 1 ? { fontSize: 18 * textScale } : {}}>
+          <span style={textScale !== 1 ? { fontSize: 14 * textScale } : {}}>Igreja Anglicana</span>
           RIO
         </div>
       </div>
@@ -364,11 +364,46 @@ function EventRow({ Icon, label, value }) {
   );
 }
 
+function TplEventV2({ kicker, title, date, time, place, cta, photo, overlayOpacity, kickerColor }) {
+  const ov = overlayOpacity ?? 0.75;
+  return (
+    <div className="t-post t-post--dark t-post--photo t-event-v2">
+      {photo && (
+        <div className="t-photo-bg">
+          <img src={photo} alt="" style={{ objectPosition: 'center 26%' }} />
+        </div>
+      )}
+      <div
+        className="t-event-v2__veil"
+        style={{
+          background: `linear-gradient(180deg, rgba(14,42,71,${Math.max(0.10, 0.10 * ov)}) 0%, rgba(14,42,71,${Math.max(0.28, 0.20 * ov)}) 32%, rgba(14,42,71,${0.70 * ov}) 58%, rgba(14,42,71,${0.95 * ov}) 82%, rgba(14,42,71,${0.98 * ov}) 100%)`,
+        }}
+      />
+      <div className="t-photo-inner t-event-v2__inner">
+        <PostHead category="Evento" dark logoWidth={80} logoHeight={92} textScale={1.3} legible />
+        <div className="t-eyebrow t-event-v2__kicker" style={{ color: kickerColor || 'var(--ambar)' }}>{kicker}</div>
+        <div className="t-event-v2__date">{date}</div>
+        <div className="t-event-v2__meta">
+          {title}{title && time ? ' · ' : ''}{time}
+        </div>
+        {place && (
+          <div className="t-event-v2__place">
+            <div className="t-event-v2__place-icon">
+              <IconLocal width="100%" height="100%" />
+            </div>
+            <div>{place}</div>
+          </div>
+        )}
+        {cta && <div className="t-event-v2__cta">{cta}</div>}
+      </div>
+    </div>
+  );
+}
+
 /* ============================================
    TEMPLATE I — Bastidores / comunidade (foto fullbleed minimal)
 ============================================ */
 function TplCommunity({ photo, quote, who }) {
-  const quoteSize = quoteFontSize(quote);
   return (
     <div className="t-post t-post--photo">
       <div className="t-photo-bg">
@@ -377,19 +412,51 @@ function TplCommunity({ photo, quote, who }) {
       <div
         className="t-photo-overlay"
         style={{
-          background:
-            "linear-gradient(180deg, rgba(14,42,71,0.0) 30%, rgba(14,42,71,0.92) 95%)",
+          background: 'linear-gradient(180deg, rgba(14,42,71,0.0) 30%, rgba(14,42,71,0.92) 95%)',
         }}
       />
       <div className="t-photo-inner">
         <PostHead category="Bastidores" dark />
-        <div className="t-photo-bottom">
-          <blockquote className="t-community-quote" style={{ fontSize: quoteSize }}>
-            “<RT>{quote}</RT>”
-          </blockquote>
-          {who && <div className="t-community-who">{who}</div>}
-          <PostFoot pages="" />
+        <div style={{ flex: 1 }} />
+        <blockquote className="t-community-quote t-community-quote--feed">
+          “<RT>{quote}</RT>”
+        </blockquote>
+        {who && <div className="t-community-who">— {who}</div>}
+        <div style={{ height: 56 }} />
+        <PostFoot pages="" />
+      </div>
+    </div>
+  );
+}
+
+function TplCampaign({ photo, photos, intro, kicker, title, titleEm, body, cta }) {
+  const imgs = photo ? [photo] : (photos || []);
+  return (
+    <div className="t-post t-post--dark t-campaign">
+      <div
+        className="t-campaign__grid"
+        style={{
+          gridTemplateColumns: imgs.length > 1 ? '1fr 1fr' : '1fr',
+          gridTemplateRows: imgs.length > 2 ? '1fr 1fr' : '1fr',
+        }}
+      >
+        {imgs.map((src, i) => (
+          <img key={i} src={src} alt="" className="t-campaign__photo" />
+        ))}
+      </div>
+      <div className="t-campaign__overlay" />
+      <div className="t-photo-inner t-campaign__inner">
+        <PostHead category="" dark logoWidth={80} logoHeight={92} textScale={1.5} />
+        <div className="t-campaign__content">
+          {intro && <div className="t-campaign__intro">{intro}</div>}
+          {kicker && <div className="t-eyebrow t-campaign__kicker">{kicker}</div>}
+          <div className="t-title t-campaign__title">
+            {title} {titleEm && <em>{titleEm}</em>}
+          </div>
+          {body && <div className="t-body t-campaign__body"><RT>{body}</RT></div>}
+          {cta && <div className="t-campaign__cta">{cta}</div>}
         </div>
+        <PostFoot pages="" />
       </div>
     </div>
   );
@@ -426,38 +493,13 @@ function TplLectionary({
   }, [body, title, date, passages, fontScale]);
 
   return (
-    <div className="t-story t-lectionary">
+    <div className="t-story t-lectionary t-lectionary--liturgical">
       <LectionaryBrand />
 
       {/* Título */}
       <div style={{ textAlign: "center", marginTop: 48, marginBottom: 32, flexShrink: 0 }}>
-        <div
-          style={{
-            fontFamily: "var(--font-serif)",
-            fontSize: 88,
-            fontWeight: 600,
-            color: "var(--marinho)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {title}
-        </div>
-        {date && (
-          <div
-            style={{
-              marginTop: 14,
-              fontFamily: "var(--font-wide)",
-              fontSize: 24,
-              fontWeight: 600,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: "var(--estola)",
-            }}
-          >
-            {date}
-          </div>
-        )}
+        <div className="t-lectionary__title">{title}</div>
+        {date && <div className="t-lectionary__date">{date}</div>}
       </div>
 
       <PassagesList passages={passages} />
@@ -550,61 +592,174 @@ function StoryEvent({ kicker, title, date, time, place, photo }) {
       <div className="t-photo-bg">
         <img src={photo} alt="" />
       </div>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(14,42,71,0.4) 0%, rgba(14,42,71,0.5) 40%, rgba(14,42,71,0.95) 100%)",
-        }}
-      />
-      <div className="t-photo-inner t-story-event-inner">
-        <div className="t-story-mark" style={{ width: 100, height: 115 }}>
+      <div className="t-story-event__veil" />
+      <div className="t-story-event__inner">
+        <div className="t-story-mark">
           <IconLogoMarca width={100} height={115} variant="light" />
         </div>
-        <div className="t-photo-bottom">
-          <div className="t-story-event-kicker">{kicker}</div>
-          <div className="t-story-event-title">{title}</div>
-          <div className="t-story-event-meta">
-            <div className="t-story-event-row">
-              <span className="t-story-event-row__icon">
-                <IconEvento width="100%" height="100%" />
-              </span>
-              <span className="t-story-event-row__text">{date} · {time}</span>
-            </div>
-            <div className="t-story-event-row">
-              <span className="t-story-event-row__icon">
-                <IconLocal width="100%" height="100%" />
-              </span>
-              <span className="t-story-event-row__text">{place}</span>
-            </div>
+        <div style={{ flex: 1 }} />
+        <div className="t-story-event-kicker">{kicker}</div>
+        <div className="t-story-event-title t-story-event-title--hero">{title}</div>
+        <div className="t-story-event-meta">
+          <div className="t-story-event-row">
+            <span className="t-story-event-row__icon">
+              <IconEvento width="100%" height="100%" />
+            </span>
+            <span className="t-story-event-row__text">{date} · {time}</span>
           </div>
-          <div className="t-story-event-cta">Toca aqui pra confirmar →</div>
+          <div className="t-story-event-row">
+            <span className="t-story-event-row__icon">
+              <IconLocal width="100%" height="100%" />
+            </span>
+            <span className="t-story-event-row__text">{place}</span>
+          </div>
         </div>
+        <div className="t-story-event-cta">Toca aqui pra confirmar →</div>
       </div>
     </div>
   );
 }
 
 function StoryQuote({ quote, who, photo }) {
-  const quoteSize = quoteFontSize(quote, 64, 44);
   return (
     <div className="t-story t-story-quote">
-      <div className="t-story-mark" style={{ width: 100, height: 115, color: "var(--marinho)" }}>
+      <div className="t-story-mark" style={{ color: 'var(--marinho)' }}>
         <IconLogoMarca width="100%" height="100%" />
       </div>
       <div className="t-story-quote-body">
         {photo && (
-          <div className="t-story-quote-photo">
+          <div className="t-story-quote-photo t-story-quote-photo--lg">
             <img src={photo} alt="" />
           </div>
         )}
-        <blockquote className="t-community-quote t-story-quote-text" style={{ fontSize: quoteSize }}>
+        <blockquote className="t-community-quote t-story-quote-text">
           “<RT>{quote}</RT>”
         </blockquote>
         {who && <div className="t-community-who">{who}</div>}
       </div>
       <div className="t-story-quote-handle">@igrejaanglicanario</div>
+    </div>
+  );
+}
+
+function IconSpotify() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 1.5A10.5 10.5 0 1 0 22.5 12A10.51 10.51 0 0 0 12 1.5Zm4.63 15.4a.85.85 0 0 1-1.17.28c-3.2-1.96-7.23-2.4-11.98-1.31a.85.85 0 1 1-.38-1.66c5.2-1.19 9.66-.68 13.25 1.51a.85.85 0 0 1 .28 1.18Zm1.24-3.1a1.06 1.06 0 0 1-1.46.35c-3.66-2.25-9.24-2.9-13.57-1.59a1.06 1.06 0 1 1-.62-2.04c4.94-1.5 11.09-.77 15.3 1.82a1.06 1.06 0 0 1 .35 1.46Zm.11-3.23C13.62 7.97 6.4 7.72 2.72 8.84a1.28 1.28 0 1 1-.74-2.45C6.2 5.11 14.17 5.4 19.1 8.33a1.28 1.28 0 1 1-1.3 2.2Z" />
+    </svg>
+  );
+}
+
+function StorySpotify({
+  photo,
+  logoSrc,
+  eyebrow = 'Palavra & Liturgia',
+  title,
+  titleEm,
+  titleAccent,
+  speaker,
+  refs,
+  ctaText = 'Ouça no Spotify',
+  handle = '@igrejaanglicanario',
+}) {
+  return (
+    <div className="t-story t-spotify-story">
+      <div className="t-spotify-story__halo" />
+      {photo && <img className="t-spotify-story__photo" src={photo} alt="" />}
+      <div className="t-spotify-story__tint" />
+      <div className="t-spotify-story__veil" />
+      <div className="t-spotify-story__frame" />
+      <span className="t-spotify-story__corner t-spotify-story__corner--tl" />
+      <span className="t-spotify-story__corner t-spotify-story__corner--tr" />
+      <span className="t-spotify-story__corner t-spotify-story__corner--bl" />
+      <span className="t-spotify-story__corner t-spotify-story__corner--br" />
+      <div className="t-spotify-story__inner">
+        <div className="t-spotify-story__brand">
+          {logoSrc && <img src={logoSrc} alt="Igreja Anglicana Rio" className="t-spotify-story__logo" />}
+          <div className="t-spotify-story__brand-text">
+            <span>Igreja Anglicana</span>
+            RIO
+          </div>
+        </div>
+        <div className="t-spotify-story__body">
+          <div className="t-spotify-story__eyebrow">{eyebrow}</div>
+          <div className="t-spotify-story__rule" />
+          <h1 className="t-spotify-story__title">
+            {title}{' '}
+            {titleEm && <em>{titleEm}</em>}
+            {' '}homo{' '}
+            {titleAccent && <em className="t-spotify-story__accent">{titleAccent}</em>}
+          </h1>
+          {speaker && <div className="t-spotify-story__speaker">{speaker}</div>}
+          {refs && <div className="t-spotify-story__refs">{refs}</div>}
+        </div>
+        <div className="t-spotify-story__foot">
+          {ctaText && (
+            <div className="t-spotify-story__cta">
+              <IconSpotify />
+              {ctaText}
+            </div>
+          )}
+          <div className="t-spotify-story__handle">{handle}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CapaSpotify({
+  logoSrc,
+  eyebrow = 'Podcast',
+  title,
+  titleEm,
+  titleLine2,
+  sub,
+  tag = 'Sacramental · Litúrgica · Carioca',
+}) {
+  return (
+    <div className="t-spotify-cover">
+      <div className="t-spotify-cover__halo" />
+      <div className="t-spotify-cover__frame" />
+      <span className="t-spotify-cover__corner t-spotify-cover__corner--tl" />
+      <span className="t-spotify-cover__corner t-spotify-cover__corner--tr" />
+      <span className="t-spotify-cover__corner t-spotify-cover__corner--bl" />
+      <span className="t-spotify-cover__corner t-spotify-cover__corner--br" />
+      <div className="t-spotify-cover__inner">
+        {logoSrc && <img className="t-spotify-cover__logo" src={logoSrc} alt="Igreja Anglicana Rio" />}
+        <div className="t-spotify-cover__eyebrow">{eyebrow}</div>
+        <div className="t-spotify-cover__rule" />
+        <h1 className="t-spotify-cover__title">
+          {title} {titleEm && <em>{titleEm}</em>}
+          {titleLine2 && <><br />{titleLine2}</>}
+        </h1>
+        {sub && <p className="t-spotify-cover__sub">{sub}</p>}
+      </div>
+      {tag && <div className="t-spotify-cover__tag">{tag}</div>}
+    </div>
+  );
+}
+
+function BannerYouTube({
+  logoSrc,
+  eyebrow = 'Igreja Anglicana Rio',
+  title,
+  titleEm,
+  sub = 'Sacramental · Litúrgica · Carioca',
+}) {
+  return (
+    <div className="t-youtube-banner">
+      <div className="t-youtube-banner__halo" />
+      <div className="t-youtube-banner__safe">
+        {logoSrc && <img className="t-youtube-banner__logo" src={logoSrc} alt="Igreja Anglicana Rio" />}
+        <div className="t-youtube-banner__divider" />
+        <div className="t-youtube-banner__txt">
+          <div className="t-youtube-banner__eyebrow">{eyebrow}</div>
+          <h1 className="t-youtube-banner__title">
+            {title} {titleEm && <em>{titleEm}</em>}
+          </h1>
+          {sub && <div className="t-youtube-banner__sub">{sub}</div>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -802,10 +957,15 @@ Object.assign(window, {
   TplCloseCTA,
   TplVerse,
   TplEvent,
+  TplEventV2,
   TplCommunity,
+  TplCampaign,
   StoryVerse,
   StoryEvent,
   StoryQuote,
+  StorySpotify,
+  CapaSpotify,
+  BannerYouTube,
   PrintFolder,
   TplLectionary,
   TplMitoCover,
