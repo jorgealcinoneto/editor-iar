@@ -155,7 +155,7 @@ Members não acedem ao admin (guard por role).
 3. PNG export reflecte logo + cores B
 4. Isolamento: user org A não vê skin/dados B
 5. Member sem acesso admin
-6. Smoke free tier: 2 orgs, &lt;10 users
+6. Smoke free tier: 2 orgs, menos de 10 users
 
 ## Ordem de implementação
 
