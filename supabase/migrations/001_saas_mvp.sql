@@ -98,3 +98,25 @@ create policy org_logos_public_read on storage.objects for select
 create policy org_logos_superadmin_write on storage.objects for all
   using (bucket_id = 'org-logos' and public.is_superadmin())
   with check (bucket_id = 'org-logos' and public.is_superadmin());
+
+create or replace function public.accept_invite(invite_token text)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  inv public.invites%rowtype;
+begin
+  select * into inv from public.invites
+  where token = invite_token and status = 'pending' and expires_at > now();
+  if not found then raise exception 'invalid_invite'; end if;
+  if lower(inv.email) <> lower(auth.jwt()->>'email') then raise exception 'email_mismatch'; end if;
+  insert into public.org_members (org_id, user_id, role)
+  values (inv.org_id, auth.uid(), 'member')
+  on conflict do nothing;
+  update public.invites set status = 'accepted' where id = inv.id;
+  return inv.org_id;
+end;
+$$;
+grant execute on function public.accept_invite(text) to authenticated;

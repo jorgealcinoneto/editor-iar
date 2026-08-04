@@ -53,4 +53,14 @@ window.addEventListener('error', (e) => {
   console.error(e.error || e.message);
 });
 
-bootEditor();
+window.startEditorAfterAuth = bootEditor;
+
+function boot() {
+  if (window.SAAS_MODE) {
+    if (typeof window.mountAuthGate === 'function') window.mountAuthGate();
+    return;
+  }
+  bootEditor();
+}
+
+boot();
