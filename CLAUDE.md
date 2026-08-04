@@ -10,7 +10,7 @@ Hub form-based: escolher **marca** (IAR ou OFMJ) → template → campos → pre
 - **`admin.html`:** superadmin — CRUD orgs, logo, tema, convites (`core/admin-app.jsx`).
 - **`config.js`** (gitignored, copiar de `config.example.js`): `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
 - **Schema:** `supabase/migrations/001_saas_mvp.sql` — aplicar no SQL Editor; seed manual de superadmin após primeiro login.
-- **Legado offline:** `SAAS_MODE = false` (ou `index-legacy.html`) → `MARCA_FORCADA`, sem Supabase; IAR + OFMJ local.
+- **Legado offline:** `SAAS_MODE = false` → `MARCA_FORCADA`, sem Supabase; IAR + OFMJ local.
 
 Ver README § Modo SaaS, Modo legado, Checklist E2E.
 
@@ -34,7 +34,7 @@ Ver README § Modo SaaS, Modo legado, Checklist E2E.
 - **IAR:** paleta travada, sem painel de tweaks, export 1× (`pixelRatio: 1`).
 - **OFMJ:** paletas/acentos/layout em `templates.jsx`, export 3×. Fora do path SaaS.
 
-Estado `localStorage`: `ed:iar:state`, `ed:ofmj:state`, `ed:marcaActiva`; com SaaS, sufixo `:orgId` na chave IAR.
+Estado `localStorage`: `ed:iar:state`, `ed:ofmj:state`, `ed:marcaActiva`; com SaaS, chave IAR é `ed:{orgId}:state`.
 
 ## Comandos
 

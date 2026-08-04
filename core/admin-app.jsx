@@ -45,8 +45,8 @@
       const { data, error } = await supabase.from('orgs').select('*').order('created_at', { ascending: true });
       if (error) { setMessage({ type: 'error', text: error.message }); return; }
       setOrgs(data || []);
-      if (!inviteOrgId && data && data.length > 0) setInviteOrgId(data[0].id);
-    }, [inviteOrgId]);
+      setInviteOrgId((prev) => prev || data?.[0]?.id || '');
+    }, []);
 
     const checkAccess = useCallback(async (supabase, user) => {
       const { data, error } = await supabase
@@ -71,7 +71,7 @@
       }
       const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
         if (!session) { setState({ phase: 'login' }); return; }
-        checkAccess(supabase, session.user);
+        setTimeout(() => checkAccess(supabase, session.user), 0);
       });
       return () => sub?.subscription?.unsubscribe();
     }, [checkAccess]);

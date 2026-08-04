@@ -20,11 +20,11 @@ function getBrandLines() {
 }
 
 function getBrandHandle(handle) {
-  return window.ORG_SKIN?.handle || handle || '@igrejaanglicanario';
+  return handle || window.ORG_SKIN?.handle || '@igrejaanglicanario';
 }
 
-function getBrandName(fallback = 'Igreja Anglicana Rio') {
-  return window.ORG_SKIN?.name || fallback;
+function getBrandName(name) {
+  return name || window.ORG_SKIN?.name || 'Igreja Anglicana Rio';
 }
 
 function getBrandLogo(logoSrc) {
@@ -497,7 +497,7 @@ function TplLectionary({
   date,
   passages = [],
   body,
-  handle = "@igrejaanglicanario",
+  handle,
   fontScale = 1,
 }) {
   const brandHandle = getBrandHandle(handle);
@@ -800,7 +800,7 @@ function BannerYouTube({
 /* ============================================
    IMPRESSO — Capa de boletim/folheto A4
 ============================================ */
-function PrintFolder({ title, subtitle, date, photo }) {
+function PrintFolder({ title, subtitle, date, photo, clergy = '', tagline = '' }) {
   const { line1, line2 } = getBrandLines();
   const brandName = getBrandName();
   const brandHandle = getBrandHandle();
@@ -894,11 +894,11 @@ function PrintFolder({ title, subtitle, date, photo }) {
       >
         <div>
           <div style={{ fontWeight: 600, color: "var(--marinho)" }}>{brandName}</div>
-          <div>Rev. Jorge Alcino · Revda. Raquel Fernandes</div>
+          {clergy && <div>{clergy}</div>}
         </div>
         <div style={{ textAlign: "right" }}>
           <div>{brandHandle}</div>
-          <div style={{ color: "var(--grafite-3)" }}>Em plantação — uma igreja família</div>
+          {tagline && <div style={{ color: "var(--grafite-3)" }}>{tagline}</div>}
         </div>
       </div>
     </div>

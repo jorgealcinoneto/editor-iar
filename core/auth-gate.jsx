@@ -83,7 +83,7 @@
           setState({ phase: 'login' });
           return;
         }
-        handleSession(supabase, session.user);
+        setTimeout(() => handleSession(supabase, session.user), 0);
       });
       return () => sub?.subscription?.unsubscribe();
     }, [handleSession]);

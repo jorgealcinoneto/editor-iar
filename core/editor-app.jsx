@@ -323,6 +323,11 @@ function App() {
     return () => window.removeEventListener('resize', measure);
   }, [marcaId]);
 
+  const brandLines = useMemo(
+    () => window.getSkinBrandLines(skin || { name: marca?.name }),
+    [skin, marca],
+  );
+
   const tpl = useMemo(() => templates.find((t) => t.id === tplId) || templates[0], [templates, tplId]);
   const content = contentsByMarca[marcaId]?.[tpl?.id] || tpl?.defaults || {};
   const tweak = tweaksByMarca[marcaId] || marca?.tweakDefaults || {};
@@ -440,8 +445,8 @@ function App() {
             <>
               {IconLogoMarca && <IconLogoMarca width={36} height={42} variant="light" />}
               <div className="ed-bar__brand ed-bar__brand--iar">
-                <span className="ed-bar__kicker">{marca.handle || 'Igreja Anglicana'}</span>
-                <span className="ed-bar__name">{marca.name || 'Rio'}</span>
+                <span className="ed-bar__kicker">{brandLines.line1 || 'Igreja Anglicana'}</span>
+                <span className="ed-bar__name">{brandLines.line2 || 'Rio'}</span>
               </div>
               <div className="ed-bar__title">· editor de posts</div>
             </>

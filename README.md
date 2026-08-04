@@ -28,11 +28,22 @@ values ('ORG_UUID', 'USER_UUID', 'superadmin');
 6. **Admin** — `http://localhost:8080/admin.html`: CRUD de orgs, upload de logo, tema, convites. Link gerado: `{origin}/index.html?invite={token}`.
 7. **Convite** — member abre o link → login com o mesmo email → RPC `accept_invite` → editor com skin da org.
 
+### Magic link — Auth → URL Configuration
+
+No Supabase, em **Authentication → URL Configuration**, configurar:
+
+- **Site URL**: origem principal (ex.: `http://localhost:8080` em dev, ou a origem do GitHub Pages em produção).
+- **Redirect URLs**: adicionar `http://localhost:8080/**` (dev) e `https://<org>.github.io/**` (Pages), para que o link do email de acesso redirecione de volta para o editor.
+
+Sem isto, o magic link pode redirecionar para o Site URL errado e falhar o login.
+
+O free tier do Supabase usa o SMTP partilhado deles, com limite baixo de emails/hora — suficiente para dev e poucas orgs, mas considerar SMTP próprio (Settings → Auth → SMTP) antes de escalar convites.
+
 ## Modo legado (offline, sem Supabase)
 
 Para IAR/OFMJ local sem auth, desactivar SaaS:
 
-- Em `index.html`, mudar `window.SAAS_MODE = true` para `false` (ou copiar para `index-legacy.html` com essa alteração).
+- Em `index.html`, mudar `window.SAAS_MODE = true` para `false`.
 - Com `SAAS_MODE` false, o boot usa `window.MARCA_FORCADA` e ignora Supabase; selector IAR/OFMJ e `localStorage` por marca como antes.
 
 ```bash
@@ -40,7 +51,7 @@ Para IAR/OFMJ local sem auth, desactivar SaaS:
 ./stop-editor.sh
 ```
 
-Estado guardado em `localStorage` por marca (`ed:iar:state`, `ed:ofmj:state`); no SaaS, chave inclui `orgId` (`ed:iar:state:{orgId}`).
+Estado guardado em `localStorage` por marca (`ed:iar:state`, `ed:ofmj:state`); no SaaS, chave é `ed:{orgId}:state`.
 
 ## Publicar (GitHub Pages)
 
