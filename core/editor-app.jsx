@@ -9,9 +9,18 @@ function getMarca(id) {
   return window.MARCAS?.[id] || null;
 }
 
+function saasOrgId() {
+  return window.SAAS_MODE ? window.ORG_MEMBERSHIP?.orgId : null;
+}
+
+function stateKey(marcaId) {
+  const oid = saasOrgId();
+  return oid ? `ed:${oid}:state` : `ed:${marcaId}:state`;
+}
+
 function loadMarcaState(marcaId) {
   try {
-    const raw = localStorage.getItem(`ed:${marcaId}:state`);
+    const raw = localStorage.getItem(stateKey(marcaId));
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -20,7 +29,7 @@ function loadMarcaState(marcaId) {
 
 function saveMarcaState(marcaId, state) {
   try {
-    localStorage.setItem(`ed:${marcaId}:state`, JSON.stringify(state));
+    localStorage.setItem(stateKey(marcaId), JSON.stringify(state));
   } catch {}
 }
 
@@ -223,8 +232,9 @@ function GalleryBrowser({ marca, tpl, content, onPick }) {
 }
 
 function App() {
-  const forced = window.MARCA_FORCADA;
+  const forced = window.SAAS_MODE ? 'iar' : window.MARCA_FORCADA;
   const showSelector = !forced;
+  const skin = window.ORG_SKIN;
 
   const [marcaId, setMarcaId] = useState(() => {
     if (forced && getMarca(forced)) return forced;
@@ -232,7 +242,11 @@ function App() {
     return saved && getMarca(saved) ? saved : 'iar';
   });
 
-  const marca = getMarca(marcaId);
+  const marca = useMemo(() => {
+    const baseMarca = getMarca(marcaId);
+    if (!window.SAAS_MODE || !skin || !baseMarca) return baseMarca;
+    return { ...baseMarca, id: 'church-v1', name: skin.name, handle: skin.handle };
+  }, [marcaId, skin]);
   const templates = marca?.templates || [];
 
   const [tplId, setTplId] = useState(() => templates[0]?.id || '');
@@ -280,6 +294,10 @@ function App() {
   }, [marcaId, marca, showSelector]);
 
   useEffect(() => {
+    if (skin) document.title = `Editor — ${skin.name}`;
+  }, [skin]);
+
+  useEffect(() => {
     const tpl = templates.find((t) => t.id === tplId);
     if (!tpl && templates[0]) setTplId(templates[0].id);
   }, [marcaId, templates, tplId]);
@@ -304,6 +322,11 @@ function App() {
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
   }, [marcaId]);
+
+  const brandLines = useMemo(
+    () => window.getSkinBrandLines(skin || { name: marca?.name }),
+    [skin, marca],
+  );
 
   const tpl = useMemo(() => templates.find((t) => t.id === tplId) || templates[0], [templates, tplId]);
   const content = contentsByMarca[marcaId]?.[tpl?.id] || tpl?.defaults || {};
@@ -422,8 +445,8 @@ function App() {
             <>
               {IconLogoMarca && <IconLogoMarca width={36} height={42} variant="light" />}
               <div className="ed-bar__brand ed-bar__brand--iar">
-                <span className="ed-bar__kicker">Igreja Anglicana</span>
-                <span className="ed-bar__name">Rio</span>
+                <span className="ed-bar__kicker">{brandLines.line1 || 'Igreja Anglicana'}</span>
+                <span className="ed-bar__name">{brandLines.line2 || 'Rio'}</span>
               </div>
               <div className="ed-bar__title">· editor de posts</div>
             </>

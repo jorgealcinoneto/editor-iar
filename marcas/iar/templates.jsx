@@ -11,6 +11,25 @@ const {
 } = window.IARIcons;
 
 const RT = window.RT || (({ children }) => children);
+const IAR_BRAND = { name: 'Igreja Anglicana Rio' };
+
+function getBrandLines() {
+  return (window.getSkinBrandLines || (() => ({ line1: 'Igreja Anglicana', line2: 'RIO' })))(
+    window.ORG_SKIN || IAR_BRAND
+  );
+}
+
+function getBrandHandle(handle) {
+  return handle || window.ORG_SKIN?.handle || '@igrejaanglicanario';
+}
+
+function getBrandName(name) {
+  return name || window.ORG_SKIN?.name || 'Igreja Anglicana Rio';
+}
+
+function getBrandLogo(logoSrc) {
+  return window.ORG_SKIN?.logoUrl || logoSrc;
+}
 
 /* ============================================
    Wrappers de escala
@@ -47,13 +66,14 @@ function Print({ children, scale = 0.3387 }) {
    Componentes compartilhados — Topo / Rodapé
 ============================================ */
 function PostHead({ category, dark = false, compact = false, logoWidth = 56, logoHeight = 64, textScale = 1, legible = false }) {
+  const { line1, line2 } = getBrandLines();
   return (
     <div className={'t-head' + (legible ? ' t-head--legible' : '')} style={compact ? { marginBottom: 32 } : {}}>
       <div className="t-mark">
         <IconLogoMarca width={logoWidth} height={logoHeight} variant={dark ? 'light' : 'dark'} />
         <div className="t-mark__text" style={textScale !== 1 ? { fontSize: 18 * textScale } : {}}>
-          <span style={textScale !== 1 ? { fontSize: 14 * textScale } : {}}>Igreja Anglicana</span>
-          RIO
+          <span style={textScale !== 1 ? { fontSize: 14 * textScale } : {}}>{line1}</span>
+          {line2 || 'RIO'}
         </div>
       </div>
       {category && <div className="t-category">{category}</div>}
@@ -61,10 +81,11 @@ function PostHead({ category, dark = false, compact = false, logoWidth = 56, log
   );
 }
 
-function PostFoot({ pages, handle = "@igrejaanglicanario", dark = false }) {
+function PostFoot({ pages, handle, dark = false }) {
+  const h = getBrandHandle(handle);
   return (
     <div className="t-foot">
-      <div className="t-foot__handle">{handle}</div>
+      <div className="t-foot__handle">{h}</div>
       {pages && <div className="t-foot__pages">{pages}</div>}
     </div>
   );
@@ -80,12 +101,13 @@ function quoteFontSize(quote, max = 64, min = 40) {
 }
 
 function LectionaryBrand() {
+  const { line1, line2 } = getBrandLines();
   return (
     <div className="t-lectionary-brand">
       <IconLogoMarca width={120} height={138} variant="dark" />
       <div className="t-lectionary-brand__text">
-        <div className="t-lectionary-brand__line">Igreja Anglicana</div>
-        <div className="t-lectionary-brand__rio">Rio</div>
+        <div className="t-lectionary-brand__line">{line1}</div>
+        <div className="t-lectionary-brand__rio">{line2 || 'Rio'}</div>
       </div>
     </div>
   );
@@ -475,9 +497,10 @@ function TplLectionary({
   date,
   passages = [],
   body,
-  handle = "@igrejaanglicanario",
+  handle,
   fontScale = 1,
 }) {
+  const brandHandle = getBrandHandle(handle);
   const bodyRef = React.useRef(null);
   React.useLayoutEffect(() => {
     const el = bodyRef.current;
@@ -525,7 +548,7 @@ function TplLectionary({
           flexShrink: 0,
         }}
       >
-        {handle}
+        {brandHandle}
       </div>
 
       <WaveFooter color="var(--estola)" opacity={0.08} />
@@ -537,6 +560,7 @@ function TplLectionary({
    STORIES
 ============================================ */
 function StoryVerse({ verse, reference }) {
+  const brandHandle = getBrandHandle();
   return (
     <div className="t-story">
       <div style={{ width: 120, height: 138, color: "var(--marinho)", marginBottom: 64 }}>
@@ -579,7 +603,7 @@ function StoryVerse({ verse, reference }) {
           color: "var(--grafite-3)",
         }}
       >
-        @igrejaanglicanario
+        {brandHandle}
       </div>
       <WaveFooter color="var(--estola)" opacity={0.1} />
     </div>
@@ -621,6 +645,7 @@ function StoryEvent({ kicker, title, date, time, place, photo }) {
 }
 
 function StoryQuote({ quote, who, photo }) {
+  const brandHandle = getBrandHandle();
   return (
     <div className="t-story t-story-quote">
       <div className="t-story-mark" style={{ color: 'var(--marinho)' }}>
@@ -637,7 +662,7 @@ function StoryQuote({ quote, who, photo }) {
         </blockquote>
         {who && <div className="t-community-who">{who}</div>}
       </div>
-      <div className="t-story-quote-handle">@igrejaanglicanario</div>
+      <div className="t-story-quote-handle">{brandHandle}</div>
     </div>
   );
 }
@@ -662,6 +687,10 @@ function StorySpotify({
   ctaText = 'Ouça no Spotify',
   handle = '@igrejaanglicanario',
 }) {
+  const { line1, line2 } = getBrandLines();
+  const brandLogo = getBrandLogo(logoSrc);
+  const brandName = getBrandName();
+  const brandHandle = getBrandHandle(handle);
   return (
     <div className="t-story t-spotify-story">
       <div className="t-spotify-story__halo" />
@@ -675,10 +704,10 @@ function StorySpotify({
       <span className="t-spotify-story__corner t-spotify-story__corner--br" />
       <div className="t-spotify-story__inner">
         <div className="t-spotify-story__brand">
-          {logoSrc && <img src={logoSrc} alt="Igreja Anglicana Rio" className="t-spotify-story__logo" />}
+          {brandLogo && <img src={brandLogo} alt={brandName} className="t-spotify-story__logo" />}
           <div className="t-spotify-story__brand-text">
-            <span>Igreja Anglicana</span>
-            RIO
+            <span>{line1}</span>
+            {line2 || 'RIO'}
           </div>
         </div>
         <div className="t-spotify-story__body">
@@ -700,7 +729,7 @@ function StorySpotify({
               {ctaText}
             </div>
           )}
-          <div className="t-spotify-story__handle">{handle}</div>
+          <div className="t-spotify-story__handle">{brandHandle}</div>
         </div>
       </div>
     </div>
@@ -716,6 +745,8 @@ function CapaSpotify({
   sub,
   tag = 'Sacramental · Litúrgica · Carioca',
 }) {
+  const brandLogo = getBrandLogo(logoSrc);
+  const brandName = getBrandName();
   return (
     <div className="t-spotify-cover">
       <div className="t-spotify-cover__halo" />
@@ -725,7 +756,7 @@ function CapaSpotify({
       <span className="t-spotify-cover__corner t-spotify-cover__corner--bl" />
       <span className="t-spotify-cover__corner t-spotify-cover__corner--br" />
       <div className="t-spotify-cover__inner">
-        {logoSrc && <img className="t-spotify-cover__logo" src={logoSrc} alt="Igreja Anglicana Rio" />}
+        {brandLogo && <img className="t-spotify-cover__logo" src={brandLogo} alt={brandName} />}
         <div className="t-spotify-cover__eyebrow">{eyebrow}</div>
         <div className="t-spotify-cover__rule" />
         <h1 className="t-spotify-cover__title">
@@ -746,14 +777,16 @@ function BannerYouTube({
   titleEm,
   sub = 'Sacramental · Litúrgica · Carioca',
 }) {
+  const brandLogo = getBrandLogo(logoSrc);
+  const brandName = getBrandName(eyebrow);
   return (
     <div className="t-youtube-banner">
       <div className="t-youtube-banner__halo" />
       <div className="t-youtube-banner__safe">
-        {logoSrc && <img className="t-youtube-banner__logo" src={logoSrc} alt="Igreja Anglicana Rio" />}
+        {brandLogo && <img className="t-youtube-banner__logo" src={brandLogo} alt={brandName} />}
         <div className="t-youtube-banner__divider" />
         <div className="t-youtube-banner__txt">
-          <div className="t-youtube-banner__eyebrow">{eyebrow}</div>
+          <div className="t-youtube-banner__eyebrow">{brandName}</div>
           <h1 className="t-youtube-banner__title">
             {title} {titleEm && <em>{titleEm}</em>}
           </h1>
@@ -767,15 +800,18 @@ function BannerYouTube({
 /* ============================================
    IMPRESSO — Capa de boletim/folheto A4
 ============================================ */
-function PrintFolder({ title, subtitle, date, photo }) {
+function PrintFolder({ title, subtitle, date, photo, clergy = '', tagline = '' }) {
+  const { line1, line2 } = getBrandLines();
+  const brandName = getBrandName();
+  const brandHandle = getBrandHandle();
   return (
     <div className="t-print">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div className="t-mark">
           <IconLogoMarca width={72} height={84} />
           <div className="t-mark__text">
-            <span>Igreja Anglicana</span>
-            RIO
+            <span>{line1}</span>
+            {line2 || 'RIO'}
           </div>
         </div>
         <div
@@ -857,12 +893,12 @@ function PrintFolder({ title, subtitle, date, photo }) {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, color: "var(--marinho)" }}>Igreja Anglicana Rio</div>
-          <div>Rev. Jorge Alcino · Revda. Raquel Fernandes</div>
+          <div style={{ fontWeight: 600, color: "var(--marinho)" }}>{brandName}</div>
+          {clergy && <div>{clergy}</div>}
         </div>
         <div style={{ textAlign: "right" }}>
-          <div>@igrejaanglicanario</div>
-          <div style={{ color: "var(--grafite-3)" }}>Em plantação — uma igreja família</div>
+          <div>{brandHandle}</div>
+          {tagline && <div style={{ color: "var(--grafite-3)" }}>{tagline}</div>}
         </div>
       </div>
     </div>

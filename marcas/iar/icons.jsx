@@ -217,13 +217,17 @@ function IconLocal(props) {
 function IconLogoMarca({ width = 64, height = 76, variant = "dark" }) {
   // variant: "dark" (marinho original) | "light" (branco — para fundos escuros)
   // O PNG é renderizado em marinho; filter inverte pro fundo escuro.
+  const skin = window.ORG_SKIN;
+  const src = skin?.logoUrl
+    || ((window.MARCAS?.iar?.assetBase || 'marcas/iar/') + 'assets/logo-iar-symbol.png');
+  const alt = skin?.name || 'Igreja Anglicana Rio';
   const filter = variant === "light"
     ? "brightness(0) invert(1)"
     : "none";
   return (
     <img
-      src={(window.MARCAS?.iar?.assetBase || 'marcas/iar/') + 'assets/logo-iar-symbol.png'}
-      alt="Igreja Anglicana Rio"
+      src={src}
+      alt={alt}
       style={{
         width,
         height,

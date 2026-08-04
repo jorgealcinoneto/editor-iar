@@ -530,7 +530,7 @@ const TEMPLATES = [
       speaker: "Pr. Jorge Alcino Neto",
       refs: "18º Domingo no Tempo Comum ·\nGn 32.22-31 / Salmos 17.1-7,15\nRm 9.1-5 / Mt 14.13-21",
       ctaText: "Ouça no Spotify",
-      handle: "@igrejaanglicanario",
+      handle: "",
     },
     fields: [
       { name: "photo", label: "Foto de fundo", type: "photo" },
@@ -541,7 +541,7 @@ const TEMPLATES = [
       { name: "speaker", label: "Pregador", type: "text" },
       { name: "refs", label: "Referências litúrgicas", type: "textarea", hint: "Quebras de linha permitidas" },
       { name: "ctaText", label: "Texto do botão", type: "text" },
-      { name: "handle", label: "Handle", type: "text" },
+      { name: "handle", label: "Handle", type: "text", hint: "Vazio usa o handle da organização" },
     ],
     render: (c) => <StorySpotify {...c} logoSrc={c.logoSrc || LOGO_SYMBOL} />,
   },
@@ -576,13 +576,13 @@ const TEMPLATES = [
     w: 2560, h: 1440,
     defaults: {
       logoSrc: LOGO_SYMBOL,
-      eyebrow: "Igreja Anglicana Rio",
+      eyebrow: "",
       title: "Palavra",
       titleEm: "& Liturgia",
       sub: "Sacramental · Litúrgica · Carioca",
     },
     fields: [
-      { name: "eyebrow", label: "Eyebrow", type: "text" },
+      { name: "eyebrow", label: "Eyebrow", type: "text", hint: "Vazio usa o nome da organização" },
       { name: "title", label: "Título", type: "text" },
       { name: "titleEm", label: "Título — itálico", type: "text" },
       { name: "sub", label: "Subtítulo", type: "text" },
