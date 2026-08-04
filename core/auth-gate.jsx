@@ -1,5 +1,5 @@
 (function () {
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect, useCallback, useRef } = React;
   const LS_ORG = 'ed:orgActiva';
 
   function cleanInviteFromUrl() {
@@ -10,20 +10,32 @@
     window.history.replaceState({}, '', clean);
   }
 
+  function inviteErrorInfo(err) {
+    const raw = err?.message || String(err);
+    if (/invalid_invite/i.test(raw)) {
+      return { reason: 'invalid_invite', message: 'Este convite é inválido ou já expirou.' };
+    }
+    if (/email_mismatch/i.test(raw)) {
+      return { reason: 'email_mismatch', message: 'Este convite foi enviado para outro email. Inicia sessão com o email convidado.' };
+    }
+    return { reason: 'generic', message: 'Não foi possível aceitar o convite. Tenta novamente ou contacta o administrador.' };
+  }
+
   function AuthGate({ onReady }) {
     const [state, setState] = useState({ phase: 'loading' });
+    const processedRef = useRef(null);
 
-    const loadMemberships = useCallback(async (supabase, user) => {
+    const loadMemberships = useCallback(async (supabase, user, inviteError) => {
       const { data, error } = await supabase
         .from('org_members')
         .select('org_id, role, orgs(*)')
         .eq('user_id', user.id);
       if (error) {
-        setState({ phase: 'error', message: error.message });
+        setState({ phase: 'error', message: error.message, inviteError });
         return;
       }
       if (!data || data.length === 0) {
-        setState({ phase: 'no-org' });
+        setState({ phase: 'no-org', inviteError });
         return;
       }
       const savedId = localStorage.getItem(LS_ORG);
@@ -32,22 +44,28 @@
       window.applyOrgTheme(window.ORG_SKIN.theme);
       window.ORG_MEMBERSHIP = { orgId: row.org_id, role: row.role };
       localStorage.setItem(LS_ORG, row.org_id);
-      setState({ phase: 'ready' });
+      setState({ phase: 'ready', inviteError });
     }, []);
 
     const handleSession = useCallback(async (supabase, user) => {
       const params = new URLSearchParams(window.location.search);
       const inviteToken = params.get('invite');
+      const sessionKey = `${user.id}:${inviteToken || ''}`;
+      if (processedRef.current === sessionKey) return;
+      processedRef.current = sessionKey;
+
+      let inviteError = null;
       if (inviteToken) {
         try {
           await supabase.rpc('accept_invite', { invite_token: inviteToken });
         } catch (err) {
           console.error('accept_invite falhou', err);
+          inviteError = inviteErrorInfo(err);
         } finally {
           cleanInviteFromUrl();
         }
       }
-      await loadMemberships(supabase, user);
+      await loadMemberships(supabase, user, inviteError);
     }, [loadMemberships]);
 
     useEffect(() => {
@@ -58,20 +76,12 @@
         setState({ phase: 'error', message: err.message || String(err) });
         return;
       }
-      supabase.auth.getSession().then(({ data, error }) => {
-        if (error) {
-          setState({ phase: 'error', message: error.message });
-          return;
-        }
-        const session = data?.session;
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
         if (!session) {
           setState({ phase: 'login' });
           return;
         }
         handleSession(supabase, session.user);
-      });
-      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session) handleSession(supabase, session.user);
       });
       return () => sub?.subscription?.unsubscribe();
     }, [handleSession]);
@@ -113,7 +123,7 @@
         <div className="ag-card">
           {state.phase === 'loading' && <p className="ag-sub">A verificar sessão…</p>}
           {state.phase === 'login' && <LoginForm />}
-          {state.phase === 'no-org' && <NoOrgMessage />}
+          {state.phase === 'no-org' && <NoOrgMessage inviteError={state.inviteError} />}
           {state.phase === 'error' && <ErrorMessage message={state.message} />}
         </div>
       </div>
@@ -177,7 +187,7 @@
     );
   }
 
-  function NoOrgMessage() {
+  function NoOrgMessage({ inviteError }) {
     async function handleSignOut() {
       try {
         await window.getSupabase().auth.signOut();
@@ -188,6 +198,7 @@
     return (
       <>
         <h1 className="ag-title">Sem organização</h1>
+        {inviteError && <p className="ag-error">{inviteError.message}</p>}
         <p className="ag-sub">A tua conta ainda não pertence a nenhuma organização. Pede um convite ao administrador.</p>
         <button type="button" className="ed-btn ed-btn--ghost" style={{ borderColor: 'var(--ed-line)', color: 'var(--ed-ink)' }} onClick={handleSignOut}>
           Sair
