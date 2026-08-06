@@ -238,8 +238,12 @@ function App() {
   const showSelector = !forced;
   const [activeOrgId, setActiveOrgId] = useState(() => window.ORG_MEMBERSHIP?.orgId || null);
   const skin = useMemo(() => window.ORG_SKIN, [activeOrgId]);
-  const isSuperadmin = window.isSuperadmin?.() ?? false;
+  const [isSuperadmin, setIsSuperadmin] = useState(() => window.isSuperadmin?.() ?? false);
   const [orgOptions, setOrgOptions] = useState([]);
+
+  useEffect(() => {
+    setIsSuperadmin(window.isSuperadmin?.() ?? false);
+  }, [activeOrgId]);
 
   useEffect(() => {
     if (!window.SAAS_MODE || !isSuperadmin) return;
@@ -536,21 +540,26 @@ function App() {
             })}
           </div>
         )}
-        {window.SAAS_MODE && isSuperadmin && orgOptions.length > 0 && (
+        {window.SAAS_MODE && isSuperadmin && (
           <label className="ed-org-switch">
             <span className="ed-org-switch__label">Org</span>
             <select
               className="ed-org-switch__select"
               value={activeOrgId || ''}
+              disabled={!orgOptions.length}
               onChange={(e) => {
                 const org = orgOptions.find((o) => o.id === e.target.value);
                 if (org) switchOrg(org);
               }}
               aria-label="Organização"
             >
-              {orgOptions.map((o) => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
+              {orgOptions.length === 0 ? (
+                <option value="">A carregar…</option>
+              ) : (
+                orgOptions.map((o) => (
+                  <option key={o.id} value={o.id}>{o.name}</option>
+                ))
+              )}
             </select>
           </label>
         )}

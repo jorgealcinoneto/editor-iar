@@ -1,4 +1,6 @@
 (function (global) {
+  const LS_ORG = 'ed:orgActiva';
+
   function buildOrgSkin(org) {
     if (!org) return null;
     return {
@@ -36,10 +38,31 @@
     });
   }
 
+  function activateOrg(org, role) {
+    if (!org?.id) return;
+    global.ORG_SKIN = buildOrgSkin(org);
+    applyOrgTheme(global.ORG_SKIN.theme);
+    const prevRole = global.ORG_MEMBERSHIP?.role;
+    global.ORG_MEMBERSHIP = { orgId: org.id, role: role || prevRole || 'member' };
+    try { localStorage.setItem(LS_ORG, org.id); } catch {}
+    if (typeof global.dispatchEvent === 'function') {
+      global.dispatchEvent(new CustomEvent('ed:org-change', { detail: { orgId: org.id } }));
+    }
+  }
+
+  function isSuperadmin() {
+    if (!global.SAAS_MODE) return false;
+    if (global.ORG_MEMBERSHIP?.role === 'superadmin') return true;
+    return Array.isArray(global.ORG_MEMBERSHIPS)
+      && global.ORG_MEMBERSHIPS.some((m) => m.role === 'superadmin');
+  }
+
   global.buildOrgSkin = buildOrgSkin;
   global.getSkinBrandLines = getSkinBrandLines;
   global.applyOrgTheme = applyOrgTheme;
+  global.activateOrg = activateOrg;
+  global.isSuperadmin = isSuperadmin;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme };
+    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme, activateOrg, isSuperadmin };
   }
 })(typeof window !== 'undefined' ? window : globalThis);
