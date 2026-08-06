@@ -148,7 +148,7 @@
           .select()
           .single();
         if (error) throw error;
-        setInviteUrl(`${window.location.origin}/index.html?invite=${data.token}`);
+        setInviteUrl(window.editorAppUrl(`invite=${data.token}`));
       } catch (err) {
         setMessage({ type: 'error', text: err.message || String(err) });
       } finally {
@@ -283,11 +283,11 @@
     const [email, setEmail] = useState('');
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
 
     async function handleSubmit(e) {
       e.preventDefault();
-      setError('');
+      setError(null);
       setSending(true);
       try {
         const supabase = window.getSupabase();
@@ -298,7 +298,7 @@
         if (otpError) throw otpError;
         setSent(true);
       } catch (err) {
-        setError(err.message || String(err));
+        setError(window.formatAuthLoginError?.(err) || { message: err.message || String(err), hint: null });
       } finally {
         setSending(false);
       }
@@ -317,7 +317,15 @@
       <div className="adm-card adm-card--narrow">
         <form onSubmit={handleSubmit} className="adm-form">
           <h1>Admin · Entrar</h1>
-          {error && <p className="adm-msg adm-msg--error">{error}</p>}
+          <p className="adm-hint">
+            Já tens sessão no editor? Abre o admin no <strong>mesmo host</strong> (só <code>localhost</code> ou só <code>127.0.0.1</code> — não mistures).
+          </p>
+          {error && (
+            <>
+              <p className="adm-msg adm-msg--error">{error.message}</p>
+              {error.hint && <p className="adm-hint">{error.hint}</p>}
+            </>
+          )}
           <label className="adm-field">
             <span>Email</span>
             <input type="email" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@exemplo.com" />

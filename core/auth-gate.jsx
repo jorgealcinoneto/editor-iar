@@ -40,10 +40,8 @@
       }
       const savedId = localStorage.getItem(LS_ORG);
       const row = data.find((r) => r.org_id === savedId) || data[0];
-      window.ORG_SKIN = window.buildOrgSkin(row.orgs);
-      window.applyOrgTheme(window.ORG_SKIN.theme);
-      window.ORG_MEMBERSHIP = { orgId: row.org_id, role: row.role };
-      localStorage.setItem(LS_ORG, row.org_id);
+      window.ORG_MEMBERSHIPS = data;
+      window.activateOrg(row.orgs, row.role);
       setState({ phase: 'ready', inviteError });
     }, []);
 
@@ -136,11 +134,11 @@
     const [email, setEmail] = useState('');
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
 
     async function handleSubmit(e) {
       e.preventDefault();
-      setError('');
+      setError(null);
       setSending(true);
       try {
         const supabase = window.getSupabase();
@@ -151,7 +149,7 @@
         if (otpError) throw otpError;
         setSent(true);
       } catch (err) {
-        setError(err.message || String(err));
+        setError(window.formatAuthLoginError?.(err) || { message: err.message || String(err), hint: null });
       } finally {
         setSending(false);
       }
@@ -170,7 +168,12 @@
       <form onSubmit={handleSubmit}>
         <h1 className="ag-title">Entrar</h1>
         <p className="ag-sub">Recebe um link de acesso por email — sem palavra-passe.</p>
-        {error && <p className="ag-error">{error}</p>}
+        {error && (
+          <>
+            <p className="ag-error">{error.message}</p>
+            {error.hint && <p className="ag-hint">{error.hint}</p>}
+          </>
+        )}
         <label className="ag-label" htmlFor="ag-email">Email</label>
         <input
           id="ag-email"

@@ -18,9 +18,11 @@ function stateKey(marcaId) {
   return oid ? `ed:${oid}:state` : `ed:${marcaId}:state`;
 }
 
-function loadMarcaState(marcaId) {
+function loadMarcaState(marcaId, orgId) {
   try {
-    const raw = localStorage.getItem(stateKey(marcaId));
+    const oid = orgId ?? saasOrgId();
+    const key = oid ? `ed:${oid}:state` : `ed:${marcaId}:state`;
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -234,7 +236,31 @@ function GalleryBrowser({ marca, tpl, content, onPick }) {
 function App() {
   const forced = window.SAAS_MODE ? 'iar' : window.MARCA_FORCADA;
   const showSelector = !forced;
-  const skin = window.ORG_SKIN;
+  const [activeOrgId, setActiveOrgId] = useState(() => window.ORG_MEMBERSHIP?.orgId || null);
+  const skin = useMemo(() => window.ORG_SKIN, [activeOrgId]);
+  const isSuperadmin = window.isSuperadmin?.() ?? false;
+  const [orgOptions, setOrgOptions] = useState([]);
+
+  useEffect(() => {
+    if (!window.SAAS_MODE || !isSuperadmin) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await window.getSupabase().from('orgs').select('*').order('name');
+        if (error) throw error;
+        if (!cancelled) setOrgOptions(data || []);
+      } catch (err) {
+        console.error('orgs', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isSuperadmin]);
+
+  useEffect(() => {
+    const onOrgChange = (e) => setActiveOrgId(e.detail?.orgId || window.ORG_MEMBERSHIP?.orgId);
+    window.addEventListener('ed:org-change', onOrgChange);
+    return () => window.removeEventListener('ed:org-change', onOrgChange);
+  }, []);
 
   const [marcaId, setMarcaId] = useState(() => {
     if (forced && getMarca(forced)) return forced;
@@ -378,6 +404,36 @@ function App() {
     setTplId(tplIdByMarca[id] || getMarca(id)?.templates[0]?.id || '');
   };
 
+  const reloadMarcaState = useCallback((mid, orgId) => {
+    const m = getMarca(mid);
+    if (!m) return;
+    const stored = loadMarcaState(mid, orgId);
+    const seed = seedContents(m);
+    setContentsByMarca((prev) => ({
+      ...prev,
+      [mid]: stored?.contents ? { ...seed, ...stored.contents } : seed,
+    }));
+    if (m.allowTweaks) {
+      setTweaksByMarca((prev) => ({
+        ...prev,
+        [mid]: stored?.tweak || { ...m.tweakDefaults },
+      }));
+    }
+    setTplId(stored?.tplId || m.templates[0]?.id || '');
+  }, []);
+
+  const switchOrg = (org) => {
+    if (!org || org.id === activeOrgId) return;
+    saveMarcaState(marcaId, {
+      contents: contentsByMarca[marcaId],
+      tweak: tweaksByMarca[marcaId],
+      tplId,
+    });
+    reloadMarcaState(marcaId, org.id);
+    window.activateOrg(org, window.ORG_MEMBERSHIP?.role);
+    setActiveOrgId(org.id);
+  };
+
   const resetTemplate = () => {
     if (!window.confirm('Repor conteúdo padrão deste template?')) return;
     setContentsByMarca((prev) => ({
@@ -479,6 +535,24 @@ function App() {
               );
             })}
           </div>
+        )}
+        {window.SAAS_MODE && isSuperadmin && orgOptions.length > 0 && (
+          <label className="ed-org-switch">
+            <span className="ed-org-switch__label">Org</span>
+            <select
+              className="ed-org-switch__select"
+              value={activeOrgId || ''}
+              onChange={(e) => {
+                const org = orgOptions.find((o) => o.id === e.target.value);
+                if (org) switchOrg(org);
+              }}
+              aria-label="Organização"
+            >
+              {orgOptions.map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </select>
+          </label>
         )}
         <div className="ed-bar__actions">
           <a

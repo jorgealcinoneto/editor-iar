@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../core/editor-styles.css">
 <link rel="stylesheet" href="styles.css">
 <style>
   html, body { margin:0; padding:0; background:#f0eee9; height:100%; }
@@ -38,15 +39,42 @@
 <p class="fmj-export-hint" aria-hidden="true"><strong>Exportar:</strong> ⋯ no canto de cada slide → Download PNG</p>
 <div id="root"></div>
 
+<script src="../../core/app-path.js"></script>
+<script src="../../core/auth-login-hints.js"></script>
+<script src="../../config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../core/supabase-client.js"></script>
+<script src="../../core/org-skin.js"></script>
+<script src="../../core/org-context.js"></script>
+<script>window.SAAS_MODE = true;</script>
+
 <script type="text/babel" src="../../core/canvas/design-canvas.jsx"></script>
 <script type="text/babel" src="../../core/canvas/tweaks-panel.jsx"></script>
 <script type="text/babel" src="icons.jsx"></script>
 <script type="text/babel" src="templates.jsx"></script>
 <script type="text/babel" src="registry.jsx"></script>
+<script type="text/babel" src="../../core/auth-gate.jsx"></script>
 
 <script type="text/babel">
-function App() {
+function loadCanvasContents(templates) {
+  const out = {};
+  templates.forEach((t) => { out[t.id] = { ...t.defaults }; });
+  const oid = window.SAAS_MODE && window.ORG_MEMBERSHIP?.orgId;
+  const key = oid ? `ed:${oid}:state` : 'ed:iar:state';
+  try {
+    const stored = JSON.parse(localStorage.getItem(key) || 'null');
+    if (stored?.contents) {
+      templates.forEach((t) => {
+        if (stored.contents[t.id]) out[t.id] = { ...out[t.id], ...stored.contents[t.id] };
+      });
+    }
+  } catch {}
+  return out;
+}
+
+function CanvasApp() {
   const templates = window.IAR_TEMPLATES || [];
+  const contents = React.useMemo(() => loadCanvasContents(templates), []);
   const groups = [];
   const seen = new Map();
   templates.forEach((t) => {
@@ -60,7 +88,7 @@ function App() {
         <DCSection key={group} id={group} title={group} subtitle={`${list.length} template${list.length === 1 ? '' : 's'}`}>
           {list.map((t) => (
             <DCArtboard key={t.id} id={t.id} label={t.name} width={t.w} height={t.h}>
-              {t.render(t.defaults)}
+              {t.render(contents[t.id] || t.defaults)}
             </DCArtboard>
           ))}
         </DCSection>
@@ -69,7 +97,23 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+function mountCanvasApp() {
+  const back = document.querySelector('.fmj-back');
+  if (back && window.editorAppUrl) back.href = window.editorAppUrl();
+  const skin = window.ORG_SKIN;
+  if (skin?.name) document.title = `Canvas — ${skin.name}`;
+  const root = document.getElementById('root');
+  if (!root || root.dataset.canvasMounted) return;
+  root.dataset.canvasMounted = '1';
+  ReactDOM.createRoot(root).render(<CanvasApp />);
+}
+
+window.startEditorAfterAuth = mountCanvasApp;
+if (window.SAAS_MODE) {
+  window.mountAuthGate();
+} else {
+  mountCanvasApp();
+}
 </script>
 </body>
 </html>
