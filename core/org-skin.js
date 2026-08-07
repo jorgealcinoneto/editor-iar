@@ -40,6 +40,11 @@
     Object.entries(map).forEach(([key, cssVar]) => {
       if (theme[key]) root.style.setProperty(cssVar, theme[key]);
     });
+    if (theme.fontHeading) root.style.setProperty('--font-serif', theme.fontHeading);
+    if (theme.fontBody) {
+      root.style.setProperty('--font-sans', theme.fontBody);
+      root.style.setProperty('--font-wide', theme.fontBody);
+    }
   }
 
   function loadOrgFonts(skin) {

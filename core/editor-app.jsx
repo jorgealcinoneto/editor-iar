@@ -49,7 +49,7 @@ function applyMarcaStyles(marcaId) {
 }
 
 function PreviewIar({ tpl, content, tweak, scale }) {
-  const tweakClasses = [
+  const tweakClasses = window.SAAS_MODE ? '' : [
     tweak?.palette ? `paleta-${tweak.palette}` : '',
     tweak?.accent ? `acento-${tweak.accent}` : '',
   ].filter(Boolean).join(' ');
@@ -495,15 +495,16 @@ function App() {
       tweak: tweaksByMarca[marcaId],
       tplId,
     });
-    window.activateOrg(org, window.ORG_MEMBERSHIP?.role);
     if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
       try {
         await window.loadOrgGallery(window.getSupabase(), org.id);
       } catch (e) {
-        console.error('gallery', e);
+        console.error(e);
       }
     }
     reloadMarcaState(marcaId, org.id);
+    const membership = window.ORG_MEMBERSHIPS?.find((m) => m.org_id === org.id);
+    window.activateOrg(org, membership?.role || window.ORG_MEMBERSHIP?.role);
     setActiveOrgId(org.id);
   };
 

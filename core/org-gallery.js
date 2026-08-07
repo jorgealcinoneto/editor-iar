@@ -26,7 +26,10 @@
       .insert({ org_id: orgId, kind, storage_path: path, url, label: file.name })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      await supabase.storage.from('org-assets').remove([path]);
+      throw error;
+    }
     return data;
   }
 
