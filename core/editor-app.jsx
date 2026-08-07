@@ -1,12 +1,16 @@
 const { useState, useRef, useEffect, useCallback, useMemo } = React;
 const Field = window.EditorField;
-const { IconLogoMarca } = window.IARIcons || {};
 
-const MARCA_IDS = ['iar', 'ofmj'];
 const LS_MARCA = 'ed:marcaActiva';
 
 function getMarca(id) {
   return window.MARCAS?.[id] || null;
+}
+
+/* Chamado dentro dos inicializadores de estado (1.º render), altura em que
+   os manifest.js já correram — não pode ser uma const de topo. */
+function getMarcaIds() {
+  return Object.keys(window.MARCAS || {});
 }
 
 function saasOrgId() {
@@ -41,10 +45,14 @@ function seedContents(marca) {
   return seed;
 }
 
+/* Só uma folha de marca activa de cada vez: os tokens de :root e as regras
+   .post/.t-* não são scoped, portanto duas em simultâneo colidem. */
 function applyMarcaStyles(marcaId) {
-  const iarCss = document.getElementById('marca-css-iar');
+  getMarcaIds().forEach((id) => {
+    const link = document.getElementById(`marca-css-${id}`);
+    if (link) link.disabled = marcaId !== id;
+  });
   const fmjCss = document.getElementById('fmj-styles');
-  if (iarCss) iarCss.disabled = marcaId !== 'iar';
   if (fmjCss) fmjCss.disabled = marcaId !== 'ofmj';
 }
 
@@ -295,11 +303,15 @@ function GalleryBrowser({ marca, tpl, content, onPick, orgGallery }) {
 }
 
 function App() {
-  const forced = window.SAAS_MODE ? 'iar' : window.MARCA_FORCADA;
-  const showSelector = !forced;
   const [activeOrgId, setActiveOrgId] = useState(() => window.ORG_MEMBERSHIP?.orgId || null);
   const [orgGallery, setOrgGallery] = useState(() => window.ORG_GALLERY || []);
   const skin = useMemo(() => window.ORG_SKIN, [activeOrgId]);
+  // No SaaS a marca vem do catálogo da org; recalculada a cada troca de org.
+  const forced = useMemo(
+    () => (window.SAAS_MODE ? window.marcaIdForCatalog(skin?.catalogId) : window.MARCA_FORCADA),
+    [skin],
+  );
+  const showSelector = !forced;
   const [isSuperadmin, setIsSuperadmin] = useState(() => window.isSuperadmin?.() ?? false);
   const [orgOptions, setOrgOptions] = useState([]);
 
@@ -339,17 +351,27 @@ function App() {
     return saved && getMarca(saved) ? saved : 'iar';
   });
 
+  // marcaId tem init preguiçoso, portanto não reage sozinho à troca de org.
+  useEffect(() => {
+    if (forced && getMarca(forced) && forced !== marcaId) setMarcaId(forced);
+  }, [forced]);
+
   const marca = useMemo(() => {
     const baseMarca = getMarca(marcaId);
     if (!window.SAAS_MODE || !skin || !baseMarca) return baseMarca;
-    return { ...baseMarca, id: 'church-v1', name: skin.name, handle: skin.handle };
+    return {
+      ...baseMarca,
+      id: skin.catalogId || baseMarca.catalogId || baseMarca.id,
+      name: skin.name,
+      handle: skin.handle,
+    };
   }, [marcaId, skin]);
   const templates = marca?.templates || [];
 
   const [tplId, setTplId] = useState(() => templates[0]?.id || '');
   const [contentsByMarca, setContentsByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
       if (!m) return;
       const stored = loadMarcaState(id);
@@ -360,7 +382,7 @@ function App() {
   });
   const [tweaksByMarca, setTweaksByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
       if (!m?.allowTweaks) return;
       const stored = loadMarcaState(id);
@@ -370,7 +392,7 @@ function App() {
   });
   const [tplIdByMarca, setTplIdByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
       const stored = loadMarcaState(id);
       out[id] = stored?.tplId || m?.templates[0]?.id || '';
@@ -424,6 +446,8 @@ function App() {
     () => window.getSkinBrandLines(skin || { name: marca?.name }),
     [skin, marca],
   );
+  // Cada marca expõe o seu ícone de topo (getter preguiçoso no manifest).
+  const LogoIcon = marca?.logoIcon || null;
 
   const tpl = useMemo(() => templates.find((t) => t.id === tplId) || templates[0], [templates, tplId]);
   const content = contentsByMarca[marcaId]?.[tpl?.id] || tpl?.defaults || {};
@@ -431,7 +455,7 @@ function App() {
 
   const visibleScale = useMemo(() => {
     if (!tpl) return 0.5;
-    if (marcaId === 'iar') {
+    if (marca?.previewShell !== 'ofmj') {
       if (tpl.w === 1080 && tpl.h === 1920) return Math.min(720 / tpl.h, stageSize.w / tpl.w);
       if (tpl.w === 1240) return 540 / tpl.w;
       return Math.min(600 / tpl.w, stageSize.w / tpl.w, stageSize.h / tpl.h);
@@ -439,7 +463,7 @@ function App() {
     const sx = stageSize.w / tpl.w;
     const sy = stageSize.h / tpl.h;
     return Math.min(sx, sy, 1);
-  }, [tpl, marcaId, stageSize]);
+  }, [tpl, marca, stageSize]);
 
   const grouped = useMemo(() => {
     const out = [];
@@ -580,10 +604,10 @@ function App() {
     <>
       <header className={`ed-bar ed-bar--${marca.barTheme}`}>
         <div className="ed-bar__left">
-          {marcaId === 'iar' ? (
+          {window.SAAS_MODE || marcaId === 'iar' ? (
             <>
-              {IconLogoMarca && <IconLogoMarca width={36} height={42} variant="light" />}
-              <div className="ed-bar__brand ed-bar__brand--iar">
+              {LogoIcon && <LogoIcon width={36} height={42} variant="light" />}
+              <div className={`ed-bar__brand ed-bar__brand--${marcaId}`}>
                 <span className="ed-bar__kicker">{brandLines.line1 || 'Igreja Anglicana'}</span>
                 <span className="ed-bar__name">{brandLines.line2 || 'Rio'}</span>
               </div>
@@ -601,7 +625,7 @@ function App() {
         </div>
         {showSelector && (
           <div className="ed-marca-tabs" role="tablist" aria-label="Marca">
-            {MARCA_IDS.map((id) => {
+            {getMarcaIds().map((id) => {
               const m = getMarca(id);
               if (!m) return null;
               return (
@@ -643,15 +667,17 @@ function App() {
           </label>
         )}
         <div className="ed-bar__actions">
-          <a
-            href={`marcas/${marcaId}/canvas.html`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ed-btn ed-btn--ghost"
-            title={`Visão panorâmica de todos os templates ${marca.shortName}`}
-          >
-            Canvas ↗
-          </a>
+          {marca.hasCanvas && (
+            <a
+              href={`marcas/${marcaId}/canvas.html`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ed-btn ed-btn--ghost"
+              title={`Visão panorâmica de todos os templates ${marca.shortName}`}
+            >
+              Canvas ↗
+            </a>
+          )}
           {marca.allowTweaks && (
             <button type="button" className="ed-btn ed-btn--ghost" onClick={resetTemplate}>
               Repor defaults
@@ -745,14 +771,14 @@ function App() {
           </header>
 
           <div className={`ed-stage__board ${marca.cssClass}`}>
-            {marcaId === 'iar' ? (
-              <PreviewIar tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
-            ) : (
+            {marca.previewShell === 'ofmj' ? (
               <PreviewOfmj tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
+            ) : (
+              <PreviewIar tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
             )}
           </div>
 
-          {marcaId === 'iar' && (
+          {marca.previewShell !== 'ofmj' && (
             <div className="ed-help">
               <div className="ed-help__icon">i</div>
               <div className="ed-help__text">

@@ -26,12 +26,15 @@ INSERT INTO auth.identities (
   'email', NOW(), NOW(), NOW()
 ) ON CONFLICT DO NOTHING;
 
-INSERT INTO public.orgs (id, slug, name, handle, theme) VALUES
+-- catalog_id escolhe o catálogo de templates em runtime (core/org-skin.js:
+-- marcaIdForCatalog). 'church-v1' → marcas/iar, 'reconciliador-v1' → marcas/reconciliador.
+INSERT INTO public.orgs (id, slug, name, handle, catalog_id, theme) VALUES
   (
     'b0000000-0000-4000-8000-000000000001',
     'iar',
     'Igreja Anglicana Rio',
     '@igrejaanglicanario',
+    'church-v1',
     '{"paper":"#F5EFE6","ink":"#1C2A3A","accent":"#1A52D6","accentSoft":"#4978E3","ambar":"#C99B6B","marinho":"#0E2A47","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
   ),
   (
@@ -39,6 +42,7 @@ INSERT INTO public.orgs (id, slug, name, handle, theme) VALUES
     'igreja-teste',
     'Igreja Anglicana Teste',
     '@igreja.teste',
+    'church-v1',
     '{"paper":"#F5EFE6","ink":"#1C2A3A","accent":"#1A52D6","accentSoft":"#4978E3","ambar":"#C99B6B","marinho":"#0E2A47","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
   ),
   (
@@ -46,14 +50,24 @@ INSERT INTO public.orgs (id, slug, name, handle, theme) VALUES
     'refugio',
     'Comunidade Anglicana Refúgio',
     '@anglicana_refugio',
+    'church-v1',
     '{"paper":"#F5F1E4","ink":"#4A5B45","marinho":"#4A5B45","accent":"#A7CF9A","accentSoft":"#C5E0BB","ambar":"#E0A85E","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
+  ),
+  (
+    'b0000000-0000-4000-8000-000000000004',
+    'reconciliador',
+    'Igreja Anglicana do Reconciliador',
+    '@anglicanadoreconciliador',
+    'reconciliador-v1',
+    '{"paper":"#F7F5F1","ink":"#1C232F","marinho":"#1F2B45","accent":"#B6956A","accentSoft":"#D0B591","ambar":"#93744E","fontHeading":"Cinzel","fontBody":"DM Sans"}'::jsonb
   )
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO public.org_members (org_id, user_id, role) VALUES
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'superadmin'),
   ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001', 'superadmin'),
-  ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000001', 'superadmin')
+  ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000001', 'superadmin'),
+  ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000001', 'superadmin')
 ON CONFLICT DO NOTHING;
 
 -- GoTrue scans token columns as non-null strings

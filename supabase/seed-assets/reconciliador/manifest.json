@@ -1,0 +1,28 @@
+{
+  "orgSlug": "reconciliador",
+  "name": "Igreja Anglicana do Reconciliador",
+  "handle": "@anglicanadoreconciliador",
+  "catalogId": "reconciliador-v1",
+  "theme": {
+    "paper": "#F7F5F1",
+    "ink": "#1C232F",
+    "marinho": "#1F2B45",
+    "accent": "#B6956A",
+    "accentSoft": "#D0B591",
+    "ambar": "#93744E",
+    "fontHeading": "Cinzel",
+    "fontBody": "DM Sans"
+  },
+  "logo": { "file": "logo-simbolo-navy.jpg", "label": "Símbolo navy" },
+  "gallery": [
+    { "file": "logo-simbolo-claro.jpg", "label": "Símbolo fundo claro" },
+    { "file": "wordmark-branco.jpg", "label": "Assinatura negativa" },
+    { "file": "versiculo-card.jpg", "label": "Card 2 Coríntios 5.20" },
+    { "file": "photo-fachada.jpg", "label": "Fachada à noite" },
+    { "file": "photo-fachada-grupo.jpg", "label": "Comunidade na fachada" },
+    { "file": "photo-celebracao.jpg", "label": "Celebração com violão" },
+    { "file": "photo-comunidade.jpg", "label": "Comunidade reunida" },
+    { "file": "photo-interior.jpg", "label": "Comunidade no interior" },
+    { "file": "photo-altar.jpg", "label": "Celebrante ao altar" }
+  ]
+}

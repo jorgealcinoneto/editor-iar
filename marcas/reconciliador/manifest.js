@@ -1,0 +1,20 @@
+window.MARCAS = window.MARCAS || {};
+window.MARCAS.reconciliador = {
+  id: 'reconciliador',
+  catalogId: 'reconciliador-v1',
+  name: 'Igreja Anglicana do Reconciliador',
+  shortName: 'Reconciliador',
+  handle: '@anglicanadoreconciliador',
+  cssClass: 'marca-reconciliador',
+  assetBase: 'marcas/reconciliador/',
+  allowTweaks: false,
+  previewShell: 'post',
+  hasCanvas: false,
+  exportPixelRatio: 1,
+  exportFilePrefix: 'reconciliador',
+  exportBg: '#F7F5F1',
+  barTheme: 'reconciliador',
+  get logoIcon() { return window.ReconciliadorIcons?.IconSelo; },
+  get templates() { return window.RECONCILIADOR_TEMPLATES || []; },
+  get galleries() { return window.RECONCILIADOR_GALLERIES || { photos: [], icons: [] }; },
+};

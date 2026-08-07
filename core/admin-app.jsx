@@ -2,10 +2,23 @@
   const { useState, useEffect, useCallback } = React;
 
   const GOOGLE_FONTS = [
-    'Cormorant Garamond', 'EB Garamond', 'Fraunces', 'Instrument Serif',
+    'Cormorant Garamond', 'EB Garamond', 'Fraunces', 'Instrument Serif', 'Cinzel',
     'DM Sans', 'Inter', 'Space Grotesk', 'Syne', 'Bricolage Grotesque',
     'Unbounded', 'JetBrains Mono', 'Anton',
   ];
+
+  const DEFAULT_CATALOG = 'church-v1';
+
+  /* Catálogos disponíveis vêm dos manifest.js carregados em admin.html.
+     Sem eles (ou se um deles falhar) resta o default, e nenhuma org
+     fica presa a um catalog_id que o editor não saiba resolver. */
+  function catalogOptions() {
+    const marcas = Object.values(window.MARCAS || {});
+    const opts = marcas
+      .filter((m) => m?.catalogId)
+      .map((m) => ({ value: m.catalogId, label: `${m.name} (${m.catalogId})` }));
+    return opts.length ? opts : [{ value: DEFAULT_CATALOG, label: DEFAULT_CATALOG }];
+  }
 
   const THEME_FIELDS = [
     { key: 'paper', label: 'Papel' },
@@ -23,7 +36,7 @@
   };
 
   function emptyOrgForm() {
-    return { id: null, slug: '', name: '', handle: '', theme: { ...DEFAULT_THEME } };
+    return { id: null, slug: '', name: '', handle: '', catalogId: DEFAULT_CATALOG, theme: { ...DEFAULT_THEME } };
   }
 
   function orgToForm(org) {
@@ -32,6 +45,7 @@
       slug: org.slug || '',
       name: org.name || '',
       handle: org.handle || '',
+      catalogId: org.catalog_id || DEFAULT_CATALOG,
       theme: { ...DEFAULT_THEME, ...(org.theme || {}) },
     };
   }
@@ -134,7 +148,13 @@
       setMessage(null);
       try {
         const supabase = window.getSupabase();
-        const payload = { slug: form.slug.trim(), name: form.name.trim(), handle: form.handle.trim(), theme: form.theme };
+        const payload = {
+          slug: form.slug.trim(),
+          name: form.name.trim(),
+          handle: form.handle.trim(),
+          catalog_id: form.catalogId || DEFAULT_CATALOG,
+          theme: form.theme,
+        };
         if (form.id) payload.id = form.id;
         const { data: saved, error } = await supabase.from('orgs').upsert(payload).select().single();
         if (error) throw error;
@@ -288,6 +308,14 @@
                   <label className="adm-field">
                     <span>Handle</span>
                     <input type="text" value={form.handle} onChange={(e) => updateField('handle', e.target.value)} placeholder="@exemplo" />
+                  </label>
+                  <label className="adm-field">
+                    <span>Catálogo</span>
+                    <select value={form.catalogId} onChange={(e) => updateField('catalogId', e.target.value)}>
+                      {catalogOptions().map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
                   </label>
                 </div>
 

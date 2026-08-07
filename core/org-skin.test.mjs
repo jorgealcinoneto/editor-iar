@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { buildOrgSkin, applyOrgTheme, getSkinBrandLines } = require('./org-skin.js');
+const { buildOrgSkin, applyOrgTheme, getSkinBrandLines, marcaIdForCatalog } = require('./org-skin.js');
 
 const org = {
   id: '11111111-1111-1111-1111-111111111111',
@@ -42,5 +42,18 @@ assert.equal(skinFonts.fontBody, 'Inter');
 applyOrgTheme(skinFonts.theme, fakeRoot);
 assert.equal(vars['--font-heading'], 'Fraunces');
 assert.equal(vars['--font-body'], 'Inter');
+
+// --- marcaIdForCatalog: orgs.catalog_id → id da marca ---
+globalThis.MARCAS = {
+  iar: { id: 'iar', catalogId: 'church-v1' },
+  reconciliador: { id: 'reconciliador', catalogId: 'reconciliador-v1' },
+};
+assert.equal(marcaIdForCatalog('church-v1'), 'iar');
+assert.equal(marcaIdForCatalog('reconciliador-v1'), 'reconciliador');
+// catálogo desconhecido ou ausente cai no IAR — orgs antigas não quebram
+assert.equal(marcaIdForCatalog('nao-existe'), 'iar');
+assert.equal(marcaIdForCatalog(undefined), 'iar');
+delete globalThis.MARCAS;
+assert.equal(marcaIdForCatalog('reconciliador-v1'), 'iar');
 
 console.log('org-skin tests OK');
