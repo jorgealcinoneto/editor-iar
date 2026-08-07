@@ -267,9 +267,7 @@ function Field({ field, value, onChange, marca }) {
       </div>
     );
     const hasOrgGallery = window.SAAS_MODE && orgPhotos.length > 0;
-    const hasIarGallery = photos.length > 0;
-    const showNoneInOrg = allowUrl && (hasOrgGallery || !hasIarGallery);
-    const showNoneInIar = allowUrl && hasIarGallery && !hasOrgGallery;
+    const showNoneInOrg = allowUrl && window.SAAS_MODE;
 
     return (
       <div className="ed-field">
@@ -283,21 +281,15 @@ function Field({ field, value, onChange, marca }) {
           <input type="file" accept="image/*" onChange={onFile} />
         </label>
         {window.SAAS_MODE ? (
-          <>
-            {hasOrgGallery && (
-              <>
-                <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria da org:</div>
-                {presetGrid(orgPhotos, showNoneInOrg)}
-              </>
-            )}
-            {hasIarGallery && (
-              <details className="ed-gallery-catalog">
-                <summary>Catálogo IAR</summary>
-                {presetGrid(photos, showNoneInIar)}
-              </details>
-            )}
-          </>
-        ) : hasIarGallery && (
+          hasOrgGallery ? (
+            <>
+              <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria:</div>
+              {presetGrid(orgPhotos, showNoneInOrg)}
+            </>
+          ) : (
+            <div className="ed-field__hint" style={{ marginTop: 10 }}>Sem imagens nesta org — adiciona no admin</div>
+          )
+        ) : photos.length > 0 && (
           <>
             <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria:</div>
             {presetGrid(photos, allowUrl)}

@@ -272,25 +272,24 @@ function GalleryBrowser({ marca, tpl, content, onPick }) {
     );
   }
 
-  if (!orgPhotos.length && !iarPhotos.length) return null;
+  if (!orgPhotos.length) {
+    return (
+      <section className="ed-section">
+        <div className="ed-section__label">
+          3 · Galeria
+          <span className="ed-section__hint">Sem imagens nesta org — adiciona no admin</span>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="ed-section">
-      {orgPhotos.length > 0 && (
-        <>
-          <div className="ed-section__label">
-            3 · Galeria da org
-            <span className="ed-section__hint">{hint}</span>
-          </div>
-          <GalleryGrid photos={orgPhotos} currentValue={currentValue} onPick={onPick} />
-        </>
-      )}
-      {iarPhotos.length > 0 && (
-        <details className="ed-gallery-catalog">
-          <summary>Catálogo IAR</summary>
-          <GalleryGrid photos={iarPhotos} currentValue={currentValue} onPick={onPick} />
-        </details>
-      )}
+      <div className="ed-section__label">
+        3 · Galeria
+        <span className="ed-section__hint">{hint}</span>
+      </div>
+      <GalleryGrid photos={orgPhotos} currentValue={currentValue} onPick={onPick} />
     </section>
   );
 }
@@ -701,6 +700,7 @@ function App() {
           </section>
 
           <GalleryBrowser
+            key={activeOrgId || 'org'}
             marca={marca}
             tpl={tpl}
             content={content}
