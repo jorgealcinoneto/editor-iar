@@ -247,11 +247,11 @@ function GalleryGrid({ photos, currentValue, onPick }) {
   );
 }
 
-function GalleryBrowser({ marca, tpl, content, onPick }) {
+function GalleryBrowser({ marca, tpl, content, onPick, orgGallery }) {
   const galleries = marca.galleries;
   const iarPhotos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
   const orgPhotos = window.SAAS_MODE
-    ? (window.ORG_GALLERY || []).map((a) => a.url).filter(Boolean)
+    ? (orgGallery || window.ORG_GALLERY || []).map((a) => (typeof a === 'string' ? a : a.url)).filter(Boolean)
     : [];
   const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
   const currentValue = photoField ? content[photoField.name] : null;
@@ -298,6 +298,7 @@ function App() {
   const forced = window.SAAS_MODE ? 'iar' : window.MARCA_FORCADA;
   const showSelector = !forced;
   const [activeOrgId, setActiveOrgId] = useState(() => window.ORG_MEMBERSHIP?.orgId || null);
+  const [orgGallery, setOrgGallery] = useState(() => window.ORG_GALLERY || []);
   const skin = useMemo(() => window.ORG_SKIN, [activeOrgId]);
   const [isSuperadmin, setIsSuperadmin] = useState(() => window.isSuperadmin?.() ?? false);
   const [orgOptions, setOrgOptions] = useState([]);
@@ -323,8 +324,13 @@ function App() {
 
   useEffect(() => {
     const onOrgChange = (e) => setActiveOrgId(e.detail?.orgId || window.ORG_MEMBERSHIP?.orgId);
+    const onGallery = (e) => setOrgGallery(e.detail || window.ORG_GALLERY || []);
     window.addEventListener('ed:org-change', onOrgChange);
-    return () => window.removeEventListener('ed:org-change', onOrgChange);
+    window.addEventListener('ed:gallery-loaded', onGallery);
+    return () => {
+      window.removeEventListener('ed:org-change', onOrgChange);
+      window.removeEventListener('ed:gallery-loaded', onGallery);
+    };
   }, []);
 
   const [marcaId, setMarcaId] = useState(() => {
@@ -494,16 +500,20 @@ function App() {
       tweak: tweaksByMarca[marcaId],
       tplId,
     });
-    if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
-      try {
-        await window.loadOrgGallery(window.getSupabase(), org.id);
-      } catch (e) {
-        console.error(e);
-      }
-    }
     reloadMarcaState(marcaId, org.id);
     const membership = window.ORG_MEMBERSHIPS?.find((m) => m.org_id === org.id);
     window.activateOrg(org, membership?.role || window.ORG_MEMBERSHIP?.role);
+    if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
+      try {
+        const items = await window.loadOrgGallery(window.getSupabase(), org.id);
+        setOrgGallery(items || []);
+      } catch (e) {
+        console.error(e);
+        setOrgGallery([]);
+      }
+    } else {
+      setOrgGallery([]);
+    }
     setActiveOrgId(org.id);
   };
 
@@ -694,6 +704,7 @@ function App() {
                   value={content[f.name]}
                   onChange={(v) => update(f.name, v)}
                   marca={marca}
+                  orgGallery={orgGallery}
                 />
               ))}
             </div>
@@ -704,6 +715,7 @@ function App() {
             marca={marca}
             tpl={tpl}
             content={content}
+            orgGallery={orgGallery}
             onPick={(src) => {
               const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
               if (photoField) {

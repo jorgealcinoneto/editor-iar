@@ -64,10 +64,13 @@ function RichTextField({ value, onChange, rows = 4 }) {
   );
 }
 
-function Field({ field, value, onChange, marca }) {
+function Field({ field, value, onChange, marca, orgGallery }) {
   const galleries = marca.galleries;
   const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
   const icons = galleries?.icons || [];
+  const orgPhotoUrls = window.SAAS_MODE
+    ? (orgGallery || window.ORG_GALLERY || []).map((a) => (typeof a === 'string' ? a : a.url)).filter(Boolean)
+    : [];
 
   if (field.type === 'text' || field.type === 'rich') {
     return (
@@ -237,9 +240,7 @@ function Field({ field, value, onChange, marca }) {
     const isExternal = typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'));
     const showPreview = has && (isExternal || value.includes('/'));
     const allowUrl = field.type === 'image';
-    const orgPhotos = window.SAAS_MODE
-      ? (window.ORG_GALLERY || []).map((a) => a.url).filter(Boolean)
-      : [];
+    const orgPhotos = orgPhotoUrls;
     const presetGrid = (items, showNone) => (
       <div className="ed-preset">
         {items.map((src) => (

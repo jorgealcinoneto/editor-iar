@@ -9,6 +9,9 @@
       .order('created_at', { ascending: false });
     if (error) throw error;
     global.ORG_GALLERY = data || [];
+    if (typeof global.dispatchEvent === 'function') {
+      global.dispatchEvent(new CustomEvent('ed:gallery-loaded', { detail: global.ORG_GALLERY }));
+    }
     return global.ORG_GALLERY;
   }
 
