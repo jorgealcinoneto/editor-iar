@@ -4,3 +4,5 @@ anglicana-rio 2/
 Anglicana-RIO-handoff-vvv.zip
 graphify-out/
 config.js
+config.local.js
+.supabase/

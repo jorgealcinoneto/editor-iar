@@ -49,7 +49,7 @@ function applyMarcaStyles(marcaId) {
 }
 
 function PreviewIar({ tpl, content, tweak, scale }) {
-  const tweakClasses = [
+  const tweakClasses = window.SAAS_MODE ? '' : [
     tweak?.palette ? `paleta-${tweak.palette}` : '',
     tweak?.accent ? `acento-${tweak.accent}` : '',
   ].filter(Boolean).join(' ');
@@ -86,10 +86,19 @@ function PreviewOfmj({ tpl, content, tweak, scale }) {
 }
 
 function TweaksPanel({ tweak, onChange, marca }) {
+  const saasTheme = window.SAAS_MODE && window.ORG_SKIN?.theme;
   const controls = marca.tweakControls || ['palette', 'accent', 'layout', 'grid', 'watermark'];
   const has = (c) => controls.includes(c);
   const palettes = Object.keys(marca.palettes || {});
   const accents = Object.keys(marca.accents || {});
+  const themeSwatches = saasTheme ? [
+    { key: 'paper', label: 'Papel' },
+    { key: 'ink', label: 'Tinta' },
+    { key: 'accent', label: 'Acento' },
+    { key: 'marinho', label: 'Marinho' },
+    { key: 'ambar', label: 'Âmbar' },
+    { key: 'accentSoft', label: 'Acento claro' },
+  ].filter(({ key }) => saasTheme[key]) : [];
   const layouts = [
     { v: 'left', label: 'Esq.' },
     { v: 'centered', label: 'Centro' },
@@ -108,7 +117,24 @@ function TweaksPanel({ tweak, onChange, marca }) {
   return (
     <div className="ed-tweaks">
       <div className="ed-tweaks__title">Acabamento</div>
-      {has('palette') && palettes.length > 0 && (
+      {themeSwatches.length > 0 && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Tema da org</div>
+          <div className="ed-swatches ed-swatches--single ed-swatches--readonly">
+            {themeSwatches.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                disabled
+                tabIndex={-1}
+                title={`${label}: ${saasTheme[key]}`}
+                style={{ background: saasTheme[key] }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      {!saasTheme && has('palette') && palettes.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Paleta</div>
           <div className="ed-swatches">
@@ -131,7 +157,7 @@ function TweaksPanel({ tweak, onChange, marca }) {
           </div>
         </div>
       )}
-      {has('accent') && accents.length > 0 && (
+      {!saasTheme && has('accent') && accents.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Acento</div>
           <div className="ed-swatches ed-swatches--single">
@@ -202,33 +228,68 @@ function TweaksPanel({ tweak, onChange, marca }) {
   );
 }
 
+function GalleryGrid({ photos, currentValue, onPick }) {
+  if (!photos.length) return null;
+  return (
+    <div className="ed-preset">
+      {photos.map((src) => (
+        <button
+          key={src}
+          type="button"
+          className={currentValue === src ? 'is-active' : ''}
+          onClick={() => onPick(src)}
+          title={src.split('/').pop()}
+        >
+          <img src={src} alt="" loading="lazy" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function GalleryBrowser({ marca, tpl, content, onPick }) {
   const galleries = marca.galleries;
-  const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
-  if (!photos.length) return null;
+  const iarPhotos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
+  const orgPhotos = window.SAAS_MODE
+    ? (window.ORG_GALLERY || []).map((a) => a.url).filter(Boolean)
+    : [];
   const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
   const currentValue = photoField ? content[photoField.name] : null;
+  const hint = photoField
+    ? `Clica para aplicar em "${photoField.label}"`
+    : 'Sem campo de foto · clica para copiar URL';
+
+  if (!window.SAAS_MODE) {
+    if (!iarPhotos.length) return null;
+    return (
+      <section className="ed-section">
+        <div className="ed-section__label">
+          3 · Galeria
+          <span className="ed-section__hint">{hint}</span>
+        </div>
+        <GalleryGrid photos={iarPhotos} currentValue={currentValue} onPick={onPick} />
+      </section>
+    );
+  }
+
+  if (!orgPhotos.length) {
+    return (
+      <section className="ed-section">
+        <div className="ed-section__label">
+          3 · Galeria
+          <span className="ed-section__hint">Sem imagens nesta org — adiciona no admin</span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="ed-section">
       <div className="ed-section__label">
         3 · Galeria
-        <span className="ed-section__hint">
-          {photoField ? `Clica para aplicar em "${photoField.label}"` : 'Sem campo de foto · clica para copiar URL'}
-        </span>
+        <span className="ed-section__hint">{hint}</span>
       </div>
-      <div className="ed-preset">
-        {photos.map((src) => (
-          <button
-            key={src}
-            type="button"
-            className={currentValue === src ? 'is-active' : ''}
-            onClick={() => onPick(src)}
-            title={src.split('/').pop()}
-          >
-            <img src={src} alt="" loading="lazy" />
-          </button>
-        ))}
-      </div>
+      <GalleryGrid photos={orgPhotos} currentValue={currentValue} onPick={onPick} />
     </section>
   );
 }
@@ -426,15 +487,23 @@ function App() {
     setTplId(stored?.tplId || m.templates[0]?.id || '');
   }, []);
 
-  const switchOrg = (org) => {
+  const switchOrg = async (org) => {
     if (!org || org.id === activeOrgId) return;
     saveMarcaState(marcaId, {
       contents: contentsByMarca[marcaId],
       tweak: tweaksByMarca[marcaId],
       tplId,
     });
+    if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
+      try {
+        await window.loadOrgGallery(window.getSupabase(), org.id);
+      } catch (e) {
+        console.error(e);
+      }
+    }
     reloadMarcaState(marcaId, org.id);
-    window.activateOrg(org, window.ORG_MEMBERSHIP?.role);
+    const membership = window.ORG_MEMBERSHIPS?.find((m) => m.org_id === org.id);
+    window.activateOrg(org, membership?.role || window.ORG_MEMBERSHIP?.role);
     setActiveOrgId(org.id);
   };
 
@@ -631,6 +700,7 @@ function App() {
           </section>
 
           <GalleryBrowser
+            key={activeOrgId || 'org'}
             marca={marca}
             tpl={tpl}
             content={content}

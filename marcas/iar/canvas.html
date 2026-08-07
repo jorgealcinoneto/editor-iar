@@ -41,10 +41,13 @@
 
 <script src="../../core/app-path.js"></script>
 <script src="../../core/auth-login-hints.js"></script>
-<script src="../../config.js"></script>
+<script src="../../core/config-loader.js"></script>
+<script>window.__configReady = loadAppConfig();</script>
+<script src="../../core/dev-auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../core/supabase-client.js"></script>
 <script src="../../core/org-skin.js"></script>
+<script src="../../core/org-gallery.js"></script>
 <script>window.SAAS_MODE = true;</script>
 
 <script type="text/babel" src="../../core/canvas/design-canvas.jsx"></script>
@@ -108,11 +111,14 @@ function mountCanvasApp() {
 }
 
 window.startEditorAfterAuth = mountCanvasApp;
-if (window.SAAS_MODE) {
-  window.mountAuthGate();
-} else {
-  mountCanvasApp();
-}
+(async function () {
+  if (window.__configReady) await window.__configReady;
+  if (window.SAAS_MODE) {
+    window.mountAuthGate();
+  } else {
+    mountCanvasApp();
+  }
+})();
 </script>
 </body>
 </html>

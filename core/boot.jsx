@@ -55,7 +55,8 @@ window.addEventListener('error', (e) => {
 
 window.startEditorAfterAuth = bootEditor;
 
-function boot() {
+async function boot() {
+  if (window.__configReady) await window.__configReady;
   if (window.SAAS_MODE) {
     if (typeof window.mountAuthGate === 'function') window.mountAuthGate();
     return;

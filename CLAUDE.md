@@ -8,8 +8,10 @@ Hub form-based: escolher **marca** (IAR ou OFMJ) → template → campos → pre
 
 - **`index.html`:** `SAAS_MODE = true` → Auth Supabase, só catálogo IAR (`church-v1`), skin por org.
 - **`admin.html`:** superadmin — CRUD orgs, logo, tema, convites (`core/admin-app.jsx`).
-- **`config.js`** (gitignored, copiar de `config.example.js`): `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
-- **Schema:** `supabase/migrations/001_saas_mvp.sql` — aplicar no SQL Editor; seed manual de superadmin após primeiro login.
+- **`config.js`** (gitignored, copiar de `config.example.js`): `SUPABASE_URL`, `SUPABASE_ANON_KEY` (cloud).
+- **`config.local.js`** (gitignored, copiar de `config.local.example.js`): stack local via `./dev.sh`.
+- **Schema:** `supabase/migrations/` — cloud: SQL Editor; local: `supabase db reset` + `seed.sql`.
+- **Assets por org:** `org_assets` + bucket `org-assets` (`003`/`004`); galeria e fontes no tema são por org; uploads de campo (`kind=upload`) por membros; galeria (`kind=gallery`) só superadmin.
 - **Legado offline:** `SAAS_MODE = false` → `MARCA_FORCADA`, sem Supabase; IAR + OFMJ local.
 
 Ver README § Modo SaaS, Modo legado, Checklist E2E.
@@ -39,10 +41,12 @@ Estado `localStorage`: `ed:iar:state`, `ed:ofmj:state`, `ed:marcaActiva`; com Sa
 ## Comandos
 
 ```bash
+./dev.sh               # Supabase local + HTTP 127.0.0.1:8080 (SaaS dev)
+./dev-stop.sh          # para stack local
 ./start-editor.sh      # local, ambas as marcas (legado) ou SaaS se index com SAAS_MODE
 ./publicar.sh iar      # → editor-iar.github.io
 ./publicar.sh ofmj     # → editor-ofmj.github.io
-python3 -m http.server 8080   # SaaS: index.html + admin.html
+python3 -m http.server 8080   # SaaS cloud: index.html + admin.html
 ```
 
 Legado: `PASTOR/editor-iar/` e `PRODUTOR-CONTEUDO/editor-posts/` só têm shims + README.

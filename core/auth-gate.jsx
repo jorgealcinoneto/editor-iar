@@ -42,6 +42,9 @@
       const row = data.find((r) => r.org_id === savedId) || data[0];
       window.ORG_MEMBERSHIPS = data;
       window.activateOrg(row.orgs, row.role);
+      if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
+        try { await window.loadOrgGallery(supabase, row.orgs.id); } catch (e) { console.error('gallery', e); }
+      }
       setState({ phase: 'ready', inviteError });
     }, []);
 
@@ -75,14 +78,24 @@
         setState({ phase: 'error', message: err.message || String(err) });
         return;
       }
-      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!session) {
-          processedRef.current = null;
-          setState({ phase: 'login' });
+      let sub;
+      (async () => {
+        try {
+          await window.devAutoLogin(supabase);
+        } catch (err) {
+          setState({ phase: 'error', message: err.message });
           return;
         }
-        setTimeout(() => handleSession(supabase, session.user), 0);
-      });
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (!session) {
+            processedRef.current = null;
+            setState({ phase: 'login' });
+            return;
+          }
+          setTimeout(() => handleSession(supabase, session.user), 0);
+        });
+        sub = data;
+      })();
       return () => sub?.subscription?.unsubscribe();
     }, [handleSession]);
 
@@ -135,6 +148,15 @@
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
     const [error, setError] = useState(null);
+
+    if (window.LOCAL_DEV) {
+      return (
+        <>
+          <h1 className="ag-title">Modo dev</h1>
+          <p className="ag-sub">Dev mode: recarrega — auto-login activo.</p>
+        </>
+      );
+    }
 
     async function handleSubmit(e) {
       e.preventDefault();
