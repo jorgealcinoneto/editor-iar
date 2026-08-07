@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
+import { execSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -21,6 +22,17 @@ const THEME = {
   fontBody: 'DM Sans',
 };
 
+function localServiceRoleKey() {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) return process.env.SUPABASE_SERVICE_ROLE_KEY;
+  try {
+    const raw = execSync('npx supabase status', { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const json = JSON.parse(raw.trim().split('\n').pop());
+    return json.SERVICE_ROLE_KEY || '';
+  } catch {
+    return '';
+  }
+}
+
 function loadEnv() {
   const local = process.argv.includes('--local');
   if (local) {
@@ -28,10 +40,9 @@ function loadEnv() {
     if (!existsSync(confPath)) throw new Error('config.local.js em falta');
     const src = readFileSync(confPath, 'utf8');
     const url = (src.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)['"]/) || [])[1];
-    // Prefer service role from env; fallback instructions
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const key = localServiceRoleKey();
     if (!url || !key) {
-      throw new Error('Para --local: export SUPABASE_SERVICE_ROLE_KEY=$(npx supabase status -o env | sed -n "s/SERVICE_ROLE_KEY=//p")');
+      throw new Error('Para --local: sobe o stack (`npx supabase start`) e garante config.local.js');
     }
     return { url, key, local: true };
   }
