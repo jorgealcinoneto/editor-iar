@@ -403,5 +403,8 @@
     );
   }
 
-  ReactDOM.createRoot(document.getElementById('root')).render(<AdminApp />);
+  (async function () {
+    if (window.__configReady) await window.__configReady;
+    ReactDOM.createRoot(document.getElementById('root')).render(<AdminApp />);
+  })();
 })();

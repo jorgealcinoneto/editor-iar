@@ -22,7 +22,9 @@
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/html-to-image@1.11.13/dist/html-to-image.js"></script>
 
-  <script src="config.js"></script>
+  <script src="core/app-path.js"></script>
+  <script src="core/config-loader.js"></script>
+  <script>window.__configReady = loadAppConfig();</script>
   <script src="core/auth-login-hints.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="core/supabase-client.js"></script>
