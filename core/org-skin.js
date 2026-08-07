@@ -11,6 +11,8 @@
       logoUrl: org.logo_url || '',
       catalogId: org.catalog_id || 'church-v1',
       theme: org.theme || {},
+      fontHeading: org.theme?.fontHeading || 'Cormorant Garamond',
+      fontBody: org.theme?.fontBody || 'DM Sans',
     };
   }
 
@@ -32,16 +34,41 @@
       paper: '--papel',
       ink: '--grafite',
       ambar: '--ambar',
+      fontHeading: '--font-heading',
+      fontBody: '--font-body',
     };
     Object.entries(map).forEach(([key, cssVar]) => {
       if (theme[key]) root.style.setProperty(cssVar, theme[key]);
     });
   }
 
+  function loadOrgFonts(skin) {
+    if (typeof document === 'undefined') return;
+    const id = 'ed-org-fonts';
+    let link = document.getElementById(id);
+    if (!skin?.fontHeading && !skin?.fontBody) {
+      if (link) link.remove();
+      return;
+    }
+    const families = [skin.fontHeading, skin.fontBody].filter(Boolean);
+    const unique = [...new Set(families)];
+    const params = unique.map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`).join('&');
+    const href = `https://fonts.googleapis.com/css2?${params}&display=swap`;
+    if (!link) {
+      link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    link.href = href;
+  }
+
   function activateOrg(org, role) {
     if (!org?.id) return;
     global.ORG_SKIN = buildOrgSkin(org);
     applyOrgTheme(global.ORG_SKIN.theme);
+    loadOrgFonts(global.ORG_SKIN);
+    global.ORG_GALLERY = [];
     const prevRole = global.ORG_MEMBERSHIP?.role;
     global.ORG_MEMBERSHIP = { orgId: org.id, role: role || prevRole || 'member' };
     try { localStorage.setItem(LS_ORG, org.id); } catch {}
@@ -60,9 +87,10 @@
   global.buildOrgSkin = buildOrgSkin;
   global.getSkinBrandLines = getSkinBrandLines;
   global.applyOrgTheme = applyOrgTheme;
+  global.loadOrgFonts = loadOrgFonts;
   global.activateOrg = activateOrg;
   global.isSuperadmin = isSuperadmin;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme, activateOrg, isSuperadmin };
+    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme, loadOrgFonts, activateOrg, isSuperadmin };
   }
 })(typeof window !== 'undefined' ? window : globalThis);

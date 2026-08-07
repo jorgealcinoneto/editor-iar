@@ -31,4 +31,16 @@ assert.equal(vars['--papel'], '#040404');
 assert.equal(vars['--grafite'], '#050505');
 assert.equal(vars['--ambar'], '#060606');
 
+const orgWithFonts = {
+  ...org,
+  theme: { ...org.theme, fontHeading: 'Fraunces', fontBody: 'Inter' },
+};
+const skinFonts = buildOrgSkin(orgWithFonts);
+assert.equal(skinFonts.fontHeading, 'Fraunces');
+assert.equal(skinFonts.fontBody, 'Inter');
+
+applyOrgTheme(skinFonts.theme, fakeRoot);
+assert.equal(vars['--font-heading'], 'Fraunces');
+assert.equal(vars['--font-body'], 'Inter');
+
 console.log('org-skin tests OK');
