@@ -215,9 +215,20 @@ function Field({ field, value, onChange, marca }) {
   }
 
   if (field.type === 'photo' || field.type === 'image') {
-    const onFile = (e) => {
+    const onFile = async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      if (window.SAAS_MODE && window.uploadOrgAsset) {
+        const orgId = window.ORG_MEMBERSHIP?.orgId;
+        if (!orgId) return;
+        try {
+          const asset = await window.uploadOrgAsset(window.getSupabase(), orgId, file, 'upload');
+          onChange(asset.url);
+        } catch (err) {
+          console.error('upload', err);
+        }
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => onChange(ev.target.result);
       reader.readAsDataURL(file);
@@ -226,6 +237,39 @@ function Field({ field, value, onChange, marca }) {
     const isExternal = typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'));
     const showPreview = has && (isExternal || value.includes('/'));
     const allowUrl = field.type === 'image';
+    const orgPhotos = window.SAAS_MODE
+      ? (window.ORG_GALLERY || []).map((a) => a.url).filter(Boolean)
+      : [];
+    const presetGrid = (items, showNone) => (
+      <div className="ed-preset">
+        {items.map((src) => (
+          <button
+            key={src}
+            type="button"
+            className={value === src ? 'is-active' : ''}
+            onClick={() => onChange(src)}
+            title={src.split('/').pop()}
+          >
+            <img src={src} alt="" />
+          </button>
+        ))}
+        {showNone && allowUrl && (
+          <button
+            type="button"
+            className={!has ? 'is-active ed-preset__none' : 'ed-preset__none'}
+            onClick={() => onChange('')}
+            title="Sem imagem"
+            aria-label="Sem imagem"
+          >
+            ×
+          </button>
+        )}
+      </div>
+    );
+    const hasOrgGallery = window.SAAS_MODE && orgPhotos.length > 0;
+    const hasIarGallery = photos.length > 0;
+    const showNoneInOrg = allowUrl && (hasOrgGallery || !hasIarGallery);
+    const showNoneInIar = allowUrl && hasIarGallery && !hasOrgGallery;
 
     return (
       <div className="ed-field">
@@ -238,33 +282,25 @@ function Field({ field, value, onChange, marca }) {
           </div>
           <input type="file" accept="image/*" onChange={onFile} />
         </label>
-        {photos.length > 0 && (
+        {window.SAAS_MODE ? (
+          <>
+            {hasOrgGallery && (
+              <>
+                <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria da org:</div>
+                {presetGrid(orgPhotos, showNoneInOrg)}
+              </>
+            )}
+            {hasIarGallery && (
+              <details className="ed-gallery-catalog">
+                <summary>Catálogo IAR</summary>
+                {presetGrid(photos, showNoneInIar)}
+              </details>
+            )}
+          </>
+        ) : hasIarGallery && (
           <>
             <div className="ed-field__hint" style={{ marginTop: 10 }}>Galeria:</div>
-            <div className="ed-preset">
-              {photos.map((src) => (
-                <button
-                  key={src}
-                  type="button"
-                  className={value === src ? 'is-active' : ''}
-                  onClick={() => onChange(src)}
-                  title={src.split('/').pop()}
-                >
-                  <img src={src} alt="" />
-                </button>
-              ))}
-              {allowUrl && (
-                <button
-                  type="button"
-                  className={!has ? 'is-active ed-preset__none' : 'ed-preset__none'}
-                  onClick={() => onChange('')}
-                  title="Sem imagem"
-                  aria-label="Sem imagem"
-                >
-                  ×
-                </button>
-              )}
-            </div>
+            {presetGrid(photos, allowUrl)}
           </>
         )}
         {allowUrl && (
