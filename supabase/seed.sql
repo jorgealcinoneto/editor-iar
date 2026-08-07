@@ -26,14 +26,34 @@ INSERT INTO auth.identities (
   'email', NOW(), NOW(), NOW()
 ) ON CONFLICT DO NOTHING;
 
-INSERT INTO public.orgs (id, slug, name, handle) VALUES
-  ('b0000000-0000-4000-8000-000000000001', 'iar', 'Igreja Anglicana Rio', '@igrejaanglicanario'),
-  ('b0000000-0000-4000-8000-000000000002', 'igreja-teste', 'Igreja Anglicana Teste', '@igreja.teste')
+INSERT INTO public.orgs (id, slug, name, handle, theme) VALUES
+  (
+    'b0000000-0000-4000-8000-000000000001',
+    'iar',
+    'Igreja Anglicana Rio',
+    '@igrejaanglicanario',
+    '{"paper":"#F5EFE6","ink":"#1C2A3A","accent":"#1A52D6","accentSoft":"#4978E3","ambar":"#C99B6B","marinho":"#0E2A47","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
+  ),
+  (
+    'b0000000-0000-4000-8000-000000000002',
+    'igreja-teste',
+    'Igreja Anglicana Teste',
+    '@igreja.teste',
+    '{"paper":"#F5EFE6","ink":"#1C2A3A","accent":"#1A52D6","accentSoft":"#4978E3","ambar":"#C99B6B","marinho":"#0E2A47","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
+  ),
+  (
+    'b0000000-0000-4000-8000-000000000003',
+    'refugio',
+    'Comunidade Anglicana Refúgio',
+    '@anglicana_refugio',
+    '{"paper":"#F5F1E4","ink":"#4A5B45","marinho":"#4A5B45","accent":"#A7CF9A","accentSoft":"#C5E0BB","ambar":"#E0A85E","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
+  )
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO public.org_members (org_id, user_id, role) VALUES
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'superadmin'),
-  ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001', 'superadmin')
+  ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001', 'superadmin'),
+  ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000001', 'superadmin')
 ON CONFLICT DO NOTHING;
 
 -- GoTrue scans token columns as non-null strings
