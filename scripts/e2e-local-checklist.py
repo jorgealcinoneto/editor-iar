@@ -165,6 +165,75 @@ def main():
     )
     check("Canvas SaaS boot (config + auth-gate)", canvas_ok)
 
+    # 6. Org asset isolation
+    code, assets_probe = req("GET", f"{BASE}/rest/v1/org_assets?select=id&limit=0", token=token)
+    check("org_assets table reachable", code == 200, f"HTTP {code}")
+
+    iar_id = next((o["id"] for o in orgs if o["slug"] == "iar"), None) if isinstance(orgs, list) else None
+    teste_id = next((o["id"] for o in orgs if o["slug"] == "igreja-teste"), None) if isinstance(orgs, list) else None
+
+    gallery_id = None
+    if iar_id:
+        code, gallery = req(
+            "POST",
+            f"{BASE}/rest/v1/org_assets",
+            {
+                "org_id": iar_id,
+                "kind": "gallery",
+                "storage_path": f"{iar_id}/gallery/e2e-test.png",
+                "url": f"{BASE}/storage/v1/object/public/org-assets/{iar_id}/gallery/e2e-test.png",
+                "label": "E2E gallery",
+            },
+            token=token,
+            headers={"Prefer": "return=representation"},
+        )
+        gallery_id = gallery[0]["id"] if isinstance(gallery, list) and gallery else None
+        check("org_assets gallery insert (superadmin)", code in (200, 201) and bool(gallery_id), f"HTTP {code}")
+
+        if teste_id and gallery_id:
+            code, isolated = req(
+                "GET",
+                f"{BASE}/rest/v1/org_assets?org_id=eq.{teste_id}&id=eq.{gallery_id}&select=id",
+                token=token,
+            )
+            isolated_ok = code == 200 and isinstance(isolated, list) and len(isolated) == 0
+            check("org_assets cross-org isolation", isolated_ok, f"HTTP {code}, rows={len(isolated) if isinstance(isolated, list) else '?'}")
+
+        req("DELETE", f"{BASE}/rest/v1/org_assets?id=eq.{gallery_id}", token=token)
+    else:
+        check("org_assets gallery insert (superadmin)", False, "iar org not found")
+        check("org_assets cross-org isolation", False, "iar org not found")
+
+    if iar_id and teste_id:
+        req(
+            "PATCH",
+            f"{BASE}/rest/v1/orgs?id=eq.{iar_id}",
+            {"theme": {"fontHeading": "Fraunces", "fontBody": "Inter"}},
+            token=token,
+        )
+        req(
+            "PATCH",
+            f"{BASE}/rest/v1/orgs?id=eq.{teste_id}",
+            {"theme": {"fontHeading": "Playfair Display", "fontBody": "Lato"}},
+            token=token,
+        )
+        code, themed = req(
+            "GET",
+            f"{BASE}/rest/v1/orgs?select=slug,theme&slug=in.(iar,igreja-teste)",
+            token=token,
+        )
+        by_slug = {o["slug"]: o.get("theme") or {} for o in themed} if isinstance(themed, list) else {}
+        fonts_ok = (
+            code == 200
+            and by_slug.get("iar", {}).get("fontHeading") == "Fraunces"
+            and by_slug.get("iar", {}).get("fontBody") == "Inter"
+            and by_slug.get("igreja-teste", {}).get("fontHeading") == "Playfair Display"
+            and by_slug.get("igreja-teste", {}).get("fontBody") == "Lato"
+        )
+        check("Per-org theme fonts in API", fonts_ok, str(by_slug) if code == 200 else str(themed))
+    else:
+        check("Per-org theme fonts in API", False, "orgs not found")
+
     # Summary
     passed = sum(1 for r in results if r["ok"])
     total = len(results)

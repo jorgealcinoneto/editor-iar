@@ -6,6 +6,8 @@ Um editor form-based para criar posts Instagram: escolhe marca, template, preenc
 
 `index.html` arranca com `window.SAAS_MODE = true`: login por magic link, skin por org (`ORG_SKIN`), catálogo `church-v1` (IAR). OFMJ fica fora do SaaS.
 
+Cada org tem logo/tema/fontes próprios e galeria isolada (`org_assets` + bucket `org-assets`); membros fazem upload de fotos de campo, superadmin gere a galeria no admin.
+
 ### Setup local
 
 1. **Supabase** — criar projecto free → **SQL Editor** → colar e executar `supabase/migrations/001_saas_mvp.sql`. Confirmar tabelas `orgs`, `org_members`, `invites` e bucket `org-logos`.
@@ -104,7 +106,7 @@ Itens da spec — **não verificados neste repo**; validar manualmente quando `c
 - `core/` — UI, form, export, auth (`auth-gate.jsx`), Supabase (`supabase-client.js`, `org-skin.js`)
 - `admin.html` + `core/admin-app.jsx` — painel superadmin (orgs, logos, convites)
 - `config.example.js` → `config.js` (gitignored) — credenciais Supabase
-- `supabase/migrations/001_saas_mvp.sql` — schema, RLS, storage, `accept_invite`
+- `supabase/migrations/` — schema SaaS, RLS, `org_assets`, storage, `accept_invite`
 - `marcas/iar/` — templates, ícones, assets, registry
 - `marcas/ofmj/` — templates, assets, uploads, registry + tweaks
 - `marcas/ofmj/canvas.html` — canvas Figma-like (visão panorâmica dos templates OFMJ; botão "Canvas ↗" na top-bar quando marca activa = OFMJ)

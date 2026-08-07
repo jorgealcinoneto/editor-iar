@@ -10,7 +10,8 @@ Hub form-based: escolher **marca** (IAR ou OFMJ) → template → campos → pre
 - **`admin.html`:** superadmin — CRUD orgs, logo, tema, convites (`core/admin-app.jsx`).
 - **`config.js`** (gitignored, copiar de `config.example.js`): `SUPABASE_URL`, `SUPABASE_ANON_KEY` (cloud).
 - **`config.local.js`** (gitignored, copiar de `config.local.example.js`): stack local via `./dev.sh`.
-- **Schema:** `supabase/migrations/001_saas_mvp.sql` — cloud: SQL Editor; local: `supabase db reset` + `seed.sql`.
+- **Schema:** `supabase/migrations/` — cloud: SQL Editor; local: `supabase db reset` + `seed.sql`.
+- **Assets por org:** `org_assets` + bucket `org-assets` (`003`/`004`); galeria e fontes no tema são por org; uploads de campo (`kind=upload`) por membros; galeria (`kind=gallery`) só superadmin.
 - **Legado offline:** `SAAS_MODE = false` → `MARCA_FORCADA`, sem Supabase; IAR + OFMJ local.
 
 Ver README § Modo SaaS, Modo legado, Checklist E2E.
