@@ -109,13 +109,18 @@
       <div className="ag-wrap">
         <style>{`
           .ag-wrap {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
+            min-height: 100dvh; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
             font-family: var(--ed-font-ui, Inter, sans-serif); background: var(--ed-paper, #f5f1e8);
             color: var(--ed-ink, #1a1612);
+            padding: 24px 16px;
+            padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+            box-sizing: border-box;
           }
           .ag-card {
             width: 100%; max-width: 360px; padding: 32px; border-radius: var(--ed-radius, 10px);
             background: var(--ed-card, #fff); border: 1px solid var(--ed-line, rgba(0,0,0,0.1));
+            box-sizing: border-box;
           }
           .ag-title { font-family: var(--ed-font-serif, serif); font-size: 22px; margin: 0 0 4px; }
           .ag-sub { font-size: 13px; color: var(--ed-ink-soft, #5b524a); margin: 0 0 20px; line-height: 1.5; }
@@ -125,13 +130,21 @@
             margin-bottom: 6px;
           }
           .ag-input {
-            width: 100%; padding: 9px 12px; font: inherit; font-size: 13.5px;
+            width: 100%; padding: 12px 14px; font: inherit; font-size: 16px;
             border: 1px solid var(--ed-line, rgba(0,0,0,0.1)); border-radius: var(--ed-radius-sm, 6px);
             background: var(--ed-paper, #f5f1e8); color: var(--ed-ink, #1a1612); margin-bottom: 14px;
+            box-sizing: border-box;
           }
           .ag-input:focus { outline: 0; border-color: var(--ed-accent, #722f37); }
           .ag-error { font-size: 12.5px; color: var(--ed-accent, #722f37); margin: 0 0 14px; line-height: 1.4; }
           .ag-hint { font-size: 12px; color: var(--ed-ink-soft, #5b524a); margin-top: 14px; line-height: 1.4; }
+          .ag-card .ed-btn, .ag-card button[type="submit"] {
+            width: 100%; min-height: 44px; justify-content: center;
+          }
+          @media (max-width: 420px) {
+            .ag-card { padding: 24px 18px; }
+            .ag-title { font-size: 20px; }
+          }
         `}</style>
         <div className="ag-card">
           {state.phase === 'loading' && <p className="ag-sub">A verificar sessão…</p>}

@@ -545,21 +545,149 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
 /* ============================================
    Responsivo (tablet/mobile)
 ============================================ */
+.ed-mobile-tabs { display: none; }
+.ed-bar__more { display: none; position: relative; }
+.ed-bar__download-short { display: none; }
+
 @media (max-width: 1000px) {
   .ed-main { grid-template-columns: 320px 1fr; }
+  .ed-bar { padding: 0 14px; gap: 10px; }
+  .ed-bar__title { display: none; }
 }
+
 @media (max-width: 760px) {
-  body { overflow: auto; }
-  #root { height: auto; min-height: 100vh; }
+  html, body { height: 100%; overflow: hidden; }
+  #root {
+    height: 100dvh;
+    height: 100vh;
+    overflow: hidden;
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+  .ed-bar {
+    flex: 0 0 52px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .ed-bar__kicker { display: none; }
+  .ed-bar__desktop-only { display: none !important; }
+  .ed-bar__more { display: block; }
+  .ed-bar__more-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .ed-bar__more-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 80;
+    min-width: 200px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--ed-card, #fff);
+    color: var(--ed-ink, #1a1612);
+    border: 1px solid var(--ed-line);
+    border-radius: var(--ed-radius);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  }
+  .ed-bar__more-menu .ed-btn,
+  .ed-bar__more-menu .ed-org-switch {
+    width: 100%;
+    justify-content: flex-start;
+    color: inherit;
+  }
+  .ed-bar__more-menu .ed-org-switch {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+    padding: 6px 8px;
+  }
+  .ed-bar__more-menu .ed-org-switch__select {
+    width: 100%;
+    max-width: none;
+    color: var(--ed-ink);
+    background: var(--ed-paper);
+    border-color: var(--ed-line);
+  }
+  .ed-bar__download-short { display: inline; }
+  .ed-bar__download-label { display: none; }
+  .ed-bar__download { min-width: 52px; min-height: 44px; }
+
   .ed-main {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    overflow: visible;
+    grid-template-rows: 1fr;
+    min-height: 0;
+    overflow: hidden;
   }
-  .ed-sidebar { max-height: none; border-right: 0; border-bottom: 1px solid var(--ed-line); }
-  .ed-stage { overflow: visible; }
-  .ed-stage__head { flex-direction: column; }
-  .ed-bar__sub { display: none; }
+  .ed-pane { display: none; min-height: 0; }
+  .ed-main--pane-edit .ed-pane--edit {
+    display: block;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-right: 0;
+  }
+  .ed-main--pane-preview .ed-pane--preview {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ed-stage__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 14px 0;
+  }
+  .ed-tweaks { gap: 12px; }
+  .ed-swatches button,
+  .ed-radio button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .ed-tplopt { min-height: 44px; }
+  .ed-section { padding: 18px 16px; }
+  .ed-stage__board {
+    padding: 12px;
+    overflow: auto;
+    justify-content: flex-start;
+  }
+  .ed-help { display: none; }
+
+  .ed-mobile-tabs {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    background: var(--ed-card, #fff);
+    border-top: 1px solid var(--ed-line);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  }
+  .ed-mobile-tabs button {
+    flex: 1;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    font-family: var(--ed-font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ed-ink-soft);
+    min-height: 56px;
+    cursor: pointer;
+  }
+  .ed-mobile-tabs button.is-active {
+    color: var(--ed-ink);
+    box-shadow: inset 0 -3px 0 var(--marinho, var(--ed-accent));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
