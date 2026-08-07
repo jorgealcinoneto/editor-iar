@@ -81,6 +81,15 @@
     }
   }
 
+  /* orgs.catalog_id → id da marca (pasta em marcas/, id do <link> de CSS).
+     Cada manifest.js declara o seu catalogId. Fallback 'iar' mantém o
+     comportamento antigo para orgs com o default 'church-v1' herdado. */
+  function marcaIdForCatalog(catalogId) {
+    const marcas = global.MARCAS || {};
+    const hit = Object.keys(marcas).find((k) => marcas[k]?.catalogId === catalogId);
+    return hit || 'iar';
+  }
+
   function isSuperadmin() {
     if (!global.SAAS_MODE) return false;
     if (global.ORG_MEMBERSHIP?.role === 'superadmin') return true;
@@ -94,7 +103,8 @@
   global.loadOrgFonts = loadOrgFonts;
   global.activateOrg = activateOrg;
   global.isSuperadmin = isSuperadmin;
+  global.marcaIdForCatalog = marcaIdForCatalog;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme, loadOrgFonts, activateOrg, isSuperadmin };
+    module.exports = { buildOrgSkin, getSkinBrandLines, applyOrgTheme, loadOrgFonts, activateOrg, isSuperadmin, marcaIdForCatalog };
   }
 })(typeof window !== 'undefined' ? window : globalThis);

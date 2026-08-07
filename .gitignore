@@ -6,3 +6,4 @@ graphify-out/
 config.js
 config.local.js
 .supabase/
+node_modules/

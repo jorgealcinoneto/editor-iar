@@ -1,6 +1,7 @@
 window.MARCAS = window.MARCAS || {};
 window.MARCAS.iar = {
   id: 'iar',
+  catalogId: 'church-v1',
   name: 'Igreja Anglicana Rio',
   shortName: 'IAR',
   handle: '@igrejaanglicanario',
@@ -29,6 +30,9 @@ window.MARCAS.iar = {
   exportFilePrefix: 'iar',
   exportBg: null,
   barTheme: 'iar',
+  previewShell: 'post',
+  hasCanvas: true,
+  get logoIcon() { return window.IARIcons?.IconLogoMarca; },
   get templates() { return window.IAR_TEMPLATES || []; },
   get galleries() { return window.IAR_GALLERIES || { photos: [], icons: [] }; },
 };

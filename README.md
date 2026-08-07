@@ -90,6 +90,15 @@ Builds legados travam a marca via `window.MARCA_FORCADA` e omitem scripts da out
 
 **SaaS no Pages:** repositórios públicos não devem expor a **service role key**. A anon key é pública por desenho (RLS protege dados) — pode ir em `config.js` gerado no CI a partir de secrets, ou commitada se RLS estiver correcto. Nunca commitar service role key. `config.js` está no `.gitignore` para dev local.
 
+### Seed org Refúgio (assets)
+
+Após `npx supabase db reset` (ou na cloud com service role):
+
+```bash
+export SUPABASE_SERVICE_ROLE_KEY=...   # local: de `npx supabase status -o env`
+node scripts/seed-org-refugio.mjs --local   # ou sem --local para cloud
+```
+
 ## Checklist E2E (a verificar após projecto Supabase configurado)
 
 Itens da spec — **não verificados neste repo**; validar manualmente quando `config.js` + migração + seed estiverem activos:

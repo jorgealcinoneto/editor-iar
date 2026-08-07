@@ -32,6 +32,12 @@
   <script src="core/org-skin.js"></script>
   <script src="core/org-gallery.js"></script>
 
+  <!-- Só os manifests (JS puro, sem JSX): populam window.MARCAS para o
+       seletor de catálogo. O admin não renderiza templates. -->
+  <script src="marcas/iar/manifest.js"></script>
+  <script src="marcas/reconciliador/manifest.js"></script>
+  <script src="marcas/refugio/manifest.js"></script>
+
   <script type="text/babel" src="core/admin-app.jsx"></script>
 </body>
 </html>

@@ -1,0 +1,122 @@
+/* ============================================
+   Refúgio — tokens + templates de post
+
+   Só uma marca está activa de cada vez: core/editor-app.jsx
+   (applyMarcaStyles) alterna `disabled` nos <link id="marca-css-*">.
+   Por isso os selectores ficam sem prefixo, como no IAR.
+
+   As cores NÃO são fixas: aliasam as CSS vars que core/org-skin.js
+   (applyOrgTheme) escreve inline em <html> a partir de orgs.theme.
+   Os literais são só fallback para uso fora do SaaS.
+     theme.marinho    → --marinho    → --navy
+     theme.accent     → --estola     → --gold
+     theme.accentSoft → --estola-claro → --gold-claro
+     theme.ambar      → --ambar      → --gold-escuro
+     theme.paper      → --papel      (directo)
+     theme.ink        → --grafite    (directo)
+     theme.fontHeading→ --font-serif → --font-display (Fraunces)
+     theme.fontBody   → --font-sans / --font-wide (Space Grotesk)
+============================================ */
+
+:root {
+  --navy:           var(--marinho, #4A5B45);
+  --gold:           var(--estola, #A7CF9A);
+  --gold-claro:     var(--estola-claro, #C5E0BB);
+  --gold-escuro:    var(--ambar, #E0A85E);
+
+  --navy-suave:     #5A6D55;
+  --navy-claro:     #6E8268;
+  --gold-suave:     #E8F2E4;
+
+  --papel-2:        #EFEAE0;
+  --papel-3:        #E3DACB;
+  --vela:           #FFFFFF;
+
+  --grafite-2:      #3E4655;
+  --grafite-3:      #6C7381;
+  --linha:          #DCD5C8;
+
+  --font-display:   var(--font-serif, "Fraunces", Georgia, serif);
+  /* Itálicos via Fraunces italic — sem fonte script estática extra. */
+  --font-script:    var(--font-serif, "Fraunces", Georgia, serif);
+
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 16px;
+}
+
+/* ============================================
+   Post / Story / Print — wrappers de escala
+============================================ */
+.post { width: 540px; height: 540px; position: relative; overflow: hidden; border-radius: 4px; box-shadow: 0 8px 32px -8px rgba(31,43,69,0.18), 0 0 0 1px rgba(31,43,69,0.08); font-size: 0; }
+.post-inner { width: 1080px; height: 1080px; transform-origin: top left; transform: scale(0.5); font-size: calc(16px * var(--fscale, 1)); position: relative; overflow: hidden; }
+.post--story { width: 304px; height: 540px; }
+.post--story .post-inner { width: 1080px; height: 1920px; transform: scale(0.2814); }
+.post--print { width: 420px; height: 594px; }
+.post--print .post-inner { width: 1240px; height: 1754px; transform: scale(0.3387); }
+
+/* ============================================
+   Templates (desenhados em 1080)
+============================================ */
+.t-post { width: 100%; height: 100%; padding: 96px; display: flex; flex-direction: column; position: relative; background: var(--papel); color: var(--navy); font-family: var(--font-sans); }
+.t-post--dark { background: var(--navy); color: var(--papel); }
+.t-post--photo { padding: 0; }
+
+.t-rule { height: 1px; background: currentColor; opacity: 0.2; }
+
+.t-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; }
+.t-mark { display: flex; align-items: center; gap: 16px; }
+.t-mark__icon { width: 48px; height: 56px; }
+.t-mark__text { font-family: var(--font-display); font-size: calc(17px * var(--fscale, 1)); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1; }
+.t-mark__text span { display: block; font-weight: 400; font-size: calc(13px * var(--fscale, 1)); letter-spacing: 0.18em; opacity: 0.7; margin-bottom: 4px; font-family: var(--font-wide); text-transform: uppercase; }
+.t-category { font-family: var(--font-wide); font-size: calc(14px * var(--fscale, 1)); font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.7; }
+.t-head--legible { filter: drop-shadow(0 2px 6px rgba(15,22,38,.85)) drop-shadow(0 1px 4px rgba(15,22,38,.9)); }
+.t-head--legible .t-mark__text, .t-head--legible .t-mark__text span, .t-head--legible .t-category { opacity: 1; }
+
+.t-foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; font-family: var(--font-wide); font-size: calc(18px * var(--fscale, 1)); font-weight: 500; letter-spacing: 0.06em; }
+.t-foot__handle { font-size: calc(22px * var(--fscale, 1)); }
+.t-foot__pages { font-size: calc(22px * var(--fscale, 1)); opacity: 0.7; }
+
+.t-wave { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; pointer-events: none; }
+
+.t-eyebrow { font-family: var(--font-wide); font-size: calc(22px * var(--fscale, 1)); font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 32px; color: var(--gold-escuro); }
+.t-post--dark .t-eyebrow { color: var(--gold-claro); }
+
+.t-title { font-family: var(--font-display); font-size: calc(104px * var(--fscale, 1)); font-weight: 700; line-height: 1.1; letter-spacing: 0.005em; text-wrap: balance; }
+.t-title em { font-style: normal; font-family: var(--font-script); font-weight: 400; }
+.t-title--xl { font-size: calc(132px * var(--fscale, 1)); }
+.t-title--sm { font-size: calc(80px * var(--fscale, 1)); }
+
+.t-sub { font-family: var(--font-sans); font-size: calc(32px * var(--fscale, 1)); line-height: 1.4; font-weight: 400; color: var(--grafite-2); margin-top: 40px; max-width: 18ch; }
+.t-post--dark .t-sub { color: var(--papel-3); }
+
+.t-rule-accent { width: 96px; height: 4px; background: var(--gold); margin: 32px 0; }
+
+.t-verse { font-family: var(--font-script); font-weight: 400; font-size: calc(52px * var(--fscale, 1)); line-height: 1.3; color: var(--navy); text-wrap: balance; }
+.t-verse__ref { font-family: var(--font-wide); font-size: calc(22px * var(--fscale, 1)); font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-escuro); margin-top: 32px; }
+
+.t-bigNum { font-family: var(--font-display); font-size: calc(240px * var(--fscale, 1)); font-weight: 700; line-height: 0.85; color: var(--gold); margin-bottom: 16px; }
+.t-h2 { font-family: var(--font-display); font-size: calc(76px * var(--fscale, 1)); font-weight: 700; line-height: 1.15; letter-spacing: 0; margin-bottom: 32px; text-wrap: balance; }
+.t-h2--sm { font-size: calc(56px * var(--fscale, 1)); }
+.t-body { font-family: var(--font-sans); font-size: calc(30px * var(--fscale, 1)); line-height: 1.45; color: var(--grafite-2); font-weight: 400; max-width: 22ch; }
+.t-body strong { color: var(--navy); font-weight: 600; }
+.t-post--dark .t-body { color: var(--papel-3); }
+.t-post--dark .t-body strong { color: var(--papel); }
+
+.t-cta { display: inline-flex; align-items: center; gap: 16px; padding: 24px 36px; background: var(--gold); color: var(--navy); font-family: var(--font-wide); font-size: calc(26px * var(--fscale, 1)); font-weight: 700; letter-spacing: 0.06em; border-radius: 999px; align-self: flex-start; }
+
+.t-lectionary { padding: 96px 80px 88px !important; display: flex !important; flex-direction: column !important; }
+.t-lectionary sup { font-family: var(--font-sans); font-size: calc(22px * var(--fscale, 1)); font-weight: 700; vertical-align: super; line-height: 0; color: var(--gold-escuro); margin-right: 6px; }
+.t-lectionary strong { font-weight: 700; color: var(--navy); }
+
+.t-photo-bg { position: absolute; inset: 0; }
+.t-photo-bg img { width: 100%; height: 100%; object-fit: cover; }
+.t-photo-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,22,38,0.0) 25%, rgba(15,22,38,0.92) 90%); }
+.t-photo-inner { position: relative; z-index: 2; width: 100%; height: 100%; padding: 96px; display: flex; flex-direction: column; color: var(--papel); }
+
+.t-story { width: 100%; height: 100%; padding: 120px 96px; display: flex; flex-direction: column; position: relative; background: var(--papel); color: var(--navy); font-family: var(--font-sans); }
+.t-story--photo { padding: 0; }
+.t-story .t-title { font-size: calc(112px * var(--fscale, 1)); }
+.t-story .t-body { font-size: calc(36px * var(--fscale, 1)); max-width: 24ch; }
+
+.t-print { width: 100%; height: 100%; padding: 96px 80px; display: flex; flex-direction: column; position: relative; background: var(--papel); color: var(--navy); font-family: var(--font-sans); }

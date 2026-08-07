@@ -475,6 +475,14 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
 .ed-swatches--single button.is-active {
   box-shadow: 0 0 0 2px var(--ed-paper), 0 0 0 3px var(--ed-ink);
 }
+.ed-swatches--readonly button {
+  cursor: default;
+  opacity: 1;
+}
+.ed-swatches--readonly button:disabled {
+  cursor: default;
+  opacity: 1;
+}
 
 .ed-radio { display: flex; gap: 2px; }
 .ed-radio button {
@@ -561,12 +569,62 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
 .ed-bar { gap: 14px; }
 .ed-bar__left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
 
-.ed-bar--iar { background: #0E2A47; color: #F5EFE6; }
-.ed-bar--iar .ed-btn--primary { background: #1A52D6; color: #fff; }
-.ed-bar--iar .ed-btn--primary:hover:not(:disabled) { background: #4978E3; }
+.ed-bar--iar {
+  background: var(--marinho, #0E2A47);
+  color: var(--papel, #F5EFE6);
+}
+.ed-bar--iar .ed-btn--primary {
+  background: var(--estola, #1A52D6);
+  color: #fff;
+}
+.ed-bar--iar .ed-btn--primary:hover:not(:disabled) {
+  background: var(--estola-claro, #4978E3);
+}
 .ed-bar--ofmj { background: var(--ed-bar-bg); color: var(--ed-bar-text); }
 
+/* Reconciliador: mesma estrutura do IAR, mas o acento é dourado —
+   texto navy sobre o botão primário em vez de branco (contraste). */
+.ed-bar--reconciliador {
+  background: var(--marinho, #1F2B45);
+  color: var(--papel, #F7F5F1);
+}
+.ed-bar--reconciliador .ed-btn--primary {
+  background: var(--estola, #B6956A);
+  color: var(--marinho, #1F2B45);
+}
+.ed-bar--reconciliador .ed-btn--primary:hover:not(:disabled) {
+  background: var(--estola-claro, #D0B591);
+}
+
+.ed-bar--refugio {
+  background: var(--marinho, #4A5B45);
+  color: var(--papel, #F5F1E4);
+}
+.ed-bar--refugio .ed-btn--primary {
+  background: var(--estola, #A7CF9A);
+  color: var(--marinho, #4A5B45);
+}
+.ed-bar--refugio .ed-btn--primary:hover:not(:disabled) {
+  background: var(--estola-claro, #C5E0BB);
+}
+
 .ed-bar__brand { display: flex; flex-direction: column; line-height: 1.1; }
+.ed-bar__brand--reconciliador {
+  font-family: var(--font-serif, 'Cinzel'), Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
+.ed-bar__brand--reconciliador .ed-bar__kicker { font-weight: 400; opacity: 0.7; font-size: 9.5px; letter-spacing: 0.2em; }
+.ed-bar__brand--reconciliador .ed-bar__name { font-weight: 700; font-size: 14px; }
+.ed-bar__brand--refugio {
+  font-family: var(--font-serif, 'Fraunces'), Georgia, serif;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}
+.ed-bar__brand--refugio .ed-bar__kicker { font-weight: 400; opacity: 0.75; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+.ed-bar__brand--refugio .ed-bar__name { font-weight: 700; font-size: 15px; }
 .ed-bar__brand--iar {
   font-family: 'DM Sans', system-ui, sans-serif;
   text-transform: uppercase;
@@ -581,7 +639,7 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 18px;
   font-style: italic;
-  color: #4978E3;
+  color: var(--estola-claro, #4978E3);
   margin-left: 4px;
 }
 .ed-bar__mark { font-size: 22px; color: var(--ed-accent); font-family: var(--ed-font-serif); font-weight: 600; }
@@ -622,7 +680,9 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
   color: #1a1612;
   opacity: 1;
 }
-.ed-bar--iar .ed-marca-tab.is-active { color: #0E2A47; }
+.ed-bar--iar .ed-marca-tab.is-active,
+.ed-bar--reconciliador .ed-marca-tab.is-active,
+.ed-bar--refugio .ed-marca-tab.is-active { color: var(--marinho, #0E2A47); }
 
 .ed-org-switch {
   display: inline-flex;
@@ -655,7 +715,9 @@ a.ed-btn--ghost:hover { color: var(--ed-bar-text); }
   background-position: right 10px center;
 }
 .ed-org-switch__select:focus { outline: 2px solid rgba(255,255,255,0.35); outline-offset: 2px; }
-.ed-bar--iar .ed-org-switch__select { border-color: rgba(245,239,230,0.25); }
+.ed-bar--iar .ed-org-switch__select,
+.ed-bar--reconciliador .ed-org-switch__select,
+.ed-bar--refugio .ed-org-switch__select { border-color: rgba(245,239,230,0.25); }
 .ed-icon-picker {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

@@ -216,12 +216,14 @@ function IconLocal(props) {
 /* —— Marca completa (logo oficial IAR — usa o PNG real) —— */
 function IconLogoMarca({ width = 64, height = 76, variant = "dark" }) {
   // variant: "dark" (marinho original) | "light" (branco — para fundos escuros)
-  // O PNG é renderizado em marinho; filter inverte pro fundo escuro.
+  // O PNG IAR default é marinho; filter inverte pro fundo escuro.
+  // Logos de org (ORG_SKIN.logoUrl) mantêm as cores originais — invert deixava
+  // o símbolo sage/oliva branco e ilegível em fotos claras.
   const skin = window.ORG_SKIN;
   const src = skin?.logoUrl
     || ((window.MARCAS?.iar?.assetBase || 'marcas/iar/') + 'assets/logo-iar-symbol.png');
   const alt = skin?.name || 'Igreja Anglicana Rio';
-  const filter = variant === "light"
+  const filter = (!skin?.logoUrl && variant === "light")
     ? "brightness(0) invert(1)"
     : "none";
   return (

@@ -1,15 +1,14 @@
 function editorDepsReady() {
+  if (!window.EditorField || !window.MARCAS) return false;
+  if (window.SAAS_MODE) {
+    // activateOrg (auth-gate) corre antes de startEditorAfterAuth, logo
+    // ORG_SKIN já existe aqui e diz qual catálogo esperar.
+    const want = window.marcaIdForCatalog(window.ORG_SKIN?.catalogId);
+    return !!window.MARCAS[want]?.templates?.length;
+  }
   const forced = window.MARCA_FORCADA;
-  if (forced === 'iar') {
-    return window.MARCAS?.iar && window.IAR_TEMPLATES?.length && window.EditorField;
-  }
-  if (forced === 'ofmj') {
-    return window.MARCAS?.ofmj && window.OFMJ_TEMPLATES?.length && window.EditorField;
-  }
-  return window.MARCAS?.iar && window.MARCAS?.ofmj
-    && window.IAR_TEMPLATES?.length
-    && window.OFMJ_TEMPLATES?.length
-    && window.EditorField;
+  if (forced) return !!window.MARCAS[forced]?.templates?.length;
+  return Object.values(window.MARCAS).some((m) => m?.templates?.length);
 }
 
 let bootAttempts = 0;
@@ -28,8 +27,10 @@ function bootEditor() {
   if (!editorDepsReady()) {
     bootAttempts += 1;
     if (bootAttempts > BOOT_MAX) {
-      const forced = window.MARCA_FORCADA || 'iar+ofmj';
-      bootFail(root, `Dependências em falta após ${BOOT_MAX} tentativas (marca: ${forced}).`);
+      const esperada = window.SAAS_MODE
+        ? window.marcaIdForCatalog(window.ORG_SKIN?.catalogId)
+        : (window.MARCA_FORCADA || 'qualquer');
+      bootFail(root, `Dependências em falta após ${BOOT_MAX} tentativas (marca: ${esperada}).`);
       return;
     }
     if (root && !root.dataset.mounted) {

@@ -1,37 +1,39 @@
 const { useState, useRef, useEffect, useCallback, useMemo } = React;
 const Field = window.EditorField;
-const { IconLogoMarca } = window.IARIcons || {};
 
-const MARCA_IDS = ['iar', 'ofmj'];
 const LS_MARCA = 'ed:marcaActiva';
 
 function getMarca(id) {
   return window.MARCAS?.[id] || null;
 }
 
+/* Chamado dentro dos inicializadores de estado (1.º render), altura em que
+   os manifest.js já correram — não pode ser uma const de topo. */
+function getMarcaIds() {
+  return Object.keys(window.MARCAS || {});
+}
+
 function saasOrgId() {
   return window.SAAS_MODE ? window.ORG_MEMBERSHIP?.orgId : null;
 }
 
-function stateKey(marcaId) {
-  const oid = saasOrgId();
+function stateKey(marcaId, orgId) {
+  const oid = orgId ?? saasOrgId();
   return oid ? `ed:${oid}:state` : `ed:${marcaId}:state`;
 }
 
 function loadMarcaState(marcaId, orgId) {
   try {
-    const oid = orgId ?? saasOrgId();
-    const key = oid ? `ed:${oid}:state` : `ed:${marcaId}:state`;
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(stateKey(marcaId, orgId));
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-function saveMarcaState(marcaId, state) {
+function saveMarcaState(marcaId, state, orgId) {
   try {
-    localStorage.setItem(stateKey(marcaId), JSON.stringify(state));
+    localStorage.setItem(stateKey(marcaId, orgId), JSON.stringify(state));
   } catch {}
 }
 
@@ -41,24 +43,89 @@ function seedContents(marca) {
   return seed;
 }
 
+function buildMarcaContents(marcaId, orgId) {
+  const m = getMarca(marcaId);
+  if (!m) return {};
+  const seed = seedContents(m);
+  const stored = loadMarcaState(marcaId, orgId);
+  if (!stored?.contents) return seed;
+  const base = m.assetBase || `marcas/${marcaId}/`;
+  const merged = { ...seed };
+  Object.keys(stored.contents).forEach((tplId) => {
+    const c = stored.contents[tplId];
+    if (!c || typeof c !== 'object') return;
+    const next = { ...seed[tplId], ...c };
+    Object.keys(next).forEach((k) => {
+      const v = next[k];
+      if (typeof v === 'string' && /marcas\/[^/]+\//.test(v) && !v.includes(base)) {
+        next[k] = seed[tplId]?.[k];
+      }
+    });
+    merged[tplId] = next;
+  });
+  return merged;
+}
+
+function buildMarcaTweaks(marcaId, orgId) {
+  const m = getMarca(marcaId);
+  if (!m?.allowTweaks) return null;
+  const stored = loadMarcaState(marcaId, orgId);
+  return { ...m.tweakDefaults, ...(stored?.tweak || {}) };
+}
+
+/* Só uma folha de marca activa de cada vez: os tokens de :root e as regras
+   .post/.t-* não são scoped, portanto duas em simultâneo colidem. */
 function applyMarcaStyles(marcaId) {
-  const iarCss = document.getElementById('marca-css-iar');
+  getMarcaIds().forEach((id) => {
+    const link = document.getElementById(`marca-css-${id}`);
+    if (link) link.disabled = marcaId !== id;
+  });
   const fmjCss = document.getElementById('fmj-styles');
-  if (iarCss) iarCss.disabled = marcaId !== 'iar';
   if (fmjCss) fmjCss.disabled = marcaId !== 'ofmj';
 }
 
-function PreviewIar({ tpl, content, tweak, scale }) {
-  const tweakClasses = window.SAAS_MODE ? '' : [
-    tweak?.palette ? `paleta-${tweak.palette}` : '',
-    tweak?.accent ? `acento-${tweak.accent}` : '',
+function PreviewIar({ tpl, content, tweak, scale, marca }) {
+  const tweakClasses = [
+    !window.SAAS_MODE && tweak?.palette ? `paleta-${tweak.palette}` : '',
+    !window.SAAS_MODE && tweak?.accent ? `acento-${tweak.accent}` : '',
   ].filter(Boolean).join(' ');
+  const org = window.SAAS_MODE ? window.ORG_SKIN?.theme : null;
+  const pal = marca?.palettes?.[tweak?.palette];
+  const acc = marca?.accents?.[tweak?.accent];
+  const paper = pal?.paper || org?.paper;
+  const ink = pal?.ink || org?.ink || org?.marinho;
+  const accent = acc?.color || org?.accent;
+  const themeVars = {
+    ...(paper ? { '--papel': paper } : {}),
+    ...(ink ? { '--grafite': ink, '--marinho': ink, '--navy': ink } : {}),
+    ...(accent ? {
+      '--estola': accent,
+      '--gold': accent,
+      '--estola-claro': accent,
+      '--gold-claro': accent,
+      '--ambar': accent,
+      '--gold-escuro': accent,
+    } : {}),
+    ...(org?.fontHeading ? {
+      '--font-serif': org.fontHeading,
+      '--font-display': org.fontHeading,
+      '--font-script': org.fontHeading,
+    } : {}),
+    ...(org?.fontBody ? { '--font-sans': org.fontBody, '--font-wide': org.fontBody } : {}),
+  };
   return (
     <div className={`post ${tweakClasses}`} style={{ width: tpl.w * scale, height: tpl.h * scale }}>
       <div
         className="post-inner"
         data-export="root"
-        style={{ width: tpl.w, height: tpl.h, transform: `scale(${scale})`, transformOrigin: 'top left', '--fscale': tweak?.fontScale || 1 }}
+        style={{
+          width: tpl.w,
+          height: tpl.h,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          '--fscale': tweak?.fontScale || 1,
+          ...themeVars,
+        }}
       >
         {tpl.render(content, tweak)}
       </div>
@@ -86,19 +153,10 @@ function PreviewOfmj({ tpl, content, tweak, scale }) {
 }
 
 function TweaksPanel({ tweak, onChange, marca }) {
-  const saasTheme = window.SAAS_MODE && window.ORG_SKIN?.theme;
   const controls = marca.tweakControls || ['palette', 'accent', 'layout', 'grid', 'watermark'];
   const has = (c) => controls.includes(c);
   const palettes = Object.keys(marca.palettes || {});
   const accents = Object.keys(marca.accents || {});
-  const themeSwatches = saasTheme ? [
-    { key: 'paper', label: 'Papel' },
-    { key: 'ink', label: 'Tinta' },
-    { key: 'accent', label: 'Acento' },
-    { key: 'marinho', label: 'Marinho' },
-    { key: 'ambar', label: 'Âmbar' },
-    { key: 'accentSoft', label: 'Acento claro' },
-  ].filter(({ key }) => saasTheme[key]) : [];
   const layouts = [
     { v: 'left', label: 'Esq.' },
     { v: 'centered', label: 'Centro' },
@@ -112,29 +170,12 @@ function TweaksPanel({ tweak, onChange, marca }) {
   ];
   const swatchFor = (k) => {
     const p = marca.palettes[k];
-    return [p.paper, p.ink, marca.accents[tweak.accent]?.color || '#722f37'];
+    return [p.paper, p.ink, marca.accents[tweak.accent]?.color || Object.values(marca.accents || {})[0]?.color || '#722f37'];
   };
   return (
     <div className="ed-tweaks">
       <div className="ed-tweaks__title">Acabamento</div>
-      {themeSwatches.length > 0 && (
-        <div className="ed-tweaks__group">
-          <div className="ed-tweaks__label">Tema da org</div>
-          <div className="ed-swatches ed-swatches--single ed-swatches--readonly">
-            {themeSwatches.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                disabled
-                tabIndex={-1}
-                title={`${label}: ${saasTheme[key]}`}
-                style={{ background: saasTheme[key] }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-      {!saasTheme && has('palette') && palettes.length > 0 && (
+      {has('palette') && palettes.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Paleta</div>
           <div className="ed-swatches">
@@ -157,7 +198,7 @@ function TweaksPanel({ tweak, onChange, marca }) {
           </div>
         </div>
       )}
-      {!saasTheme && has('accent') && accents.length > 0 && (
+      {has('accent') && accents.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Acento</div>
           <div className="ed-swatches ed-swatches--single">
@@ -295,11 +336,15 @@ function GalleryBrowser({ marca, tpl, content, onPick, orgGallery }) {
 }
 
 function App() {
-  const forced = window.SAAS_MODE ? 'iar' : window.MARCA_FORCADA;
-  const showSelector = !forced;
   const [activeOrgId, setActiveOrgId] = useState(() => window.ORG_MEMBERSHIP?.orgId || null);
   const [orgGallery, setOrgGallery] = useState(() => window.ORG_GALLERY || []);
   const skin = useMemo(() => window.ORG_SKIN, [activeOrgId]);
+  // No SaaS a marca vem do catálogo da org; recalculada a cada troca de org.
+  const forced = useMemo(
+    () => (window.SAAS_MODE ? window.marcaIdForCatalog(skin?.catalogId) : window.MARCA_FORCADA),
+    [skin],
+  );
+  const showSelector = !forced;
   const [isSuperadmin, setIsSuperadmin] = useState(() => window.isSuperadmin?.() ?? false);
   const [orgOptions, setOrgOptions] = useState([]);
 
@@ -339,39 +384,67 @@ function App() {
     return saved && getMarca(saved) ? saved : 'iar';
   });
 
+  // marcaId tem init preguiçoso, portanto não reage sozinho à troca de org.
+  useEffect(() => {
+    if (forced && getMarca(forced) && forced !== marcaId) setMarcaId(forced);
+  }, [forced]);
+
   const marca = useMemo(() => {
     const baseMarca = getMarca(marcaId);
     if (!window.SAAS_MODE || !skin || !baseMarca) return baseMarca;
-    return { ...baseMarca, id: 'church-v1', name: skin.name, handle: skin.handle };
+    return {
+      ...baseMarca,
+      id: skin.catalogId || baseMarca.catalogId || baseMarca.id,
+      name: skin.name,
+      handle: skin.handle,
+    };
   }, [marcaId, skin]);
   const templates = marca?.templates || [];
 
   const [tplId, setTplId] = useState(() => templates[0]?.id || '');
   const [contentsByMarca, setContentsByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    const activeMarca = window.SAAS_MODE
+      ? (window.marcaIdForCatalog?.(window.ORG_SKIN?.catalogId) || null)
+      : null;
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
       if (!m) return;
-      const stored = loadMarcaState(id);
-      const seed = seedContents(m);
-      out[id] = stored?.contents ? { ...seed, ...stored.contents } : seed;
+      if (window.SAAS_MODE && activeMarca && id !== activeMarca) {
+        out[id] = seedContents(m);
+        return;
+      }
+      out[id] = buildMarcaContents(id);
     });
     return out;
   });
   const [tweaksByMarca, setTweaksByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    const activeMarca = window.SAAS_MODE
+      ? (window.marcaIdForCatalog?.(window.ORG_SKIN?.catalogId) || null)
+      : null;
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
       if (!m?.allowTweaks) return;
-      const stored = loadMarcaState(id);
-      out[id] = stored?.tweak || { ...m.tweakDefaults };
+      if (window.SAAS_MODE && activeMarca && id !== activeMarca) {
+        out[id] = { ...m.tweakDefaults };
+        return;
+      }
+      out[id] = buildMarcaTweaks(id);
     });
     return out;
   });
   const [tplIdByMarca, setTplIdByMarca] = useState(() => {
     const out = {};
-    MARCA_IDS.forEach((id) => {
+    const activeMarca = window.SAAS_MODE
+      ? (window.marcaIdForCatalog?.(window.ORG_SKIN?.catalogId) || null)
+      : null;
+    getMarcaIds().forEach((id) => {
       const m = getMarca(id);
+      if (window.SAAS_MODE && activeMarca && id !== activeMarca) {
+        out[id] = m?.templates[0]?.id || '';
+        return;
+      }
       const stored = loadMarcaState(id);
       out[id] = stored?.tplId || m?.templates[0]?.id || '';
     });
@@ -401,12 +474,17 @@ function App() {
 
   useEffect(() => {
     if (!marca) return;
+    if (window.SAAS_MODE) {
+      if (!activeOrgId) return;
+      const expected = window.marcaIdForCatalog?.(skin?.catalogId);
+      if (expected && expected !== marcaId) return;
+    }
     saveMarcaState(marcaId, {
       contents: contentsByMarca[marcaId],
       tweak: tweaksByMarca[marcaId],
       tplId,
-    });
-  }, [marcaId, contentsByMarca, tweaksByMarca, tplId, marca]);
+    }, activeOrgId);
+  }, [marcaId, contentsByMarca, tweaksByMarca, tplId, marca, activeOrgId, skin]);
 
   useEffect(() => {
     const measure = () => {
@@ -424,14 +502,16 @@ function App() {
     () => window.getSkinBrandLines(skin || { name: marca?.name }),
     [skin, marca],
   );
+  // Cada marca expõe o seu ícone de topo (getter preguiçoso no manifest).
+  const LogoIcon = marca?.logoIcon || null;
 
   const tpl = useMemo(() => templates.find((t) => t.id === tplId) || templates[0], [templates, tplId]);
   const content = contentsByMarca[marcaId]?.[tpl?.id] || tpl?.defaults || {};
-  const tweak = tweaksByMarca[marcaId] || marca?.tweakDefaults || {};
+  const tweak = { ...(marca?.tweakDefaults || {}), ...(tweaksByMarca[marcaId] || {}) };
 
   const visibleScale = useMemo(() => {
     if (!tpl) return 0.5;
-    if (marcaId === 'iar') {
+    if (marca?.previewShell !== 'ofmj') {
       if (tpl.w === 1080 && tpl.h === 1920) return Math.min(720 / tpl.h, stageSize.w / tpl.w);
       if (tpl.w === 1240) return 540 / tpl.w;
       return Math.min(600 / tpl.w, stageSize.w / tpl.w, stageSize.h / tpl.h);
@@ -439,7 +519,7 @@ function App() {
     const sx = stageSize.w / tpl.w;
     const sy = stageSize.h / tpl.h;
     return Math.min(sx, sy, 1);
-  }, [tpl, marcaId, stageSize]);
+  }, [tpl, marca, stageSize]);
 
   const grouped = useMemo(() => {
     const out = [];
@@ -475,34 +555,37 @@ function App() {
     setTplId(tplIdByMarca[id] || getMarca(id)?.templates[0]?.id || '');
   };
 
-  const reloadMarcaState = useCallback((mid, orgId) => {
-    const m = getMarca(mid);
-    if (!m) return;
-    const stored = loadMarcaState(mid, orgId);
-    const seed = seedContents(m);
-    setContentsByMarca((prev) => ({
-      ...prev,
-      [mid]: stored?.contents ? { ...seed, ...stored.contents } : seed,
-    }));
-    if (m.allowTweaks) {
-      setTweaksByMarca((prev) => ({
-        ...prev,
-        [mid]: stored?.tweak || { ...m.tweakDefaults },
-      }));
-    }
-    setTplId(stored?.tplId || m.templates[0]?.id || '');
-  }, []);
-
   const switchOrg = async (org) => {
     if (!org || org.id === activeOrgId) return;
-    saveMarcaState(marcaId, {
-      contents: contentsByMarca[marcaId],
-      tweak: tweaksByMarca[marcaId],
+    const prevOrgId = activeOrgId;
+    const prevMarcaId = marcaId;
+    saveMarcaState(prevMarcaId, {
+      contents: contentsByMarca[prevMarcaId],
+      tweak: tweaksByMarca[prevMarcaId],
       tplId,
-    });
-    reloadMarcaState(marcaId, org.id);
+    }, prevOrgId);
+
+    const newMarcaId = window.marcaIdForCatalog?.(org.catalog_id) || 'iar';
     const membership = window.ORG_MEMBERSHIPS?.find((m) => m.org_id === org.id);
     window.activateOrg(org, membership?.role || window.ORG_MEMBERSHIP?.role);
+
+    setContentsByMarca((prev) => ({
+      ...prev,
+      [newMarcaId]: buildMarcaContents(newMarcaId, org.id),
+    }));
+    const nextTweak = buildMarcaTweaks(newMarcaId, org.id);
+    if (nextTweak) {
+      setTweaksByMarca((prev) => ({
+        ...prev,
+        [newMarcaId]: nextTweak,
+      }));
+    }
+    const stored = loadMarcaState(newMarcaId, org.id);
+    const nextTpl = stored?.tplId || getMarca(newMarcaId)?.templates[0]?.id || '';
+    setTplId(nextTpl);
+    setMarcaId(newMarcaId);
+    setActiveOrgId(org.id);
+
     if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
       try {
         const items = await window.loadOrgGallery(window.getSupabase(), org.id);
@@ -514,7 +597,6 @@ function App() {
     } else {
       setOrgGallery([]);
     }
-    setActiveOrgId(org.id);
   };
 
   const resetTemplate = () => {
@@ -580,10 +662,10 @@ function App() {
     <>
       <header className={`ed-bar ed-bar--${marca.barTheme}`}>
         <div className="ed-bar__left">
-          {marcaId === 'iar' ? (
+          {window.SAAS_MODE || marcaId === 'iar' ? (
             <>
-              {IconLogoMarca && <IconLogoMarca width={36} height={42} variant="light" />}
-              <div className="ed-bar__brand ed-bar__brand--iar">
+              {LogoIcon && <LogoIcon width={36} height={42} variant="light" />}
+              <div className={`ed-bar__brand ed-bar__brand--${marcaId}`}>
                 <span className="ed-bar__kicker">{brandLines.line1 || 'Igreja Anglicana'}</span>
                 <span className="ed-bar__name">{brandLines.line2 || 'Rio'}</span>
               </div>
@@ -601,7 +683,7 @@ function App() {
         </div>
         {showSelector && (
           <div className="ed-marca-tabs" role="tablist" aria-label="Marca">
-            {MARCA_IDS.map((id) => {
+            {getMarcaIds().map((id) => {
               const m = getMarca(id);
               if (!m) return null;
               return (
@@ -643,15 +725,17 @@ function App() {
           </label>
         )}
         <div className="ed-bar__actions">
-          <a
-            href={`marcas/${marcaId}/canvas.html`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ed-btn ed-btn--ghost"
-            title={`Visão panorâmica de todos os templates ${marca.shortName}`}
-          >
-            Canvas ↗
-          </a>
+          {marca.hasCanvas && (
+            <a
+              href={`marcas/${marcaId}/canvas.html`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ed-btn ed-btn--ghost"
+              title={`Visão panorâmica de todos os templates ${marca.shortName}`}
+            >
+              Canvas ↗
+            </a>
+          )}
           {marca.allowTweaks && (
             <button type="button" className="ed-btn ed-btn--ghost" onClick={resetTemplate}>
               Repor defaults
@@ -745,14 +829,14 @@ function App() {
           </header>
 
           <div className={`ed-stage__board ${marca.cssClass}`}>
-            {marcaId === 'iar' ? (
-              <PreviewIar tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
-            ) : (
+            {marca.previewShell === 'ofmj' ? (
               <PreviewOfmj tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
+            ) : (
+              <PreviewIar tpl={tpl} content={content} tweak={tweak} scale={visibleScale} marca={marca} />
             )}
           </div>
 
-          {marcaId === 'iar' && (
+          {marca.previewShell !== 'ofmj' && (
             <div className="ed-help">
               <div className="ed-help__icon">i</div>
               <div className="ed-help__text">

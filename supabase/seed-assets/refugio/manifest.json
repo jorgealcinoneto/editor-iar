@@ -1,0 +1,27 @@
+{
+  "orgSlug": "refugio",
+  "name": "Comunidade Anglicana Refúgio",
+  "handle": "@anglicana_refugio",
+  "catalogId": "refugio-v1",
+  "theme": {
+    "paper": "#F5F1E4",
+    "ink": "#4A5B45",
+    "marinho": "#4A5B45",
+    "accent": "#A7CF9A",
+    "accentSoft": "#C5E0BB",
+    "ambar": "#E0A85E",
+    "fontHeading": "Fraunces",
+    "fontBody": "Space Grotesk"
+  },
+  "logo": { "file": "logo-symbol.png", "label": "Símbolo circular" },
+  "gallery": [
+    { "file": "logo-emblem-arched.png", "label": "Emblema com texto" },
+    { "file": "logo-wordmark-olive.png", "label": "Wordmark oliva" },
+    { "file": "logo-symbol-black.png", "label": "Símbolo fundo preto" },
+    { "file": "logo-symbol-olive.png", "label": "Símbolo fundo oliva" },
+    { "file": "photo-reuniao.png", "label": "Reunião" },
+    { "file": "photo-comunhao.png", "label": "Comunhão" },
+    { "file": "photo-elevacao.png", "label": "Elevação" },
+    { "file": "photo-celebrante.png", "label": "Celebrante" }
+  ]
+}

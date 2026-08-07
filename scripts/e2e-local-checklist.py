@@ -77,13 +77,35 @@ def main():
         print("\n=== BLOCKED: cannot continue without token ===")
         sys.exit(1)
 
-    # 2. Org switcher data — both orgs visible to superadmin
-    code, orgs = req("GET", f"{BASE}/rest/v1/orgs?select=id,slug,name&order=slug", token=token)
+    # 2. Org switcher data — orgs semeadas visíveis ao superadmin.
+    # Subconjunto, não igualdade: o seed cresce (refugio, reconciliador, …)
+    # e orgs de teste ficam na BD entre corridas.
+    code, orgs = req(
+        "GET", f"{BASE}/rest/v1/orgs?select=id,slug,name,catalog_id&order=slug", token=token
+    )
     slugs = sorted(o["slug"] for o in orgs) if isinstance(orgs, list) else []
+    esperadas = {"iar", "igreja-teste"}
     check(
-        "Org switcher data (2 orgs)",
-        code == 200 and slugs == ["iar", "igreja-teste"],
+        "Org switcher data (orgs semeadas visíveis)",
+        code == 200 and esperadas.issubset(set(slugs)),
         str(slugs) if code == 200 else str(orgs),
+    )
+
+    # 2b. catalog_id escolhe o catálogo de templates (core/org-skin.js:marcaIdForCatalog)
+    catalogos = {o["slug"]: o.get("catalog_id") for o in orgs} if isinstance(orgs, list) else {}
+    check(
+        "catalog_id por org",
+        code == 200
+        and catalogos.get("iar") == "church-v1"
+        and (
+            "reconciliador" not in catalogos
+            or catalogos["reconciliador"] == "reconciliador-v1"
+        )
+        and (
+            "refugio" not in catalogos
+            or catalogos["refugio"] == "refugio-v1"
+        ),
+        str(catalogos),
     )
 
     # 3. Admin CRUD — upsert test org
