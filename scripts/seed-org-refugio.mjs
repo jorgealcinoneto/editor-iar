@@ -89,7 +89,25 @@ async function uploadLogo(sb, orgId, file, label) {
   console.log('logo', label, pub.publicUrl);
 }
 
+async function clearGallery(sb, orgId) {
+  const { data: existing, error: listErr } = await sb
+    .from('org_assets')
+    .select('id, storage_path')
+    .eq('org_id', orgId)
+    .eq('kind', 'gallery');
+  if (listErr) throw listErr;
+  if (!existing?.length) return;
+  const paths = existing.map((a) => a.storage_path).filter(Boolean);
+  if (paths.length) {
+    const { error: rmErr } = await sb.storage.from('org-assets').remove(paths);
+    if (rmErr) throw rmErr;
+  }
+  const { error: delErr } = await sb.from('org_assets').delete().eq('org_id', orgId).eq('kind', 'gallery');
+  if (delErr) throw delErr;
+}
+
 async function uploadGallery(sb, orgId, items) {
+  await clearGallery(sb, orgId);
   for (const item of items) {
     const ext = item.file.split('.').pop().toLowerCase();
     const storagePath = `${orgId}/gallery/${randomUUID()}.${ext}`;
