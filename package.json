@@ -1,0 +1,22 @@
+{
+  "name": "editor-iar",
+  "version": "1.0.0",
+  "description": "Um editor form-based para criar posts Instagram: escolhe marca, template, preenche, baixa PNG.",
+  "main": "config.example.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1",
+    "playwright-core": "^1.61.1"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.78.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
