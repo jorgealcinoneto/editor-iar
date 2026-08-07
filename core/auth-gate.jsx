@@ -75,14 +75,24 @@
         setState({ phase: 'error', message: err.message || String(err) });
         return;
       }
-      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!session) {
-          processedRef.current = null;
-          setState({ phase: 'login' });
+      let sub;
+      (async () => {
+        try {
+          await window.devAutoLogin(supabase);
+        } catch (err) {
+          setState({ phase: 'error', message: err.message });
           return;
         }
-        setTimeout(() => handleSession(supabase, session.user), 0);
-      });
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (!session) {
+            processedRef.current = null;
+            setState({ phase: 'login' });
+            return;
+          }
+          setTimeout(() => handleSession(supabase, session.user), 0);
+        });
+        sub = data;
+      })();
       return () => sub?.subscription?.unsubscribe();
     }, [handleSession]);
 
@@ -135,6 +145,15 @@
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
     const [error, setError] = useState(null);
+
+    if (window.LOCAL_DEV) {
+      return (
+        <>
+          <h1 className="ag-title">Modo dev</h1>
+          <p className="ag-sub">Dev mode: recarrega — auto-login activo.</p>
+        </>
+      );
+    }
 
     async function handleSubmit(e) {
       e.preventDefault();
