@@ -14,12 +14,15 @@
   }
 
   window.loadAppConfig = async function loadAppConfig() {
-    const local = base() + 'config.local.js';
     const cloud = base() + 'config.js';
-    try {
-      const r = await fetch(local, { method: 'HEAD', cache: 'no-store' });
-      if (r.ok) return loadScript(local);
-    } catch {}
+    const isLocalHost = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+    if (isLocalHost) {
+      const local = base() + 'config.local.js';
+      try {
+        const r = await fetch(local, { method: 'HEAD', cache: 'no-store' });
+        if (r.ok) return loadScript(local);
+      } catch {}
+    }
     return loadScript(cloud);
   };
 })();
