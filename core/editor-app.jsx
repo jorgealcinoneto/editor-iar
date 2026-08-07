@@ -86,10 +86,19 @@ function PreviewOfmj({ tpl, content, tweak, scale }) {
 }
 
 function TweaksPanel({ tweak, onChange, marca }) {
+  const saasTheme = window.SAAS_MODE && window.ORG_SKIN?.theme;
   const controls = marca.tweakControls || ['palette', 'accent', 'layout', 'grid', 'watermark'];
   const has = (c) => controls.includes(c);
   const palettes = Object.keys(marca.palettes || {});
   const accents = Object.keys(marca.accents || {});
+  const themeSwatches = saasTheme ? [
+    { key: 'paper', label: 'Papel' },
+    { key: 'ink', label: 'Tinta' },
+    { key: 'accent', label: 'Acento' },
+    { key: 'marinho', label: 'Marinho' },
+    { key: 'ambar', label: 'Âmbar' },
+    { key: 'accentSoft', label: 'Acento claro' },
+  ].filter(({ key }) => saasTheme[key]) : [];
   const layouts = [
     { v: 'left', label: 'Esq.' },
     { v: 'centered', label: 'Centro' },
@@ -108,7 +117,24 @@ function TweaksPanel({ tweak, onChange, marca }) {
   return (
     <div className="ed-tweaks">
       <div className="ed-tweaks__title">Acabamento</div>
-      {has('palette') && palettes.length > 0 && (
+      {themeSwatches.length > 0 && (
+        <div className="ed-tweaks__group">
+          <div className="ed-tweaks__label">Tema da org</div>
+          <div className="ed-swatches ed-swatches--single ed-swatches--readonly">
+            {themeSwatches.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                disabled
+                tabIndex={-1}
+                title={`${label}: ${saasTheme[key]}`}
+                style={{ background: saasTheme[key] }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      {!saasTheme && has('palette') && palettes.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Paleta</div>
           <div className="ed-swatches">
@@ -131,7 +157,7 @@ function TweaksPanel({ tweak, onChange, marca }) {
           </div>
         </div>
       )}
-      {has('accent') && accents.length > 0 && (
+      {!saasTheme && has('accent') && accents.length > 0 && (
         <div className="ed-tweaks__group">
           <div className="ed-tweaks__label">Acento</div>
           <div className="ed-swatches ed-swatches--single">
@@ -202,33 +228,69 @@ function TweaksPanel({ tweak, onChange, marca }) {
   );
 }
 
+function GalleryGrid({ photos, currentValue, onPick }) {
+  if (!photos.length) return null;
+  return (
+    <div className="ed-preset">
+      {photos.map((src) => (
+        <button
+          key={src}
+          type="button"
+          className={currentValue === src ? 'is-active' : ''}
+          onClick={() => onPick(src)}
+          title={src.split('/').pop()}
+        >
+          <img src={src} alt="" loading="lazy" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function GalleryBrowser({ marca, tpl, content, onPick }) {
   const galleries = marca.galleries;
-  const photos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
-  if (!photos.length) return null;
+  const iarPhotos = Array.isArray(galleries) ? galleries : (galleries?.photos || []);
+  const orgPhotos = window.SAAS_MODE
+    ? (window.ORG_GALLERY || []).map((a) => a.url).filter(Boolean)
+    : [];
   const photoField = tpl.fields.find((f) => f.type === 'photo' || f.type === 'image');
   const currentValue = photoField ? content[photoField.name] : null;
+  const hint = photoField
+    ? `Clica para aplicar em "${photoField.label}"`
+    : 'Sem campo de foto · clica para copiar URL';
+
+  if (!window.SAAS_MODE) {
+    if (!iarPhotos.length) return null;
+    return (
+      <section className="ed-section">
+        <div className="ed-section__label">
+          3 · Galeria
+          <span className="ed-section__hint">{hint}</span>
+        </div>
+        <GalleryGrid photos={iarPhotos} currentValue={currentValue} onPick={onPick} />
+      </section>
+    );
+  }
+
+  if (!orgPhotos.length && !iarPhotos.length) return null;
+
   return (
     <section className="ed-section">
-      <div className="ed-section__label">
-        3 · Galeria
-        <span className="ed-section__hint">
-          {photoField ? `Clica para aplicar em "${photoField.label}"` : 'Sem campo de foto · clica para copiar URL'}
-        </span>
-      </div>
-      <div className="ed-preset">
-        {photos.map((src) => (
-          <button
-            key={src}
-            type="button"
-            className={currentValue === src ? 'is-active' : ''}
-            onClick={() => onPick(src)}
-            title={src.split('/').pop()}
-          >
-            <img src={src} alt="" loading="lazy" />
-          </button>
-        ))}
-      </div>
+      {orgPhotos.length > 0 && (
+        <>
+          <div className="ed-section__label">
+            3 · Galeria da org
+            <span className="ed-section__hint">{hint}</span>
+          </div>
+          <GalleryGrid photos={orgPhotos} currentValue={currentValue} onPick={onPick} />
+        </>
+      )}
+      {iarPhotos.length > 0 && (
+        <details className="ed-gallery-catalog">
+          <summary>Catálogo IAR</summary>
+          <GalleryGrid photos={iarPhotos} currentValue={currentValue} onPick={onPick} />
+        </details>
+      )}
     </section>
   );
 }
@@ -426,15 +488,22 @@ function App() {
     setTplId(stored?.tplId || m.templates[0]?.id || '');
   }, []);
 
-  const switchOrg = (org) => {
+  const switchOrg = async (org) => {
     if (!org || org.id === activeOrgId) return;
     saveMarcaState(marcaId, {
       contents: contentsByMarca[marcaId],
       tweak: tweaksByMarca[marcaId],
       tplId,
     });
-    reloadMarcaState(marcaId, org.id);
     window.activateOrg(org, window.ORG_MEMBERSHIP?.role);
+    if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
+      try {
+        await window.loadOrgGallery(window.getSupabase(), org.id);
+      } catch (e) {
+        console.error('gallery', e);
+      }
+    }
+    reloadMarcaState(marcaId, org.id);
     setActiveOrgId(org.id);
   };
 

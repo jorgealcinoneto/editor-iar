@@ -419,6 +419,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   transform-origin: top left;
   transform: scale(0.5);
   font-size: 16px;
+  font-family: var(--font-body, var(--font-sans));
   position: relative;
   overflow: hidden;
 }
