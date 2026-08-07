@@ -1,6 +1,12 @@
 (function () {
   const { useState, useEffect, useCallback } = React;
 
+  const GOOGLE_FONTS = [
+    'Cormorant Garamond', 'EB Garamond', 'Fraunces', 'Instrument Serif',
+    'DM Sans', 'Inter', 'Space Grotesk', 'Syne', 'Bricolage Grotesque',
+    'Unbounded', 'JetBrains Mono', 'Anton',
+  ];
+
   const THEME_FIELDS = [
     { key: 'paper', label: 'Papel' },
     { key: 'ink', label: 'Tinta' },
@@ -13,6 +19,7 @@
   const DEFAULT_THEME = {
     paper: '#F5EFE6', ink: '#1C2A3A', accent: '#1A52D6',
     accentSoft: '#4978E3', ambar: '#C99B6B', marinho: '#0E2A47',
+    fontHeading: 'Cormorant Garamond', fontBody: 'DM Sans',
   };
 
   function emptyOrgForm() {
@@ -40,6 +47,8 @@
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteUrl, setInviteUrl] = useState('');
     const [invitingBusy, setInvitingBusy] = useState(false);
+    const [gallery, setGallery] = useState([]);
+    const [galleryBusy, setGalleryBusy] = useState(false);
 
     const loadOrgs = useCallback(async (supabase) => {
       const { data, error } = await supabase.from('orgs').select('*').order('created_at', { ascending: true });
@@ -86,16 +95,29 @@
       return () => sub?.subscription?.unsubscribe();
     }, [checkAccess]);
 
-    function startEdit(org) {
+    async function startEdit(org) {
       setForm(orgToForm(org));
       setLogoFile(null);
       setMessage(null);
+      if (!org.id || typeof window.loadOrgGallery !== 'function') {
+        setGallery([]);
+        return;
+      }
+      try {
+        const supabase = window.getSupabase();
+        const items = await window.loadOrgGallery(supabase, org.id);
+        setGallery(items || []);
+      } catch (err) {
+        setGallery([]);
+        setMessage({ type: 'error', text: err.message || String(err) });
+      }
     }
 
     function startNew() {
       setForm(emptyOrgForm());
       setLogoFile(null);
       setMessage(null);
+      setGallery([]);
     }
 
     function updateField(key, value) {
@@ -168,6 +190,42 @@
 
     async function handleSignOut() {
       try { await window.getSupabase().auth.signOut(); } finally { window.location.reload(); }
+    }
+
+    async function handleGalleryUpload(e) {
+      const files = Array.from(e.target.files || []);
+      if (!files.length || !form.id || typeof window.uploadOrgAsset !== 'function') return;
+      setGalleryBusy(true);
+      setMessage(null);
+      try {
+        const supabase = window.getSupabase();
+        for (const file of files) {
+          await window.uploadOrgAsset(supabase, form.id, file, 'gallery');
+        }
+        const items = await window.loadOrgGallery(supabase, form.id);
+        setGallery(items || []);
+      } catch (err) {
+        setMessage({ type: 'error', text: err.message || String(err) });
+      } finally {
+        setGalleryBusy(false);
+        e.target.value = '';
+      }
+    }
+
+    async function handleGalleryDelete(asset) {
+      if (!form.id || typeof window.deleteOrgAsset !== 'function') return;
+      setGalleryBusy(true);
+      setMessage(null);
+      try {
+        const supabase = window.getSupabase();
+        await window.deleteOrgAsset(supabase, asset);
+        const items = await window.loadOrgGallery(supabase, form.id);
+        setGallery(items || []);
+      } catch (err) {
+        setMessage({ type: 'error', text: err.message || String(err) });
+      } finally {
+        setGalleryBusy(false);
+      }
     }
 
     return (
@@ -249,10 +307,47 @@
                   ))}
                 </div>
 
+                <div className="adm-row">
+                  <label className="adm-field">
+                    <span>Fonte títulos</span>
+                    <select value={form.theme.fontHeading || DEFAULT_THEME.fontHeading} onChange={(e) => updateTheme('fontHeading', e.target.value)}>
+                      {GOOGLE_FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+                    </select>
+                  </label>
+                  <label className="adm-field">
+                    <span>Fonte corpo</span>
+                    <select value={form.theme.fontBody || DEFAULT_THEME.fontBody} onChange={(e) => updateTheme('fontBody', e.target.value)}>
+                      {GOOGLE_FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+                    </select>
+                  </label>
+                </div>
+
                 <label className="adm-field">
                   <span>Logo (PNG)</span>
                   <input type="file" accept="image/png,image/jpeg" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
                 </label>
+
+                {form.id && (
+                  <div className="adm-gallery">
+                    <h3>Galeria</h3>
+                    <label className="adm-field">
+                      <span>Adicionar imagens</span>
+                      <input type="file" accept="image/*" multiple disabled={galleryBusy} onChange={handleGalleryUpload} />
+                    </label>
+                    {gallery.length === 0 && <p className="adm-hint">Nenhuma imagem na galeria.</p>}
+                    {gallery.length > 0 && (
+                      <ul className="adm-gallery-list">
+                        {gallery.map((asset) => (
+                          <li key={asset.id} className="adm-gallery-item">
+                            <img className="adm-gallery-thumb" src={asset.url} alt={asset.label || ''} />
+                            <span className="adm-gallery-label">{asset.label || asset.url}</span>
+                            <button type="button" className="adm-btn adm-btn--ghost" disabled={galleryBusy} onClick={() => handleGalleryDelete(asset)}>Remover</button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
 
                 <button type="submit" className="adm-btn adm-btn--primary" disabled={saving}>
                   {saving ? 'A guardar…' : 'Guardar organização'}
@@ -412,6 +507,11 @@
         .adm-color-row input[type="color"] { width: 32px; height: 32px; padding: 0; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; }
         .adm-color-row input[type="text"] { flex: 1; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; background: #f5f1e8; color: #1a1612; }
         .adm-invite-url { font-size: 13px; margin-top: 12px; word-break: break-all; }
+        .adm-gallery h3 { font-size: 14px; margin: 0 0 10px; }
+        .adm-gallery-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .adm-gallery-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .adm-gallery-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+        .adm-gallery-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .adm-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 999px; font: inherit; font-weight: 500; font-size: 13px; border: 1px solid transparent; cursor: pointer; }
         .adm-btn:disabled { opacity: 0.55; cursor: progress; }
         .adm-btn--primary { background: #722f37; color: #fff; }
