@@ -1,0 +1,14 @@
+{
+  "orgSlug": "refugio",
+  "logo": { "file": "logo-symbol.png", "label": "Símbolo circular" },
+  "gallery": [
+    { "file": "logo-emblem-arched.png", "label": "Emblema com texto" },
+    { "file": "logo-wordmark-olive.png", "label": "Wordmark oliva" },
+    { "file": "logo-symbol-black.png", "label": "Símbolo fundo preto" },
+    { "file": "logo-symbol-olive.png", "label": "Símbolo fundo oliva" },
+    { "file": "photo-reuniao.png", "label": "Reunião" },
+    { "file": "photo-comunhao.png", "label": "Comunhão" },
+    { "file": "photo-elevacao.png", "label": "Elevação" },
+    { "file": "photo-celebrante.png", "label": "Celebrante" }
+  ]
+}
