@@ -453,6 +453,8 @@ function App() {
 
   const [downloading, setDownloading] = useState(false);
   const [toast, setToast] = useState('');
+  const [mobilePane, setMobilePane] = useState('edit');
+  const [barMoreOpen, setBarMoreOpen] = useState(false);
   const stageRef = useRef(null);
   const [stageSize, setStageSize] = useState({ w: 720, h: 720 });
 
@@ -491,12 +493,16 @@ function App() {
       const el = stageRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      setStageSize({ w: r.width - 64, h: r.height - 64 });
+      setStageSize({ w: Math.max(r.width - 32, 120), h: Math.max(r.height - 48, 120) });
     };
     measure();
+    const t = setTimeout(measure, 50);
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [marcaId]);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', measure);
+    };
+  }, [marcaId, mobilePane, tplId]);
 
   const brandLines = useMemo(
     () => window.getSkinBrandLines(skin || { name: marca?.name }),
@@ -658,6 +664,57 @@ function App() {
 
   if (!marca || !tpl) return null;
 
+  const renderSecondaryActions = (closeMenu) => (
+    <>
+      {marca.hasCanvas && (
+        <a
+          href={`marcas/${marcaId}/canvas.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ed-btn ed-btn--ghost"
+          title={`Visão panorâmica de todos os templates ${marca.shortName}`}
+          onClick={closeMenu}
+        >
+          Canvas ↗
+        </a>
+      )}
+      {marca.allowTweaks && (
+        <button
+          type="button"
+          className="ed-btn ed-btn--ghost"
+          onClick={() => { resetTemplate(); closeMenu?.(); }}
+        >
+          Repor defaults
+        </button>
+      )}
+    </>
+  );
+
+  const orgSwitch = window.SAAS_MODE && isSuperadmin ? (
+    <label className="ed-org-switch">
+      <span className="ed-org-switch__label">Org</span>
+      <select
+        className="ed-org-switch__select"
+        value={activeOrgId || ''}
+        disabled={!orgOptions.length}
+        onChange={(e) => {
+          const org = orgOptions.find((o) => o.id === e.target.value);
+          if (org) switchOrg(org);
+          setBarMoreOpen(false);
+        }}
+        aria-label="Organização"
+      >
+        {orgOptions.length === 0 ? (
+          <option value="">A carregar…</option>
+        ) : (
+          orgOptions.map((o) => (
+            <option key={o.id} value={o.id}>{o.name}</option>
+          ))
+        )}
+      </select>
+    </label>
+  ) : null;
+
   return (
     <>
       <header className={`ed-bar ed-bar--${marca.barTheme}`}>
@@ -682,7 +739,7 @@ function App() {
           )}
         </div>
         {showSelector && (
-          <div className="ed-marca-tabs" role="tablist" aria-label="Marca">
+          <div className="ed-marca-tabs ed-bar__desktop-only" role="tablist" aria-label="Marca">
             {getMarcaIds().map((id) => {
               const m = getMarca(id);
               if (!m) return null;
@@ -701,59 +758,57 @@ function App() {
             })}
           </div>
         )}
-        {window.SAAS_MODE && isSuperadmin && (
-          <label className="ed-org-switch">
-            <span className="ed-org-switch__label">Org</span>
-            <select
-              className="ed-org-switch__select"
-              value={activeOrgId || ''}
-              disabled={!orgOptions.length}
-              onChange={(e) => {
-                const org = orgOptions.find((o) => o.id === e.target.value);
-                if (org) switchOrg(org);
-              }}
-              aria-label="Organização"
-            >
-              {orgOptions.length === 0 ? (
-                <option value="">A carregar…</option>
-              ) : (
-                orgOptions.map((o) => (
-                  <option key={o.id} value={o.id}>{o.name}</option>
-                ))
-              )}
-            </select>
-          </label>
-        )}
+        <div className="ed-bar__desktop-only">{orgSwitch}</div>
         <div className="ed-bar__actions">
-          {marca.hasCanvas && (
-            <a
-              href={`marcas/${marcaId}/canvas.html`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ed-btn ed-btn--ghost"
-              title={`Visão panorâmica de todos os templates ${marca.shortName}`}
+          <div className="ed-bar__actions-secondary ed-bar__desktop-only">{renderSecondaryActions()}</div>
+          <div className={`ed-bar__more ${barMoreOpen ? 'is-open' : ''}`}>
+            <button
+              type="button"
+              className="ed-btn ed-btn--ghost ed-bar__more-toggle"
+              aria-expanded={barMoreOpen}
+              aria-label="Mais opções"
+              onClick={() => setBarMoreOpen((v) => !v)}
             >
-              Canvas ↗
-            </a>
-          )}
-          {marca.allowTweaks && (
-            <button type="button" className="ed-btn ed-btn--ghost" onClick={resetTemplate}>
-              Repor defaults
+              ⋯
             </button>
-          )}
+            {barMoreOpen && (
+              <div className="ed-bar__more-menu" role="menu">
+                {orgSwitch}
+                {showSelector && getMarcaIds().map((id) => {
+                  const m = getMarca(id);
+                  if (!m) return null;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      role="menuitem"
+                      className={`ed-btn ed-btn--ghost ${marcaId === id ? 'is-active' : ''}`}
+                      onClick={() => { switchMarca(id); setBarMoreOpen(false); }}
+                    >
+                      {m.shortName}
+                    </button>
+                  );
+                })}
+                {renderSecondaryActions(() => setBarMoreOpen(false))}
+              </div>
+            )}
+          </div>
           <button
             type="button"
-            className="ed-btn ed-btn--primary"
+            className="ed-btn ed-btn--primary ed-bar__download"
             onClick={onDownload}
             disabled={downloading}
           >
-            {downloading ? 'A exportar…' : marca.exportPixelRatio > 1 ? 'Baixar PNG (3×)' : 'Baixar PNG'}
+            <span className="ed-bar__download-short">{downloading ? '…' : 'PNG'}</span>
+            <span className="ed-bar__download-label">
+              {downloading ? 'A exportar…' : (marca.exportPixelRatio > 1 ? 'Baixar PNG (3×)' : 'Baixar PNG')}
+            </span>
           </button>
         </div>
       </header>
 
-      <main className="ed-main">
-        <aside className="ed-sidebar">
+      <main className={`ed-main ed-main--pane-${mobilePane}`}>
+        <aside className="ed-sidebar ed-pane ed-pane--edit">
           <section className="ed-section">
             <div className="ed-section__label">1 · Template</div>
             <div className="ed-tplpicker">
@@ -815,7 +870,7 @@ function App() {
           />
         </aside>
 
-        <section className="ed-stage" ref={stageRef}>
+        <section className="ed-stage ed-pane ed-pane--preview" ref={stageRef}>
           <header className="ed-stage__head">
             <div>
               <h2 className="ed-stage__title">{tpl.name}</h2>
@@ -846,6 +901,25 @@ function App() {
           )}
         </section>
       </main>
+
+      <nav className="ed-mobile-tabs" aria-label="Secções">
+        <button
+          type="button"
+          className={mobilePane === 'edit' ? 'is-active' : ''}
+          aria-current={mobilePane === 'edit' ? 'page' : undefined}
+          onClick={() => setMobilePane('edit')}
+        >
+          Editar
+        </button>
+        <button
+          type="button"
+          className={mobilePane === 'preview' ? 'is-active' : ''}
+          aria-current={mobilePane === 'preview' ? 'page' : undefined}
+          onClick={() => setMobilePane('preview')}
+        >
+          Preview
+        </button>
+      </nav>
 
       <div className={`ed-toast ${toast ? 'is-show' : ''}`}>{toast}</div>
     </>

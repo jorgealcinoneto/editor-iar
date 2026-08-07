@@ -271,22 +271,24 @@
               <h2>Organizações</h2>
               {orgs.length === 0 && <p className="adm-hint">Nenhuma organização ainda.</p>}
               {orgs.length > 0 && (
-                <table className="adm-table">
-                  <thead>
-                    <tr><th>Logo</th><th>Nome</th><th>Slug</th><th>Handle</th><th></th></tr>
-                  </thead>
-                  <tbody>
-                    {orgs.map((org) => (
-                      <tr key={org.id}>
-                        <td>{org.logo_url ? <img className="adm-logo" src={org.logo_url} alt="" /> : '—'}</td>
-                        <td>{org.name}</td>
-                        <td>{org.slug}</td>
-                        <td>{org.handle}</td>
-                        <td><button type="button" className="adm-btn adm-btn--ghost" onClick={() => startEdit(org)}>Editar</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="adm-table-wrap">
+                  <table className="adm-table">
+                    <thead>
+                      <tr><th>Logo</th><th>Nome</th><th>Slug</th><th>Handle</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                      {orgs.map((org) => (
+                        <tr key={org.id}>
+                          <td>{org.logo_url ? <img className="adm-logo" src={org.logo_url} alt="" /> : '—'}</td>
+                          <td>{org.name}</td>
+                          <td>{org.slug}</td>
+                          <td>{org.handle}</td>
+                          <td><button type="button" className="adm-btn adm-btn--ghost" onClick={() => startEdit(org)}>Editar</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </section>
 
@@ -504,20 +506,21 @@
     return (
       <style>{`
         .adm-wrap { max-width: 920px; margin: 0 auto; padding: 32px 24px 60px; }
-        .adm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .adm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
         .adm-header h1 { font-size: 20px; margin: 0; }
-        .adm-header__right { display: flex; align-items: center; gap: 12px; }
+        .adm-header__right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .adm-hint { font-size: 13px; color: #5b524a; }
         .adm-card { background: #fff; border: 1px solid rgba(26,22,18,0.1); border-radius: 10px; padding: 22px; margin-bottom: 20px; }
         .adm-card--narrow { max-width: 380px; margin: 60px auto; }
         .adm-card h1 { font-size: 20px; margin: 0 0 12px; }
         .adm-card h2 { font-size: 15px; margin: 0 0 14px; }
-        .adm-card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .adm-card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
         .adm-card__head h2 { margin: 0; }
         .adm-msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin: 0 0 16px; }
         .adm-msg--success { background: rgba(16,120,60,0.1); color: #10783c; }
         .adm-msg--error { background: rgba(114,47,55,0.1); color: #722f37; }
-        .adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .adm-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .adm-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
         .adm-table th, .adm-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(26,22,18,0.08); }
         .adm-logo { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; display: block; }
         .adm-form { display: flex; flex-direction: column; gap: 14px; }
@@ -526,26 +529,41 @@
         .adm-row .adm-field { flex: 1; min-width: 160px; }
         .adm-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #5b524a; }
         .adm-field input[type="text"], .adm-field input[type="email"], .adm-field select {
-          font: inherit; font-size: 13.5px; padding: 8px 11px; border: 1px solid rgba(26,22,18,0.1);
-          border-radius: 6px; background: #f5f1e8; color: #1a1612;
+          font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid rgba(26,22,18,0.1);
+          border-radius: 6px; background: #f5f1e8; color: #1a1612; width: 100%; box-sizing: border-box;
         }
         .adm-field input:focus, .adm-field select:focus { outline: 0; border-color: #722f37; }
         .adm-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .adm-color-row { display: flex; gap: 6px; align-items: center; }
-        .adm-color-row input[type="color"] { width: 32px; height: 32px; padding: 0; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; }
-        .adm-color-row input[type="text"] { flex: 1; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; background: #f5f1e8; color: #1a1612; }
+        .adm-color-row input[type="color"] { width: 44px; height: 44px; padding: 0; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; }
+        .adm-color-row input[type="text"] { flex: 1; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid rgba(26,22,18,0.1); border-radius: 6px; background: #f5f1e8; color: #1a1612; }
         .adm-invite-url { font-size: 13px; margin-top: 12px; word-break: break-all; }
         .adm-gallery h3 { font-size: 14px; margin: 0 0 10px; }
         .adm-gallery-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
         .adm-gallery-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
         .adm-gallery-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
         .adm-gallery-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .adm-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 999px; font: inherit; font-weight: 500; font-size: 13px; border: 1px solid transparent; cursor: pointer; }
+        .adm-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; min-height: 44px; border-radius: 999px; font: inherit; font-weight: 500; font-size: 13px; border: 1px solid transparent; cursor: pointer; }
         .adm-btn:disabled { opacity: 0.55; cursor: progress; }
         .adm-btn--primary { background: #722f37; color: #fff; }
         .adm-btn--primary:hover:not(:disabled) { background: #5e242b; }
         .adm-btn--ghost { background: transparent; color: #1a1612; border-color: rgba(26,22,18,0.2); }
         .adm-btn--ghost:hover { background: rgba(26,22,18,0.05); }
+        @media (max-width: 760px) {
+          .adm-wrap { padding: 20px 14px 48px; }
+          .adm-header h1 { font-size: 18px; }
+          .adm-card { padding: 16px; }
+          .adm-card--narrow { margin: 24px auto; }
+          .adm-theme-grid { grid-template-columns: repeat(2, 1fr); }
+          .adm-row .adm-field { min-width: 100%; }
+          .adm-form--inline { flex-direction: column; align-items: stretch; }
+          .adm-form--inline .adm-btn { width: 100%; justify-content: center; }
+          .adm-gallery-item { flex-wrap: wrap; }
+          .adm-gallery-item .adm-btn { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 420px) {
+          .adm-theme-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
     );
   }
