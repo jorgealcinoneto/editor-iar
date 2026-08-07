@@ -1,24 +1,24 @@
 /* ============================================
-   Reconciliador — Templates de Post (1080×1080, 1080×1350, 1080×1920, 1240×1754)
+   Refúgio — Templates de Post (1080×1080, 1080×1350, 1080×1920, 1240×1754)
 
-   Namespaced em window.RECON_TPL — NÃO escrever nomes soltos em window:
+   Namespaced em window.REFUGIO_TPL — NÃO escrever nomes soltos em window:
    marcas/iar/templates.jsx declara Post/TplCoverType/... como globais e
    marcas/iar/registry.jsx lê-os de volta de window. A ordem dos scripts
    Babel não é garantida, portanto nomes soltos aqui destruiriam o IAR.
 ============================================ */
 
 (function () {
-  const { IconSelo, IconLocal } = window.ReconciliadorIcons;
+  const { IconSelo, IconLocal } = window.RefugioIcons;
 
-  const RECON_BASE = 'marcas/reconciliador/';
-  const reconAsset = (p) => `${RECON_BASE}${p}`;
+  const REFUGIO_BASE = 'marcas/refugio/';
+  const refugioAsset = (p) => `${REFUGIO_BASE}${p}`;
 
-  const FALLBACK_NAME = 'Anglicana do Reconciliador';
-  const FALLBACK_HANDLE = '@anglicanadoreconciliador';
+  const FALLBACK_NAME = 'Comunidade Anglicana Refúgio';
+  const FALLBACK_HANDLE = '@anglicana_refugio';
 
   /* Marca vem do ORG_SKIN (white-label); os fallbacks só valem fora do SaaS. */
   function getBrandLines() {
-    return (window.getSkinBrandLines || (() => ({ line1: 'Anglicana do', line2: 'Reconciliador' })))(
+    return (window.getSkinBrandLines || (() => ({ line1: 'Comunidade Anglicana', line2: 'Refúgio' })))(
       window.ORG_SKIN || { name: FALLBACK_NAME }
     );
   }
@@ -53,7 +53,7 @@
           </div>
           <div className="t-mark__text">
             <span>{line1}</span>
-            {line2 || 'Reconciliador'}
+            {line2 || 'Refúgio'}
           </div>
         </div>
         {category && <div className="t-category">{category}</div>}
@@ -80,7 +80,7 @@
   }
 
   /* —— Capa tipográfica —— */
-  function TplCoverType({ eyebrow = 'Reconciliador 101', title, titleEm, sub }) {
+  function TplCoverType({ eyebrow = 'Refúgio', title, titleEm, sub }) {
     return (
       <div className="t-post">
         <PostHead category="Carrossel" />
@@ -244,7 +244,7 @@
   }
 
   /* —— Campanha —— */
-  function TplCampaign({ photo, photos = [reconAsset('assets/photo-fachada.jpg'), reconAsset('assets/photo-comunidade.jpg')], intro, kicker, title, titleEm, body, cta }) {
+  function TplCampaign({ photo, photos = [refugioAsset('assets/photo-elevacao.png'), refugioAsset('assets/photo-comunhao.png')], intro, kicker, title, titleEm, body, cta }) {
     const imgs = photo ? [photo] : photos;
     return (
       <div className="t-post t-post--dark">
@@ -276,7 +276,7 @@
           <div style={{ width: 90, height: 90, color: 'var(--navy)' }}><IconSelo width="100%" height="100%" /></div>
           <div style={{ marginTop: 18, textAlign: 'center' }}>
             <div style={{ fontFamily: 'var(--font-wide)', fontSize: fs(15), fontWeight: 400, letterSpacing: '0.28em', textTransform: 'uppercase', opacity: 0.65, marginBottom: 6, color: 'var(--navy)' }}>{line1}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: fs(26), fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--navy)' }}>{line2 || 'Reconciliador'}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: fs(26), fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--navy)' }}>{line2 || 'Refúgio'}</div>
           </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 40 }}>
@@ -362,7 +362,7 @@
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="t-mark">
             <div style={{ width: 60, height: 60, color: 'var(--navy)' }}><IconSelo width="100%" height="100%" /></div>
-            <div className="t-mark__text"><span>{line1}</span>{line2 || 'Reconciliador'}</div>
+            <div className="t-mark__text"><span>{line1}</span>{line2 || 'Refúgio'}</div>
           </div>
           <div style={{ fontFamily: 'var(--font-wide)', fontSize: fs(18), letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--grafite-3)' }}>{date}</div>
         </div>
@@ -386,7 +386,7 @@
     );
   }
 
-  window.RECON_TPL = {
+  window.REFUGIO_TPL = {
     Post, Story, Print,
     TplCoverType, TplCoverPhoto, TplCoverIcon,
     TplBodyNum, TplBodyIcon, TplCloseCTA,

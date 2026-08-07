@@ -182,7 +182,7 @@ function TplCoverPhoto({ photo, eyebrow, title, titleEm, sub, category = "Comuni
       </div>
       <div className="t-photo-overlay" />
       <div className="t-photo-inner">
-        <PostHead category={category} dark />
+        <PostHead category={category} dark legible />
         <div className="t-photo-bottom">
           <div className="t-eyebrow" style={{ color: "var(--estola-claro)" }}>{eyebrow}</div>
           <div className="t-title" style={{ color: "var(--papel)" }}>
@@ -338,7 +338,7 @@ function TplEvent({ kicker, title, date, time, place, sub, photo }) {
         </>
       )}
       <div className="t-photo-inner" style={{ padding: 96 }}>
-        <PostHead category="Evento" dark />
+        <PostHead category="Evento" dark legible />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <div className="t-eyebrow" style={{ color: "var(--estola-claro)" }}>{kicker}</div>
           <div className="t-title" style={{ color: "var(--papel)", fontSize: 116 }}>
@@ -438,7 +438,7 @@ function TplCommunity({ photo, quote, who }) {
         }}
       />
       <div className="t-photo-inner">
-        <PostHead category="Bastidores" dark />
+        <PostHead category="Bastidores" dark legible />
         <div style={{ flex: 1 }} />
         <blockquote className="t-community-quote t-community-quote--feed">
           “<RT>{quote}</RT>”
@@ -468,7 +468,7 @@ function TplCampaign({ photo, photos, intro, kicker, title, titleEm, body, cta }
       </div>
       <div className="t-campaign__overlay" />
       <div className="t-photo-inner t-campaign__inner">
-        <PostHead category="" dark logoWidth={80} logoHeight={92} textScale={1.5} />
+        <PostHead category="" dark logoWidth={80} logoHeight={92} textScale={1.5} legible />
         <div className="t-campaign__content">
           {intro && <div className="t-campaign__intro">{intro}</div>}
           {kicker && <div className="t-eyebrow t-campaign__kicker">{kicker}</div>}

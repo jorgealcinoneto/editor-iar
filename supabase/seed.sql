@@ -27,7 +27,8 @@ INSERT INTO auth.identities (
 ) ON CONFLICT DO NOTHING;
 
 -- catalog_id escolhe o catálogo de templates em runtime (core/org-skin.js:
--- marcaIdForCatalog). 'church-v1' → marcas/iar, 'reconciliador-v1' → marcas/reconciliador.
+-- marcaIdForCatalog). 'church-v1' → marcas/iar, 'reconciliador-v1' → marcas/reconciliador,
+-- 'refugio-v1' → marcas/refugio.
 INSERT INTO public.orgs (id, slug, name, handle, catalog_id, theme) VALUES
   (
     'b0000000-0000-4000-8000-000000000001',
@@ -50,8 +51,8 @@ INSERT INTO public.orgs (id, slug, name, handle, catalog_id, theme) VALUES
     'refugio',
     'Comunidade Anglicana Refúgio',
     '@anglicana_refugio',
-    'church-v1',
-    '{"paper":"#F5F1E4","ink":"#4A5B45","marinho":"#4A5B45","accent":"#A7CF9A","accentSoft":"#C5E0BB","ambar":"#E0A85E","fontHeading":"Cormorant Garamond","fontBody":"DM Sans"}'::jsonb
+    'refugio-v1',
+    '{"paper":"#F5F1E4","ink":"#4A5B45","marinho":"#4A5B45","accent":"#A7CF9A","accentSoft":"#C5E0BB","ambar":"#E0A85E","fontHeading":"Fraunces","fontBody":"Space Grotesk"}'::jsonb
   ),
   (
     'b0000000-0000-4000-8000-000000000004',

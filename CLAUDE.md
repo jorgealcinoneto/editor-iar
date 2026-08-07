@@ -12,7 +12,7 @@ Stack: HTML estático + React 18 UMD + Babel standalone + Supabase (Auth, Postgr
 
 | Modo | Como | Auth | Marcas |
 |------|------|------|--------|
-| **SaaS (default)** | `index.html` com `SAAS_MODE = true` | Magic link (cloud) ou auto-login (`LOCAL_DEV`) | Catálogo por org (`church-v1` → IAR, `reconciliador-v1` → Reconciliador); skin/tema por org |
+| **SaaS (default)** | `index.html` com `SAAS_MODE = true` | Magic link (cloud) ou auto-login (`LOCAL_DEV`) | Catálogo por org (`church-v1` → IAR, `reconciliador-v1` → Reconciliador, `refugio-v1` → Refúgio); skin/tema por org |
 | **Legado offline** | `SAAS_MODE = false` + `MARCA_FORCADA` | Nenhuma | Código ainda tem ramos OFMJ; pasta `marcas/ofmj/` **não está no repo** |
 
 - **`admin.html`:** só `role = superadmin` — CRUD orgs, logo, tema, fontes, convites, galeria.
@@ -30,7 +30,7 @@ Stack: HTML estático + React 18 UMD + Babel standalone + Supabase (Auth, Postgr
 
 # Após db reset: assets das orgs (logo + galeria não vêm no seed.sql)
 node scripts/seed-org.mjs reconciliador --local
-node scripts/seed-org-refugio.mjs --local
+node scripts/seed-org.mjs refugio --local
 
 # Cloud / Pages (com config.js)
 python3 -m http.server 8080 --bind 127.0.0.1
@@ -74,7 +74,7 @@ index.html (SAAS_MODE)
   → startEditorAfterAuth → editor-app.jsx (marca via marcaIdForCatalog(ORG_SKIN.catalogId))
 ```
 
-**Globals importantes:** `window.SAAS_MODE`, `ORG_SKIN`, `ORG_MEMBERSHIP`, `ORG_MEMBERSHIPS`, `ORG_GALLERY`, `MARCAS`, `IAR_TEMPLATES`, `RECONCILIADOR_TEMPLATES`, `RECON_TPL`, `marcaIdForCatalog`.
+**Globals importantes:** `window.SAAS_MODE`, `ORG_SKIN`, `ORG_MEMBERSHIP`, `ORG_MEMBERSHIPS`, `ORG_GALLERY`, `MARCAS`, `IAR_TEMPLATES`, `RECONCILIADOR_TEMPLATES`, `RECON_TPL`, `REFUGIO_TEMPLATES`, `REFUGIO_TPL`, `marcaIdForCatalog`.
 
 **Eventos:** `ed:org-change`, `ed:gallery-loaded`.
 
@@ -117,8 +117,8 @@ Scripts `build.sh` / `publicar.sh` / `start-editor.sh` aparecem em docs antigas 
 
 ### `marcas/` — catálogos
 
-Duas marcas no disco: `iar` e `reconciliador`. A org escolhe qual, via `orgs.catalog_id`
-(ver "Selecção de catálogo" abaixo). Ambas as folhas de CSS estão no `index.html`;
+Três marcas no disco: `iar`, `reconciliador` e `refugio`. A org escolhe qual, via `orgs.catalog_id`
+(ver "Selecção de catálogo" abaixo). As folhas de CSS estão no `index.html`;
 `applyMarcaStyles` alterna `disabled` para que **só uma esteja activa** — os tokens de
 `:root` e as regras `.post`/`.t-*` não são scoped e colidiriam.
 
@@ -142,7 +142,7 @@ Duas marcas no disco: `iar` e `reconciliador`. A org escolhe qual, via `orgs.cat
 
 | Ficheiro | Função |
 |----------|--------|
-| `manifest.js` | `window.MARCAS.reconciliador` — `catalogId: 'reconciliador-v1'`, `allowTweaks: false`, `hasCanvas: false` |
+| `manifest.js` | `window.MARCAS.reconciliador` — `catalogId: 'reconciliador-v1'`, `allowTweaks: true` (`fontScale`), `hasCanvas: false` |
 | `registry.jsx` | `RECONCILIADOR_TEMPLATES` (**14**) + `RECONCILIADOR_GALLERIES` |
 | `templates.jsx` | Componentes dos posts; lê `ORG_SKIN` (nome, handle) |
 | `icons.jsx` | `window.ReconciliadorIcons` (15 ícones; `IconSelo` é a marca nos posts) |
@@ -166,12 +166,30 @@ Duas marcas no disco: `iar` e `reconciliador`. A org escolhe qual, via `orgs.cat
 (`--font-script`; **estática 400/700/900**, rebentaria o `wght@400;500;600;700` que o
 `loadOrgFonts` pede — por isso vem do `<link>` fixo do `index.html`).
 
+### `marcas/refugio/` — Comunidade Anglicana Refúgio
+
+| Ficheiro | Função |
+|----------|--------|
+| `manifest.js` | `window.MARCAS.refugio` — `catalogId: 'refugio-v1'`, `allowTweaks: true` (`fontScale`), `hasCanvas: false` |
+| `registry.jsx` | `REFUGIO_TEMPLATES` (**14**) + `REFUGIO_GALLERIES` |
+| `templates.jsx` | IIFE → `window.REFUGIO_TPL`; `legible` nas capas foto |
+| `icons.jsx` | `window.RefugioIcons` (`IconSelo` = cálice+casa nos posts) |
+| `styles.css` | Tokens sage/oliva **aliasados**; `--font-display: Fraunces` (sem script estática) |
+| `assets/` | 4 fotos + símbolo (defaults dos templates) |
+
+**Templates:** mesmos 14 ids do Reconciliador (espelho estrutural).
+
+**Tipografia:** Fraunces (`fontHeading`) + Space Grotesk (`fontBody`) — ambas já no `<link>` do `index.html`; itálicos via Fraunces italic.
+
+**Cores (fallback):** paper `#F5F1E4`, ink/marinho `#4A5B45`, accent `#A7CF9A`, accentSoft `#C5E0BB`, ambar `#E0A85E`.
+
 ### Selecção de catálogo (`catalog_id`)
 
 ```
 orgs.catalog_id → ORG_SKIN.catalogId → marcaIdForCatalog() → window.MARCAS[marcaId]
    'church-v1'                                                 iar          (22 templates)
    'reconciliador-v1'                                          reconciliador (14 templates)
+   'refugio-v1'                                                refugio      (14 templates)
 ```
 
 `marcaIdForCatalog` vive em `core/org-skin.js` e varre `window.MARCAS` à procura do
@@ -245,8 +263,8 @@ Specs/plans (design → implementação):
 |------|------|-------|
 | `iar` | Igreja Anglicana Rio | Tema azul-marinho default |
 | `igreja-teste` | Igreja Anglicana Teste | Org de teste |
-| `refugio` | Comunidade Anglicana Refúgio | Tema sage/oliva (`#A7CF9A` / `#4A5B45` / creme `#F5F1E4`); assets em `seed-assets/refugio/` |
-| `reconciliador` | Igreja Anglicana do Reconciliador | **Único com `catalog_id = 'reconciliador-v1'`** → catálogo `marcas/reconciliador/` (14 templates). Navy `#1F2B45` / gold `#B6956A` / papel `#F7F5F1`, Cinzel. Taguatinga Sul DF; assets em `seed-assets/reconciliador/` |
+| `refugio` | Comunidade Anglicana Refúgio | **`catalog_id = 'refugio-v1'`** → `marcas/refugio/` (14 templates). Sage/oliva `#A7CF9A` / `#4A5B45` / creme `#F5F1E4`; Fraunces + Space Grotesk. Assets em `seed-assets/refugio/` |
+| `reconciliador` | Igreja Anglicana do Reconciliador | **`catalog_id = 'reconciliador-v1'`** → `marcas/reconciliador/` (14 templates). Navy `#1F2B45` / gold `#B6956A` / papel `#F7F5F1`, Cinzel. Taguatinga Sul DF; assets em `seed-assets/reconciliador/` |
 
 No SaaS a galeria do editor mostra **só** `ORG_GALLERY` (não o catálogo IAR partilhado).
 

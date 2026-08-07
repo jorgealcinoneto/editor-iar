@@ -100,6 +100,10 @@ def main():
         and (
             "reconciliador" not in catalogos
             or catalogos["reconciliador"] == "reconciliador-v1"
+        )
+        and (
+            "refugio" not in catalogos
+            or catalogos["refugio"] == "refugio-v1"
         ),
         str(catalogos),
     )

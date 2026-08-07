@@ -1137,9 +1137,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   margin-bottom: 24px;
 }
 
+.t-head--legible {
+  filter: drop-shadow(0 2px 6px rgba(14, 42, 71, 0.85)) drop-shadow(0 1px 4px rgba(14, 42, 71, 0.9));
+}
 .t-head--legible .t-mark,
 .t-head--legible .t-category {
   text-shadow: 0 2px 10px rgba(14, 42, 71, 0.85), 0 1px 3px rgba(14, 42, 71, 0.9);
+}
+.t-head--legible .t-mark__text,
+.t-head--legible .t-mark__text span,
+.t-head--legible .t-category {
+  opacity: 1;
 }
 
 .t-event-v2__veil {

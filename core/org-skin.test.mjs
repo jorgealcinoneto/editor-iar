@@ -47,9 +47,11 @@ assert.equal(vars['--font-body'], 'Inter');
 globalThis.MARCAS = {
   iar: { id: 'iar', catalogId: 'church-v1' },
   reconciliador: { id: 'reconciliador', catalogId: 'reconciliador-v1' },
+  refugio: { id: 'refugio', catalogId: 'refugio-v1' },
 };
 assert.equal(marcaIdForCatalog('church-v1'), 'iar');
 assert.equal(marcaIdForCatalog('reconciliador-v1'), 'reconciliador');
+assert.equal(marcaIdForCatalog('refugio-v1'), 'refugio');
 // catálogo desconhecido ou ausente cai no IAR — orgs antigas não quebram
 assert.equal(marcaIdForCatalog('nao-existe'), 'iar');
 assert.equal(marcaIdForCatalog(undefined), 'iar');

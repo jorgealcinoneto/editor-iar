@@ -1,5 +1,5 @@
 /* ============================================
-   Reconciliador — tokens + templates de post
+   Refúgio — tokens + templates de post
 
    Só uma marca está activa de cada vez: core/editor-app.jsx
    (applyMarcaStyles) alterna `disabled` nos <link id="marca-css-*">.
@@ -14,19 +14,19 @@
      theme.ambar      → --ambar      → --gold-escuro
      theme.paper      → --papel      (directo)
      theme.ink        → --grafite    (directo)
-     theme.fontHeading→ --font-serif → --font-display
-     theme.fontBody   → --font-sans / --font-wide (directo)
+     theme.fontHeading→ --font-serif → --font-display (Fraunces)
+     theme.fontBody   → --font-sans / --font-wide (Space Grotesk)
 ============================================ */
 
 :root {
-  --navy:           var(--marinho, #1F2B45);
-  --gold:           var(--estola, #B6956A);
-  --gold-claro:     var(--estola-claro, #D0B591);
-  --gold-escuro:    var(--ambar, #93744E);
+  --navy:           var(--marinho, #4A5B45);
+  --gold:           var(--estola, #A7CF9A);
+  --gold-claro:     var(--estola-claro, #C5E0BB);
+  --gold-escuro:    var(--ambar, #E0A85E);
 
-  --navy-suave:     #2E3D5E;
-  --navy-claro:     #4A5A80;
-  --gold-suave:     #EFE3D2;
+  --navy-suave:     #5A6D55;
+  --navy-claro:     #6E8268;
+  --gold-suave:     #E8F2E4;
 
   --papel-2:        #EFEAE0;
   --papel-3:        #E3DACB;
@@ -36,10 +36,9 @@
   --grafite-3:      #6C7381;
   --linha:          #DCD5C8;
 
-  --font-display:   var(--font-serif, "Cinzel", Georgia, serif);
-  /* Cinzel Decorative não cabe no schema de theme (só fontHeading/fontBody),
-     e é estática 400/700/900 — carregada pelo <link> fixo do index.html. */
-  --font-script:    "Cinzel Decorative", "Cinzel", serif;
+  --font-display:   var(--font-serif, "Fraunces", Georgia, serif);
+  /* Itálicos via Fraunces italic — sem fonte script estática extra. */
+  --font-script:    var(--font-serif, "Fraunces", Georgia, serif);
 
   --radius-sm: 4px;
   --radius:    8px;
