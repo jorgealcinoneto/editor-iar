@@ -42,8 +42,8 @@
       const row = data.find((r) => r.org_id === savedId) || data[0];
       window.ORG_MEMBERSHIPS = data;
       window.activateOrg(row.orgs, row.role);
-      if (global.SAAS_MODE && typeof global.loadOrgGallery === 'function') {
-        try { await global.loadOrgGallery(supabase, row.orgs.id); } catch (e) { console.error('gallery', e); }
+      if (window.SAAS_MODE && typeof window.loadOrgGallery === 'function') {
+        try { await window.loadOrgGallery(supabase, row.orgs.id); } catch (e) { console.error('gallery', e); }
       }
       setState({ phase: 'ready', inviteError });
     }, []);

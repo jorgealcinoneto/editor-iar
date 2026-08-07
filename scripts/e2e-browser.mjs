@@ -17,11 +17,13 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 
 try {
-  await page.goto(`${WEB}/index.html`, { waitUntil: 'networkidle', timeout: 60000 });
+  await page.goto(`${WEB}/index.html`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForSelector('.ed-bar, .ed-sidebar, text=Enviar link mágico, text=A verificar sessão', { timeout: 45000 }).catch(() => {});
+  await page.waitForTimeout(3000);
 
   const loginVisible = await page.locator('text=Enviar link mágico').isVisible().catch(() => false);
   const devMsg = await page.locator('text=auto-login').isVisible().catch(() => false);
-  const editorVisible = await page.locator('.ed-bar, .ed-sidebar, [class*="ed-"]').first().isVisible().catch(() => false);
+  const editorVisible = await page.locator('.ed-bar, .ed-sidebar').first().isVisible().catch(() => false);
 
   if (editorVisible && !loginVisible) {
     pass('Editor loads without magic-link login');
