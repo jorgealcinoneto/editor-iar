@@ -73,7 +73,6 @@
     global.ORG_SKIN = buildOrgSkin(org);
     applyOrgTheme(global.ORG_SKIN.theme);
     loadOrgFonts(global.ORG_SKIN);
-    global.ORG_GALLERY = [];
     const prevRole = global.ORG_MEMBERSHIP?.role;
     global.ORG_MEMBERSHIP = { orgId: org.id, role: role || prevRole || 'member' };
     try { localStorage.setItem(LS_ORG, org.id); } catch {}
