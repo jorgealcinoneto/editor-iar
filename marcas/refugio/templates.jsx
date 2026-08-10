@@ -299,7 +299,7 @@
   function StoryVerse({ verse, reference }) {
     return (
       <div className="t-story">
-        <div style={{ width: 96, height: 96, color: 'var(--navy)', marginBottom: 64 }}><IconSelo width="100%" height="100%" /></div>
+        <PostHead category="" iconSize={72} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div className="t-eyebrow" style={{ fontSize: fs(24) }}>Palavra de hoje</div>
           <div style={{ fontFamily: 'var(--font-script)', fontSize: fs(72), lineHeight: 1.3, color: 'var(--navy)', textWrap: 'balance' }}>{verse}</div>
@@ -317,7 +317,7 @@
         <div className="t-photo-bg"><img src={photo} alt="" /></div>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,22,38,0.4) 0%, rgba(15,22,38,0.5) 40%, rgba(15,22,38,0.95) 100%)' }} />
         <div style={{ position: 'relative', zIndex: 2, width: '100%', height: '100%', padding: '120px 96px', display: 'flex', flexDirection: 'column', color: 'var(--papel)' }}>
-          <div style={{ width: 84, height: 84, color: 'var(--gold-claro)' }}><IconSelo width="100%" height="100%" /></div>
+          <PostHead category="" dark iconSize={68} legible />
           <div style={{ flex: 1 }} />
           <div style={{ fontFamily: 'var(--font-wide)', fontSize: fs(28), fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold-claro)', marginBottom: 32 }}>{kicker}</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: fs(108), lineHeight: 1.1, fontWeight: 700, color: 'var(--papel)', marginBottom: 56, textWrap: 'balance' }}>{title}</div>
@@ -343,7 +343,7 @@
   function StoryQuote({ quote, who, photo }) {
     return (
       <div className="t-story">
-        <div style={{ width: 84, height: 84, color: 'var(--navy)' }}><IconSelo width="100%" height="100%" /></div>
+        <PostHead category="" iconSize={68} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 48 }}>
           {photo && <div style={{ width: 280, height: 280, borderRadius: '50%', overflow: 'hidden', border: '8px solid var(--vela)', boxShadow: '0 8px 32px rgba(15,22,38,0.2)' }}><img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>}
           <div style={{ fontFamily: 'var(--font-script)', fontSize: fs(60), lineHeight: 1.3, color: 'var(--navy)', textWrap: 'balance' }}>"{quote}"</div>
