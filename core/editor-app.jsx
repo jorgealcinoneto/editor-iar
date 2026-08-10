@@ -456,6 +456,7 @@ function App() {
   const [mobilePane, setMobilePane] = useState('edit');
   const [barMoreOpen, setBarMoreOpen] = useState(false);
   const stageRef = useRef(null);
+  const boardRef = useRef(null);
   const [stageSize, setStageSize] = useState({ w: 720, h: 720 });
 
   useEffect(() => {
@@ -489,17 +490,26 @@ function App() {
   }, [marcaId, contentsByMarca, tweaksByMarca, tplId, marca, activeOrgId, skin]);
 
   useEffect(() => {
+    const el = boardRef.current;
+    if (!el) return;
     const measure = () => {
-      const el = stageRef.current;
-      if (!el) return;
       const r = el.getBoundingClientRect();
-      setStageSize({ w: Math.max(r.width - 32, 120), h: Math.max(r.height - 48, 120) });
+      const cs = getComputedStyle(el);
+      const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+      setStageSize({
+        w: Math.max(r.width - padX, 120),
+        h: Math.max(r.height - padY, 120),
+      });
     };
     measure();
     const t = setTimeout(measure, 50);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    ro?.observe(el);
     window.addEventListener('resize', measure);
     return () => {
       clearTimeout(t);
+      ro?.disconnect();
       window.removeEventListener('resize', measure);
     };
   }, [marcaId, mobilePane, tplId]);
@@ -517,14 +527,14 @@ function App() {
 
   const visibleScale = useMemo(() => {
     if (!tpl) return 0.5;
+    const fitW = stageSize.w / tpl.w;
+    const fitH = stageSize.h / tpl.h;
     if (marca?.previewShell !== 'ofmj') {
-      if (tpl.w === 1080 && tpl.h === 1920) return Math.min(720 / tpl.h, stageSize.w / tpl.w);
-      if (tpl.w === 1240) return 540 / tpl.w;
-      return Math.min(600 / tpl.w, stageSize.w / tpl.w, stageSize.h / tpl.h);
+      if (tpl.w === 1080 && tpl.h === 1920) return Math.min(720 / tpl.h, fitW, fitH);
+      if (tpl.w === 1240) return Math.min(540 / tpl.w, fitW, fitH);
+      return Math.min(600 / tpl.w, fitW, fitH);
     }
-    const sx = stageSize.w / tpl.w;
-    const sy = stageSize.h / tpl.h;
-    return Math.min(sx, sy, 1);
+    return Math.min(fitW, fitH, 1);
   }, [tpl, marca, stageSize]);
 
   const grouped = useMemo(() => {
@@ -883,7 +893,7 @@ function App() {
             )}
           </header>
 
-          <div className={`ed-stage__board ${marca.cssClass}`}>
+          <div className={`ed-stage__board ${marca.cssClass}`} ref={boardRef}>
             {marca.previewShell === 'ofmj' ? (
               <PreviewOfmj tpl={tpl} content={content} tweak={tweak} scale={visibleScale} />
             ) : (
