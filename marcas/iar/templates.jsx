@@ -563,9 +563,7 @@ function StoryVerse({ verse, reference }) {
   const brandHandle = getBrandHandle();
   return (
     <div className="t-story">
-      <div style={{ width: 120, height: 138, color: "var(--marinho)", marginBottom: 64 }}>
-        <IconLogoMarca width="100%" height="100%" />
-      </div>
+      <PostHead category="" logoWidth={72} logoHeight={84} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="t-eyebrow" style={{ fontSize: 24 }}>Palavra de hoje</div>
         <div
@@ -618,9 +616,7 @@ function StoryEvent({ kicker, title, date, time, place, photo }) {
       </div>
       <div className="t-story-event__veil" />
       <div className="t-story-event__inner">
-        <div className="t-story-mark">
-          <IconLogoMarca width={100} height={115} variant="light" />
-        </div>
+        <PostHead category="" dark logoWidth={80} logoHeight={92} textScale={1.2} legible />
         <div style={{ flex: 1 }} />
         <div className="t-story-event-kicker">{kicker}</div>
         <div className="t-story-event-title t-story-event-title--hero">{title}</div>
@@ -648,9 +644,7 @@ function StoryQuote({ quote, who, photo }) {
   const brandHandle = getBrandHandle();
   return (
     <div className="t-story t-story-quote">
-      <div className="t-story-mark" style={{ color: 'var(--marinho)' }}>
-        <IconLogoMarca width="100%" height="100%" />
-      </div>
+      <PostHead category="" logoWidth={72} logoHeight={84} />
       <div className="t-story-quote-body">
         {photo && (
           <div className="t-story-quote-photo t-story-quote-photo--lg">
