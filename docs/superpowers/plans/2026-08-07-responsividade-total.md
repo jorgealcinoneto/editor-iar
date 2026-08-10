@@ -60,7 +60,11 @@
 
 ## Verificação
 
-1. 375px: Editar scroll interno; Preview scaled; PNG na bar; menu `⋯`
+1. 375px: Editar scroll interno; Preview scaled (largura **e** altura do board); PNG na bar; menu `⋯`
 2. 900px: duas colunas, sem tabs
 3. Desktop inalterado
 4. Login + admin a 375px
+
+## Follow-up (2026-08-10)
+
+Brand PostHead + stories + fit vertical do preview: ver `docs/superpowers/specs/2026-08-10-brand-posthead-preview-mobile-design.md`.

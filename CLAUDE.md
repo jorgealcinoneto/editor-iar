@@ -243,6 +243,8 @@ Specs/plans (design → implementação):
 | Dev local Supabase | `2026-08-07-local-supabase-dev*` |
 | Isolamento assets por org | `2026-08-07-org-asset-isolation*` |
 | Org Comunidade Anglicana Refúgio | `2026-08-07-org-comunidade-anglicana-refugio*` |
+| Responsividade total | `2026-08-07-responsividade-total*` |
+| Brand PostHead + preview mobile | `2026-08-10-brand-posthead-preview-mobile-design.md` |
 
 ---
 
