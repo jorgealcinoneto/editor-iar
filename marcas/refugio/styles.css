@@ -64,14 +64,15 @@
 
 .t-rule { height: 1px; background: currentColor; opacity: 0.2; }
 
-.t-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; }
-.t-mark { display: flex; align-items: center; gap: 16px; }
+.t-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; gap: 24px; }
+.t-mark { display: flex; align-items: center; gap: 16px; flex-shrink: 0; min-width: 0; }
 .t-mark__icon { width: 48px; height: 56px; }
-.t-mark__text { font-family: var(--font-display); font-size: calc(17px * var(--fscale, 1)); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1; }
-.t-mark__text span { display: block; font-weight: 400; font-size: calc(13px * var(--fscale, 1)); letter-spacing: 0.18em; opacity: 0.7; margin-bottom: 4px; font-family: var(--font-wide); text-transform: uppercase; }
+.t-mark__text { font-family: var(--font-display); font-size: calc(17px * var(--fscale, 1)); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.15; white-space: nowrap; }
+.t-mark__text > span:first-child { display: block; font-weight: 400; font-size: calc(13px * var(--fscale, 1)); letter-spacing: 0.14em; opacity: 0.7; margin-bottom: 4px; font-family: var(--font-wide); text-transform: uppercase; line-height: 1.2; white-space: nowrap; }
+.t-mark__line2 { display: block; }
 .t-category { font-family: var(--font-wide); font-size: calc(14px * var(--fscale, 1)); font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.7; }
 .t-head--legible { filter: drop-shadow(0 2px 6px rgba(15,22,38,.85)) drop-shadow(0 1px 4px rgba(15,22,38,.9)); }
-.t-head--legible .t-mark__text, .t-head--legible .t-mark__text span, .t-head--legible .t-category { opacity: 1; }
+.t-head--legible .t-mark__text, .t-head--legible .t-mark__text > span:first-child, .t-head--legible .t-category { opacity: 1; }
 
 .t-foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; font-family: var(--font-wide); font-size: calc(18px * var(--fscale, 1)); font-weight: 500; letter-spacing: 0.06em; }
 .t-foot__handle { font-size: calc(22px * var(--fscale, 1)); }

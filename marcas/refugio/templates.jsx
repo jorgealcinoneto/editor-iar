@@ -53,7 +53,7 @@
           </div>
           <div className="t-mark__text">
             <span>{line1}</span>
-            {line2 || 'Refúgio'}
+            <span className="t-mark__line2">{line2 || 'Refúgio'}</span>
           </div>
         </div>
         {category && <div className="t-category">{category}</div>}
@@ -362,7 +362,7 @@
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="t-mark">
             <div style={{ width: 60, height: 60, color: 'var(--navy)' }}><IconSelo width="100%" height="100%" /></div>
-            <div className="t-mark__text"><span>{line1}</span>{line2 || 'Refúgio'}</div>
+            <div className="t-mark__text"><span>{line1}</span><span className="t-mark__line2">{line2 || 'Refúgio'}</span></div>
           </div>
           <div style={{ fontFamily: 'var(--font-wide)', fontSize: fs(18), letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--grafite-3)' }}>{date}</div>
         </div>
